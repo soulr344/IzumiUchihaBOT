@@ -17,6 +17,9 @@ from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.helper_funcs.extraction import extract_user
 from tg_bot.modules.helper_funcs.filters import CustomFilters
 
+from geopy.geocoders import Nominatim
+from telegram import Location
+
 RUN_STRINGS = (
     "Where do you think you're going?",
     "Huh? what? did they get away?",
@@ -433,6 +436,25 @@ def stats(bot: Bot, update: Update):
                                                 parse_mode=ParseMode.MARKDOWN)
 
 
+
+def gps(bot: Bot, update: Update, args: List[str]):
+    message = update.effective_message
+    if len(args) == 0:
+        update.effective_message.reply_text("That was a funny joke, but no really, put in a location")
+    try:
+        geolocator = Nominatim(user_agent="hades")
+        location = " ".join(args)
+        geoloc = geolocator.geocode(location)  
+        chat_id = update.effective_chat.id
+        lon = geoloc.longitude
+        lat = geoloc.latitude
+        the_loc = Location(lon, lat) 
+        gm = "https://www.google.com/maps/search/{},{}".format(lat,lon)
+        bot.send_location(chat_id, location=the_loc)
+        update.message.reply_text("Open with: [Google Maps]({})".format(gm), parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    except AttributeError:
+        update.message.reply_text("I can't find that")
+
 # /ip is for private use
 __help__ = """
 An "odds and ends" module for small, simple commands which don't really fit anywhere
@@ -465,6 +487,7 @@ MD_HELP_HANDLER = CommandHandler("markdownhelp", markdown_help, filters=Filters.
 
 STATS_HANDLER = CommandHandler("stats", stats, filters=CustomFilters.sudo_filter)
 GDPR_HANDLER = CommandHandler("gdpr", gdpr, filters=Filters.private)
+GPS_HANDLER = DisableAbleCommandHandler("gps", gps, pass_args=True)
 
 dispatcher.add_handler(ID_HANDLER)
 dispatcher.add_handler(PING_HANDLER)
@@ -479,3 +502,4 @@ dispatcher.add_handler(ECHO_HANDLER)
 dispatcher.add_handler(MD_HELP_HANDLER)
 dispatcher.add_handler(STATS_HANDLER)
 dispatcher.add_handler(GDPR_HANDLER)
+dispatcher.add_handler(GPS_HANDLER)
