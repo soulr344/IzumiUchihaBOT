@@ -70,50 +70,52 @@ RUN_STRINGS = (
 )
 
 SLAP_TEMPLATES = (
-    "{user1} {hits} {user2} with a {item}.",
-    "{user1} {hits} {user2} in the face with a {item}.",
-    "{user1} {hits} {user2} around a bit with a {item}.",
-    "{user1} {throws} a {item} at {user2}.",
-    "{user1} grabs a {item} and {throws} it at {user2}'s face.",
-    "{user1} launches a {item} in {user2}'s general direction.",
-    "{user1} starts slapping {user2} silly with a {item}.",
-    "{user1} pins {user2} down and repeatedly {hits} them with a {item}.",
-    "{user1} grabs up a {item} and {hits} {user2} with it.",
-    "{user1} ties {user2} to a chair and {throws} a {item} at them.",
-    "{user1} gave a friendly push to help {user2} learn to swim in lava."
+    "{user1} {hits} {user2} with *{item}*. {emoji}",
+    "{user1} {hits} {user2} in the face with *{item}*. {emoji}",
+    "{user1} {hits} {user2} around a bit with *{item}*. {emoji}",
+    "{user1} {throws} *{item}* at {user2}. {emoji}",
+    "{user1} grabs *{item}* and {throws} it at {user2}'s face. {emoji}",
+    "{user1} launches *{item}* in {user2}'s general direction. {emoji}",
+    "{user1} starts slapping {user2} silly with *{item}*. {emoji}",
+    "{user1} pins {user2} down and repeatedly {hits} them with *{item}*. {emoji}",
+    "{user1} grabs up *{item}* and {hits} {user2} with it. {emoji}",
+    "{user1} ties {user2} to a chair and {throws} *{item}* at them. {emoji}",
 )
 
 ITEMS = (
-    "cast iron skillet",
-    "large trout",
-    "baseball bat",
-    "cricket bat",
-    "wooden cane",
-    "nail",
-    "printer",
-    "shovel",
-    "CRT monitor",
-    "physics textbook",
-    "toaster",
-    "portrait of Richard Stallman",
-    "television",
-    "five ton truck",
-    "roll of duct tape",
-    "book",
-    "laptop",
-    "old television",
-    "sack of rocks",
-    "rainbow trout",
-    "rubber chicken",
-    "spiked bat",
-    "fire extinguisher",
-    "heavy rock",
-    "chunk of dirt",
-    "beehive",
-    "piece of rotten meat",
-    "bear",
-    "ton of bricks",
+    "a Samsung J5 2015",
+    "a Samsung J5 2017",
+    "an iPhone X",
+    "a Note 4",
+    "knox 0x0",
+    "Secure Folder",
+    "Samsung Pay",
+    "prenormal RMM state",
+    "a locked bootloader",
+    "stock rom",
+    "Oreo port",
+    "8.1 port",
+    "Pie port",
+    "Pie OTA",
+    "LineageOS 16",
+    "a bugless rom",
+    "a kernel",
+    "official TWRP",
+    "VOLTE",
+    "kanged rom",
+    "an antikang",
+    "audio fix",
+    "random reboots",
+    "bootloops",
+    "unfiltered logs",
+    "a keylogger",
+    "120FPS",
+    "a download link",
+    "168h uptime",
+    "168h uptime",
+    "a paypal link",
 )
+
 
 THROW = (
     "throws",
@@ -127,17 +129,41 @@ HIT = (
     "whacks",
     "slaps",
     "smacks",
+    "spanks",
     "bashes",
+)
+EMOJI = (
+    "\U0001F923",
+    "\U0001F602",
+    "\U0001F605",
+    "\U0001F606",
+    "\U0001F609",
+    "\U0001F60E",
+    "\U0001F929",
+    "\U0001F623",
 )
 
 GMAPS_LOC = "https://maps.googleapis.com/maps/api/geocode/json"
 GMAPS_TIME = "https://maps.googleapis.com/maps/api/timezone/json"
 
 
+SMACK_STRING = """[this is america...](https://www.youtube.com/watch?v=VYOjWnS4cMY)"""
+
 @run_async
 def runs(bot: Bot, update: Update):
-    update.effective_message.reply_text(random.choice(RUN_STRINGS))
+    running = update.effective_message
+    if running.reply_to_message:
+        update.effective_message.reply_to_message.reply_text(random.choice(RUN_STRINGS))
+    else:
+        update.effective_message.reply_text(random.choice(RUN_STRINGS))
 
+@run_async
+def smack(bot: Bot, update: Update):
+    msg = update.effective_message
+    if msg.reply_to_message:
+        update.effective_message.reply_to_message.reply_text(SMACK_STRING, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    else:
+        update.effective_message.reply_text(SMACK_STRING, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
 @run_async
 def slap(bot: Bot, update: Update, args: List[str]):
@@ -153,7 +179,10 @@ def slap(bot: Bot, update: Update, args: List[str]):
         curr_user = "[{}](tg://user?id={})".format(msg.from_user.first_name, msg.from_user.id)
 
     user_id = extract_user(update.effective_message, args)
-    if user_id:
+    if user_id == bot.id:
+        user1 = "[{}](tg://user?id={})".format(bot.first_name, bot.id)
+        user2 = curr_user
+    elif user_id:
         slapped_user = bot.get_chat(user_id)
         user1 = curr_user
         if slapped_user.username:
@@ -171,8 +200,9 @@ def slap(bot: Bot, update: Update, args: List[str]):
     item = random.choice(ITEMS)
     hit = random.choice(HIT)
     throw = random.choice(THROW)
+    emoji = random.choice(EMOJI)
 
-    repl = temp.format(user1=user1, user2=user2, item=item, hits=hit, throws=throw)
+    repl = temp.format(user1=user1, user2=user2, item=item, hits=hit, throws=throw, emoji=emoji)
 
     reply_text(repl, parse_mode=ParseMode.MARKDOWN)
 
@@ -383,6 +413,7 @@ __help__ = """
  - /id: get the current group id. If used by replying to a message, gets that user's id.
  - /runs: reply a random string from an array of replies.
  - /slap: slap a user, or get slapped if not a reply.
+ - /spank: same as /slap but nastier.
  - /time <place>: gives the local time at the given place.
  - /info: get information about a user.
  - /gdpr: deletes your information from the bot's database. Private chats only.
@@ -398,7 +429,9 @@ IP_HANDLER = CommandHandler("ip", get_bot_ip, filters=Filters.chat(OWNER_ID))
 TIME_HANDLER = CommandHandler("time", get_time, pass_args=True)
 
 RUNS_HANDLER = DisableAbleCommandHandler("runs", runs)
+SMACK_HANDLER = DisableAbleCommandHandler("smack", smack)
 SLAP_HANDLER = DisableAbleCommandHandler("slap", slap, pass_args=True)
+SPANK_HANDLER = DisableAbleCommandHandler("spank", slap, pass_args=True)
 INFO_HANDLER = DisableAbleCommandHandler("info", info, pass_args=True)
 
 ECHO_HANDLER = CommandHandler("echo", echo, filters=Filters.user(OWNER_ID))
@@ -411,7 +444,9 @@ dispatcher.add_handler(ID_HANDLER)
 dispatcher.add_handler(IP_HANDLER)
 dispatcher.add_handler(TIME_HANDLER)
 dispatcher.add_handler(RUNS_HANDLER)
+dispatcher.add_handler(SMACK_HANDLER)
 dispatcher.add_handler(SLAP_HANDLER)
+dispatcher.add_handler(SPANK_HANDLER)
 dispatcher.add_handler(INFO_HANDLER)
 dispatcher.add_handler(ECHO_HANDLER)
 dispatcher.add_handler(MD_HELP_HANDLER)
