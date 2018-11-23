@@ -83,10 +83,9 @@ SLAP_TEMPLATES = (
 )
 
 ITEMS = (
-    "a Samsung J5 2015",
     "a Samsung J5 2017",
-    "an iPhone X",
-    "a Note 4",
+    "an iPhone XS MAX",
+    "a Note 9",
     "knox 0x0",
     "Secure Folder",
     "Samsung Pay",
@@ -105,6 +104,7 @@ ITEMS = (
     "kanged rom",
     "an antikang",
     "audio fix",
+    "hwcomposer fix",
     "random reboots",
     "bootloops",
     "unfiltered logs",
@@ -112,8 +112,12 @@ ITEMS = (
     "120FPS",
     "a download link",
     "168h uptime",
-    "168h uptime",
     "a paypal link",
+    "treble support",
+    "Q gsi",
+    "P beta",
+    "a Rom Control",
+    "a hamburger",
 )
 
 
