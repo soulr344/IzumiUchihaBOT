@@ -364,7 +364,7 @@ def gdpr(bot: Bot, update: Update):
         mod.__gdpr__(update.effective_user.id)
 
     update.effective_message.reply_text("Your personal data has been deleted.\n\nNote that this will not unban "
-                                        "you from any chats, as that is telegram data, not Marie data. "
+                                        "you from any chats, as that is telegram data, not this bot's data. "
                                         "Flooding, warns, and gbans are also preserved, as of "
                                         "[this](https://ico.org.uk/for-organisations/guide-to-the-general-data-protection-regulation-gdpr/individual-rights/right-to-erasure/), "
                                         "which clearly states that the right to erasure does not apply "
@@ -409,7 +409,8 @@ def markdown_help(bot: Bot, update: Update):
 
 @run_async
 def stats(bot: Bot, update: Update):
-    update.effective_message.reply_text("Current stats:\n" + "\n".join([mod.__stats__() for mod in STATS]))
+	update.effective_message.reply_text("*Current stats:*\n" + "\n".join([mod.__stats__() for mod in STATS]),
+                                                parse_mode=ParseMode.MARKDOWN)
 
 
 # /ip is for private use
