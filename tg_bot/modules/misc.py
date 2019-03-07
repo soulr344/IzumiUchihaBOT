@@ -84,19 +84,27 @@ SLAP_TEMPLATES = (
 
 ITEMS = (
     "a Samsung J5 2017",
+    "a Samsung S10+",
     "an iPhone XS MAX",
     "a Note 9",
     "knox 0x0",
     "Secure Folder",
     "Samsung Pay",
     "prenormal RMM state",
+    "prenormal KG state",
     "a locked bootloader",
+    "payment lock",
     "stock rom",
+    "good rom",
     "Oreo port",
+    "Good Lock apps",
+    "Pie port",
     "8.1 port",
     "Pie port",
     "Pie OTA",
+    "Q OTA",
     "LineageOS 16",
+    "LineageOS 17",
     "a bugless rom",
     "a kernel",
     "official TWRP",
@@ -105,6 +113,7 @@ ITEMS = (
     "an antikang",
     "audio fix",
     "hwcomposer fix",
+    "mic fix",
     "random reboots",
     "bootloops",
     "unfiltered logs",
@@ -139,19 +148,23 @@ HIT = (
 EMOJI = (
     "\U0001F923",
     "\U0001F602",
+    "\U0001F922",
     "\U0001F605",
     "\U0001F606",
     "\U0001F609",
     "\U0001F60E",
     "\U0001F929",
     "\U0001F623",
+    "\U0001F973",
+    "\U0001F9D0",
+    "\U0001F632",
 )
 
 GMAPS_LOC = "https://maps.googleapis.com/maps/api/geocode/json"
 GMAPS_TIME = "https://maps.googleapis.com/maps/api/timezone/json"
 
 
-SMACK_STRING = """[this is america...](https://www.youtube.com/watch?v=VYOjWnS4cMY)"""
+SMACK_STRING = """[smack my beach up!!](https://vimeo.com/31482159)"""
 
 @run_async
 def runs(bot: Bot, update: Update):
@@ -417,7 +430,7 @@ def stats(bot: Bot, update: Update):
 __help__ = """
  - /id: get the current group id. If used by replying to a message, gets that user's id.
  - /runs: reply a random string from an array of replies.
- - /slap: slap a user, or get slapped if not a reply.
+ - /slap: slap a user, or get slapped if not a reply. (admin only)
  - /spank: same as /slap but nastier.
  - /time <place>: gives the local time at the given place.
  - /info: get information about a user.
