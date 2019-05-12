@@ -20,7 +20,7 @@ from tg_bot.modules.sql import users_sql
 LOCK_TYPES = {'sticker': Filters.sticker,
               'audio': Filters.audio,
               'voice': Filters.voice,
-              'document': Filters.document & ~Filters.animation, & CustomFilters.mime_type("application/vnd.android.package-archive"),
+              'document': Filters.document & ~Filters.animation & CustomFilters.mime_type("application/vnd.android.package-archive"),
               'video': Filters.video,
               'videonote': Filters.video_note,
               'contact': Filters.contact,
