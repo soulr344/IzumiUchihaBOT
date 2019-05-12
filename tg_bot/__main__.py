@@ -19,7 +19,7 @@ from tg_bot.modules.helper_funcs.chat_status import is_user_admin
 from tg_bot.modules.helper_funcs.misc import paginate_modules
 
 PM_START_TEXT = """
-Hello {}, my name is *{}*! I'm a group manager bot maintained by corsicanu.
+Hello {}, my name is *{}*! I'm a group manager bot.
 
 You can find the list of available commands with /help.
 """
@@ -46,7 +46,7 @@ Other available commands:
 """.format("" if not ALLOW_EXCL else "\nAll commands can either be used with / or !.\n")
 
 DONATE_STRING = """Nice that you wanna donate. \
-You can send a donation to [my current owner](tg://user?id=427596859) via [PayPal](paypal.me/corsicanu)."""
+You can send a donation to my current owner via [PayPal](paypal.me/corsicanu)."""
 
 IMPORTED = {}
 MIGRATEABLE = []
@@ -373,7 +373,7 @@ def donate(bot: Bot, update: Update):
     if chat.type == "private":
         update.effective_message.reply_text(DONATE_STRING, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
-        update.effective_message.reply_text("You can also donate to my creator, @SonOfLars, for all his work to get me where i am now. There are two ways of paying him: [PayPal](paypal.me/PaulSonOfLars), or [Monzo](monzo.me/paulnionvestergaardlarsen).",
+        update.effective_message.reply_text("You can also donate to my creator, SonOfLars, for all his work to get me where i am now. There are two ways of paying him: [PayPal](paypal.me/PaulSonOfLars), or [Monzo](monzo.me/paulnionvestergaardlarsen).",
                                                 parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
     else:
