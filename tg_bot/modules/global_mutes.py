@@ -95,7 +95,7 @@ def gmute(bot: Bot, update: Update, args: List[str]):
 
     starting = "Initiating global mute for {}...".format(mention_html(user_chat.id, user_chat.first_name or "Deleted Account"))
     keyboard = []
-    message.reply_text(starting, reply_markup=keyboard, parse_mode=ParseMode.HTML)
+    # message.reply_text(starting, reply_markup=keyboard, parse_mode=ParseMode.HTML)
 
     muter = update.effective_user  # type: Optional[User]
     send_to_list(bot, SUDO_USERS + SUPPORT_USERS,
@@ -180,7 +180,7 @@ def ungmute(bot: Bot, update: Update, args: List[str]):
 
     muter = update.effective_user  # type: Optional[User]
 
-    message.reply_text("I'll let {} speak again, globally.".format(user_chat.first_name or "Deleted Account"))
+    # message.reply_text("I'll let {} speak again, globally.".format(user_chat.first_name or "Deleted Account"))
 
     send_to_list(bot, SUDO_USERS + SUPPORT_USERS,
                  "<b>Regression of Global Mute</b>" \

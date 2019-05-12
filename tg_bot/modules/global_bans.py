@@ -119,9 +119,9 @@ def gban(bot: Bot, update: Update, args: List[str]):
 
         return
 
-    # starting = "Initiating global ban for {}...".format(mention_html(user_chat.id, user_chat.first_name or "Deleted Account"))
+    starting = "Initiating global ban for {}...".format(mention_html(user_chat.id, user_chat.first_name or "Deleted Account"))
     keyboard = []
-    message.reply_text(starting, reply_markup=keyboard, parse_mode=ParseMode.HTML)
+    # message.reply_text(starting, reply_markup=keyboard, parse_mode=ParseMode.HTML)
     
     banner = update.effective_user  # type: Optional[User]
     send_to_list(bot, SUDO_USERS + SUPPORT_USERS,
@@ -185,7 +185,7 @@ def ungban(bot: Bot, update: Update, args: List[str]):
 
     banner = update.effective_user  # type: Optional[User]
 
-    message.reply_text("{}, will be unbanned globally.".format(user_chat.first_name or "Deleted Account"))
+    # message.reply_text("{}, will be unbanned globally.".format(user_chat.first_name or "Deleted Account"))
 
     send_to_list(bot, SUDO_USERS + SUPPORT_USERS,
                  "<b>Regression of Global Ban</b>" \
