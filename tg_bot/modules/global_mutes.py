@@ -27,12 +27,12 @@ GMUTE_ERRORS = {
     "Method is available only for supergroups",
     "Need to be inviter of a user to kick it from a basic group",
     "Not enough rights to restrict/unrestrict chat member",
-    "Not in the chat"
     "Not in the chat",
     "Only the creator of a basic group can kick group administrators",
     "Peer_id_invalid",
     "User is an administrator of the chat",
     "User_not_participant",
+    "Reply message not found"
 }
 
 UNGMUTE_ERRORS = {
@@ -45,12 +45,12 @@ UNGMUTE_ERRORS = {
     "Method is available only for supergroups",
     "Need to be inviter of a user to kick it from a basic group",
     "Not enough rights to restrict/unrestrict chat member",
-    "Not in the chat"
     "Not in the chat",
     "Only the creator of a basic group can kick group administrators",
     "Peer_id_invalid",
     "User is an administrator of the chat",
     "User_not_participant",
+    "Reply message not found"
 }
 
 
