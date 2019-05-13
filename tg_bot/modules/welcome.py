@@ -48,7 +48,9 @@ def send(update, message, keyboard, backup_message):
                                                                   "curly brackets. Please update"),
                                                   parse_mode=ParseMode.MARKDOWN)
     except BadRequest as excp:
-        if excp.message == "Button_url_invalid":
+        if excp.message == "Have no rights to send a message":
+            return
+        elif excp.message == "Button_url_invalid":
             msg = update.effective_message.reply_text(markdown_parser(backup_message +
                                                                       "\nNote: the current message has an invalid url "
                                                                       "in one of its buttons. Please update."),
@@ -507,7 +509,7 @@ def user_button(bot: Bot, update: Update):
     join_user =  int(match.group(1))
     
     if join_user == user.id:
-        query.answer(text="Yus! You're a human, Now you can speak!")
+        query.answer(text="Yup, you're very human, you have now the right to speak!")
         bot.restrict_chat_member(chat.id, user.id, can_send_messages=True, 
                                                    can_send_media_messages=False, 
                                                    can_send_other_messages=False, 
@@ -515,7 +517,7 @@ def user_button(bot: Bot, update: Update):
                                                    until_date=(int(time.time() + 24 * 60 * 60)))
         bot.deleteMessage(chat.id, message.message_id)
     else:
-        query.answer(text="Sorry, I can't unmute you!")
+        query.answer(text="Fuck off, this button is not for you!")
 
 
 WELC_HELP_TXT = "Your group's welcome/goodbye messages can be personalised in multiple ways. If you want the messages" \
