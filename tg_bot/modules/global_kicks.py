@@ -4,7 +4,7 @@ from typing import List, Optional
 from telegram.error import BadRequest, TelegramError
 from telegram.ext import run_async, CommandHandler, MessageHandler, Filters
 from telegram.utils.helpers import mention_html
-from tg_bot import dispatcher, OWNER_ID, SUDO_USERS, SUPPORT_USERS, STRICT_GBAN
+from tg_bot import dispatcher, OWNER_ID, SUDO_USERS, SUPPORT_USERS
 from tg_bot.modules.helper_funcs.chat_status import user_admin, is_user_admin
 from tg_bot.modules.helper_funcs.extraction import extract_user, extract_user_and_text
 from tg_bot.modules.helper_funcs.filters import CustomFilters
@@ -82,40 +82,7 @@ def gkick(bot: Bot, update: Update, args: List[str]):
                 return
         except TelegramError:
             pass
-        
-@run_async
-@user_admin
-def gkickstat(bot: Bot, update: Update, args: List[str]):
-    if len(args) > 0:
-        if args[0].lower() in ["on", "yes"]:
-            sql.enable_gkick(update.effective_chat.id)
-            update.effective_message.reply_text("I've enabled gkicks in this group. This will help protect you "
-                                                "from spammers and unsavoury characters.")
-        elif args[0].lower() in ["off", "no"]:
-            sql.disable_gkick(update.effective_chat.id)
-            update.effective_message.reply_text("I've disabled gkicks in this group. GKicks wont affect your users "
-                                                "anymore. You'll be less protected from spammers though!")
-    else:
-        update.effective_message.reply_text("Give me some arguments to choose a setting! on/off, yes/no!\n\n"
-                                            "Your current setting is: {}\n"
-                                            "When True, any gkicks that happen will also happen in your group. "
-                                            "When False, they won't, leaving you at the possible mercy of "
-                                            "spammers.".format(sql.does_chat_gkick(update.effective_chat.id)))
-
-__help__ = """
-*Admin only:*
- - /gkickstat <on/off/yes/no>: Will disable the effect of global kicks on your group, or return your current settings.
-Gkick, also known as global kicks, are used by the bot owners to kick spammers across all groups. This helps protect \
-you and your groups by removing spam flooders as quickly as possible. They can be disabled for you group by calling \
-/gkickstat
-"""
-
-__mod_name__ = "Global Kicks"
 
 GKICK_HANDLER = CommandHandler("gkick", gkick, pass_args=True,
                               filters=CustomFilters.sudo_filter | CustomFilters.support_filter)
-
-GKICK_STATUS = CommandHandler("gkickstat", gkickstat, pass_args=True, filters=Filters.group)
-
 dispatcher.add_handler(GKICK_HANDLER)
-dispatcher.add_handler(GKICK_STATUS)
