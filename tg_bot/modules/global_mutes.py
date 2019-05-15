@@ -21,6 +21,7 @@ GMUTE_ERRORS = {
     "Bots can't add new chat members",
     "Channel_private",
     "Chat not found",
+    "Can't demote chat creator",
     "Chat_admin_required",
     "Group chat was deactivated",
     "Method is available for supergroup and channel chats only",
@@ -39,6 +40,7 @@ UNGMUTE_ERRORS = {
     "Bots can't add new chat members",
     "Channel_private",
     "Chat not found",
+    "Can't demote chat creator",
     "Chat_admin_required",
     "Group chat was deactivated",
     "Method is available for supergroup and channel chats only",
@@ -265,7 +267,7 @@ def gmutelist(bot: Bot, update: Update):
                                                 caption="Here is the list of currently globally muted users.")
 
 
-def check_and_mute(update, user_id, should_message=True):
+def check_and_mute(bot: Bot, update: Update, user_id, should_message=True):
     if sql.is_user_gmuted(user_id):
         bot.restrict_chat_member(update.effective_chat.id, user_id, can_send_messages=False)
         if should_message:
@@ -281,15 +283,15 @@ def enforce_gmute(bot: Bot, update: Update):
         msg = update.effective_message  # type: Optional[Message]
 
         if user and not is_user_admin(chat, user.id):
-            check_and_mute(bot, update, user.id, should_message=True)
+            check_and_mute(bot, update, user.id)
         if msg.new_chat_members:
             new_members = update.effective_message.new_chat_members
             for mem in new_members:
-                check_and_mute(bot, update, mem.id, should_message=True)
+                check_and_mute(bot, update, mem.id)
         if msg.reply_to_message:
             user = msg.reply_to_message.from_user  # type: Optional[User]
             if user and not is_user_admin(chat, user.id):
-                check_and_mute(bot, update, user.id, should_message=True)
+                check_and_mute(bot, update, user.id, should_message=False)
 
 @run_async
 @user_admin

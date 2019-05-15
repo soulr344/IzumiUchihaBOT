@@ -15,6 +15,7 @@ GKICK_ERRORS = {
     "Bots can't add new chat members",
     "Channel_private",
     "Chat not found",
+    "Can't demote chat creator",
     "Chat_admin_required",
     "Group chat was deactivated",
     "Method is available for supergroup and channel chats only",
