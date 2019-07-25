@@ -4,8 +4,9 @@ from telegram import ParseMode
 from telegram.ext import CommandHandler, run_async
 from telegram.utils.helpers import escape_markdown
 
-from tg_bot import dispatcher
+from tg_bot import dispatcher, OWNER_ID, SUDO_USERS
 from tg_bot.modules.disable import DisableAbleCommandHandler
+from tg_bot.modules.helper_funcs.filters import CustomFilters
 
 
 @run_async
@@ -44,8 +45,8 @@ raw png file or fetch ID of sticker.
 
 __mod_name__ = "Stickers"
 
-STICKERID_HANDLER = DisableAbleCommandHandler("stickerid", stickerid)
-GETSTICKER_HANDLER = DisableAbleCommandHandler("getsticker", getsticker)
+STICKERID_HANDLER = DisableAbleCommandHandler("stickerid", stickerid, filters=CustomFilters.sudo_filter)
+GETSTICKER_HANDLER = DisableAbleCommandHandler("getsticker", getsticker, filters=CustomFilters.sudo_filter)
 
 dispatcher.add_handler(STICKERID_HANDLER)
 dispatcher.add_handler(GETSTICKER_HANDLER)
