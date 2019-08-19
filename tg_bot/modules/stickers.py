@@ -4,7 +4,7 @@ from telegram import ParseMode
 from telegram.ext import CommandHandler, run_async
 from telegram.utils.helpers import escape_markdown
 
-from tg_bot import dispatcher, OWNER_ID, SUDO_USERS
+from tg_bot import dispatcher
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.helper_funcs.filters import CustomFilters
 
@@ -35,15 +35,15 @@ def getsticker(bot: Bot, update: Update):
         update.effective_message.reply_text("Please reply to a sticker for me to upload its PNG.")
 
 # /ip is for private use
-__help__ = """
-Kanging or fetching ID of stickers are made easy! With this stickers command you simply can grab \
-raw png file or fetch ID of sticker.
+#__help__ = """
+#Kanging or fetching ID of stickers are made easy! With this stickers command you simply can grab \
+#raw png file or fetch ID of sticker.
+#
+# - /stickerid: reply to a sticker to me to tell you its file ID.
+# - /getsticker: reply to a sticker to me to upload its raw PNG file.
+#"""
 
- - /stickerid: reply to a sticker to me to tell you its file ID.
- - /getsticker: reply to a sticker to me to upload its raw PNG file.
-"""
-
-__mod_name__ = "Stickers"
+#__mod_name__ = "Stickers"
 
 STICKERID_HANDLER = DisableAbleCommandHandler("stickerid", stickerid, filters=CustomFilters.sudo_filter)
 GETSTICKER_HANDLER = DisableAbleCommandHandler("getsticker", getsticker, filters=CustomFilters.sudo_filter)

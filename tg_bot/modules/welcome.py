@@ -70,10 +70,11 @@ def send(update, message, keyboard, backup_message):
             LOGGER.warning(keyboard)
             LOGGER.exception("Could not parse! got invalid url host errors")
         else:
-            msg = update.effective_message.reply_text(markdown_parser(backup_message +
-                                                                      "\nNote: An error occured when sending the "
-                                                                      "custom message. Please update."),
-                                                      parse_mode=ParseMode.MARKDOWN)
+            if update.effective_message:
+                msg = update.effective_message.reply_text(markdown_parser(backup_message +
+                                                                          "\nNote: An error occured when sending the "
+                                                                          "custom message. Please update."),
+                                                          parse_mode=ParseMode.MARKDOWN)
             LOGGER.exception()
 
     return msg
@@ -499,7 +500,7 @@ def delete_join(bot: Bot, update: Update):
     join = update.effective_message.new_chat_members
     if can_delete(chat, bot.id):
         del_join = sql.get_del_pref(chat.id)
-        if del_join:
+        if del_join and update.message:
             update.message.delete()
             
 @run_async

@@ -24,6 +24,8 @@ class Permissions(BASE):
     forward = Column(Boolean, default=False)
     game = Column(Boolean, default=False)
     location = Column(Boolean, default=False)
+    emoji = Column(Boolean, default=False)
+    bigemoji = Column(Boolean, default=False)
 
     def __init__(self, chat_id):
         self.chat_id = str(chat_id)  # ensure string
@@ -41,6 +43,8 @@ class Permissions(BASE):
         self.forward = False
         self.game = False
         self.location = False
+        self.emoji = False
+        self.bigemoji = False
 
     def __repr__(self):
         return "<Permissions for %s>" % self.chat_id
@@ -130,7 +134,11 @@ def update_lock(chat_id, lock_type, locked):
             curr_perm.game = locked
         elif lock_type == 'location':
             curr_perm.location = locked
-
+        elif lock_type == 'emoji':
+            curr_perm.emoji = locked
+        elif lock_type == 'bigemoji':
+            curr_perm.bigemoji = locked
+        
         SESSION.add(curr_perm)
         SESSION.commit()
 
@@ -193,7 +201,10 @@ def is_locked(chat_id, lock_type):
         return curr_perm.game
     elif lock_type == "location":
         return curr_perm.location
-
+    elif lock_type == "emoji":
+        return curr_perm.emoji
+    elif lock_type == "bigemoji":
+        return curr_perm.bigemoji
 
 def is_restr_locked(chat_id, lock_type):
     curr_restr = SESSION.query(Restrictions).get(str(chat_id))

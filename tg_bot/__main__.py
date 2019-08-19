@@ -11,7 +11,7 @@ from telegram.ext.dispatcher import run_async, DispatcherHandlerStop, Dispatcher
 from telegram.utils.helpers import escape_markdown
 
 from tg_bot import dispatcher, updater, TOKEN, WEBHOOK, OWNER_ID, DONATION_LINK, CERT_PATH, PORT, URL, LOGGER, \
-    ALLOW_EXCL
+    ALLOW_EXCL, START_STICKER, START_STICKER_ID
 # needed to dynamically load modules
 # NOTE: Module order is not guaranteed, specify that in the config file!
 from tg_bot.modules import ALL_MODULES
@@ -25,7 +25,7 @@ You can find the list of available commands with /help.
 """
 
 SOURCE_STRING = """
-I'm built in python3, using the python-telegram-bot library, and am fully opensource - you can find what makes me tick [here](https://github.com/corsicanu/tgbot)
+I'm built in python3, using the python-telegram-bot library, and am fully opensource - you can find what makes me tick [here](https://github.com/nunopenim/tgbot)
 """
 
 HELP_STRINGS = """
@@ -46,7 +46,7 @@ Other available commands:
 """.format("" if not ALLOW_EXCL else "\nAll commands can either be used with / or !.\n")
 
 DONATE_STRING = """Nice that you wanna donate. \
-You can send a donation to my current owner via [PayPal](paypal.me/corsicanu)."""
+You can send a donation to my current owner via [PayPal](paypal.me/nunopenim)."""
 
 IMPORTED = {}
 MIGRATEABLE = []
@@ -143,7 +143,10 @@ def start(bot: Bot, update: Update, args: List[str]):
                 PM_START_TEXT.format(escape_markdown(first_name), escape_markdown(bot.first_name)),
                 parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
     else:
-        update.effective_message.reply_text("Yo, whadup?")
+        if START_STICKER:
+            bot.send_sticker(update.effective_chat.id, START_STICKER_ID)
+	
+        update.effective_message.reply_text("Top o' the morning")
 
 
 # for test purposes
@@ -483,8 +486,10 @@ def process_update(self, update):
     updatedChat = update.effective_chat
     if hasattr(updatedChat , "id"):
         cnt = CHATS_CNT.get(updatedChat.id, 0)
+        t = CHATS_TIME.get(updatedChat.id, datetime.datetime(1970, 1, 1))
+    else: #investigating new nonetype error solutions
+        return #halting process if NoneType object is encountered
 
-    t = CHATS_TIME.get(update.effective_chat.id, datetime.datetime(1970, 1, 1))
     if t and now > t + datetime.timedelta(0, 1):
         CHATS_TIME[update.effective_chat.id] = now
         cnt = 0

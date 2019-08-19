@@ -32,7 +32,10 @@ LOCK_TYPES = {'sticker': Filters.sticker,
               'forward': Filters.forwarded,
               'game': Filters.game,
               'location': Filters.location,
+              'emoji': CustomFilters.has_emoji,
+              'bigemoji': CustomFilters.is_emoji,
               }
+              
 
 GIF = Filters.animation
 OTHER = Filters.game | Filters.sticker | GIF
@@ -272,9 +275,11 @@ def build_lock_message(chat_id):
                    "\n - bots = `{}`" \
                    "\n - forward = `{}`" \
                    "\n - game = `{}`" \
-                   "\n - location = `{}`".format(locks.sticker, locks.audio, locks.voice, locks.document,
+                   "\n - location = `{}`" \
+                   "\n - emoji = `{}`" \
+                   "\n - bigemoji = `{}`".format(locks.sticker, locks.audio, locks.voice, locks.document,
                                                  locks.video, locks.videonote, locks.contact, locks.photo, locks.gif, locks.url,
-                                                 locks.bots, locks.forward, locks.game, locks.location)
+                                                 locks.bots, locks.forward, locks.game, locks.location, locks.emoji, locks.bigemoji)
         if restr:
             res += "\n - messages = `{}`" \
                    "\n - media = `{}`" \
