@@ -11,7 +11,7 @@ from telegram.ext.dispatcher import run_async, DispatcherHandlerStop, Dispatcher
 from telegram.utils.helpers import escape_markdown
 
 from tg_bot import dispatcher, updater, TOKEN, WEBHOOK, OWNER_ID, DONATION_LINK, CERT_PATH, PORT, URL, LOGGER, \
-    ALLOW_EXCL, START_STICKER, START_STICKER_ID
+    ALLOW_EXCL
 # needed to dynamically load modules
 # NOTE: Module order is not guaranteed, specify that in the config file!
 from tg_bot.modules import ALL_MODULES
@@ -143,10 +143,7 @@ def start(bot: Bot, update: Update, args: List[str]):
                 PM_START_TEXT.format(escape_markdown(first_name), escape_markdown(bot.first_name)),
                 parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
     else:
-        if START_STICKER:
-            bot.send_sticker(update.effective_chat.id, START_STICKER_ID)
-	
-        update.effective_message.reply_text("Top o' the morning")
+        update.effective_message.reply_text("Yo, whadup?")
 
 
 # for test purposes
