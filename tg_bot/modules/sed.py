@@ -5,7 +5,7 @@ import telegram
 from telegram import Update, Bot
 from telegram.ext import run_async
 
-from tg_bot import dispatcher, LOGGER
+from tg_bot import dispatcher, LOGGER, OWNER_ID, SUDO_USERS, SUPPORT_USERS
 from tg_bot.modules.disable import DisableAbleRegexHandler
 
 DELIMITERS = ("/", ":", "|", "_")
@@ -51,6 +51,11 @@ def separate_sed(sed_string):
 
 @run_async
 def sed(bot: Bot, update: Update):
+    user_id = update.effective_user.id
+    if user_id is not OWNER_ID and user_id not in SUDO_USERS and user_id not in SUPPORT_USERS:
+        del_msg = update.effective_message
+        del_msg.delete()
+        return
     sed_result = separate_sed(update.effective_message.text)
     if sed_result and update.effective_message.reply_to_message:
         if update.effective_message.reply_to_message.text:
@@ -71,9 +76,7 @@ def sed(bot: Bot, update: Update):
             check = re.match(repl, to_fix, flags=re.IGNORECASE)
 
             if check and check.group(0).lower() == to_fix.lower():
-                update.effective_message.reply_to_message.reply_text("Hey everyone, {} is trying to make "
-                                                                     "me say stuff I don't wanna "
-                                                                     "say!".format(update.effective_user.first_name))
+                update.effective_message.reply_to_message.reply_text("There has been an unspecified error".format(update.effective_user.first_name))
                 return
 
             if 'i' in flags and 'g' in flags:
@@ -98,18 +101,18 @@ def sed(bot: Bot, update: Update):
             update.effective_message.reply_to_message.reply_text(text)
 
 
-__help__ = """
- - s/<text1>/<text2>(/<flag>): Reply to a message with this to perform a sed operation on that message, replacing all \
-occurrences of 'text1' with 'text2'. Flags are optional, and currently include 'i' for ignore case, 'g' for global, \
-or nothing. Delimiters include `/`, `_`, `|`, and `:`. Text grouping is supported. The resulting message cannot be \
-larger than {}.
+#__help__ = """
+# - s/<text1>/<text2>(/<flag>): Reply to a message with this to perform a sed operation on that message, replacing all \
+#occurrences of 'text1' with 'text2'. Flags are optional, and currently include 'i' for ignore case, 'g' for global, \
+#or nothing. Delimiters include `/`, `_`, `|`, and `:`. Text grouping is supported. The resulting message cannot be \
+#larger than {}.
+#
+#*Reminder:* Sed uses some special characters to make matching easier, such as these: `+*.?\\`
+#If you want to use these characters, make sure you escape them!
+#eg: \\?.
+#""".format(telegram.MAX_MESSAGE_LENGTH)
 
-*Reminder:* Sed uses some special characters to make matching easier, such as these: `+*.?\\`
-If you want to use these characters, make sure you escape them!
-eg: \\?.
-""".format(telegram.MAX_MESSAGE_LENGTH)
-
-__mod_name__ = "Sed/Regex"
+#__mod_name__ = "Sed/Regex"
 
 
 SED_HANDLER = DisableAbleRegexHandler(r's([{}]).*?\1.*'.format("".join(DELIMITERS)), sed, friendly="sed")
