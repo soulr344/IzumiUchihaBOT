@@ -164,4 +164,10 @@ def gkickreset(bot: Bot, update: Update, args: List[str]):
 			
 GKICK_HANDLER = CommandHandler("gkick", gkick, pass_args=True,
                               filters=CustomFilters.sudo_filter | CustomFilters.support_filter)
+SET_HANDLER = CommandHandler("gkickset", gkickset, pass_args=True,filters=Filters.user(OWNER_ID))
+RESET_HANDLER = CommandHandler("gkickreset", gkickreset, pass_args=True,filters=Filters.user(OWNER_ID))
+
 dispatcher.add_handler(GKICK_HANDLER)
+dispatcher.add_handler(SET_HANDLER)
+dispatcher.add_handler(RESET_HANDLER)
+
