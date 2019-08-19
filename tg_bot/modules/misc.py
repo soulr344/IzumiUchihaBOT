@@ -85,6 +85,20 @@ SLAP_TEMPLATES = (
     "{user1} ties {user2} to a chair and {throws} *{item}* at them. {emoji}",
 )
 
+PUNCH_TEMPLATES = (
+    "{user1} {punches} {user2} to assert dominance.",
+    "{user1} {punches} {user2} to see if they shut the fuck up for once.",
+    "{user1} {punches} {user2} because they were asking for it.",
+    "It's over {user2}, they have the high ground.",
+)
+
+PUNCH = (
+    "punches",
+    "RKOs",
+    "smashes the skull of",
+    "throws a pipe wrench at",
+)
+
 ITEMS = (
     "a Samsung J5 2017",
     "a Samsung S10+",
@@ -226,6 +240,43 @@ def slap(bot: Bot, update: Update, args: List[str]):
 
     reply_text(repl, parse_mode=ParseMode.MARKDOWN)
 
+@run_async
+def punch(bot: Bot, update: Update, args: List[str]):
+    msg = update.effective_message  # type: Optional[Message]
+
+    # reply to correct message
+    reply_text = msg.reply_to_message.reply_text if msg.reply_to_message else msg.reply_text
+
+    # get user who sent message
+    if msg.from_user.username:
+        curr_user = "@" + escape_markdown(msg.from_user.username)
+    else:
+        curr_user = "[{}](tg://user?id={})".format(msg.from_user.first_name, msg.from_user.id)
+
+    user_id = extract_user(update.effective_message, args)
+    if user_id == bot.id:
+        user1 = "[{}](tg://user?id={})".format(bot.first_name, bot.id)
+        user2 = curr_user
+    elif user_id:
+        slapped_user = bot.get_chat(user_id)
+        user1 = curr_user
+        if slapped_user.username:
+            user2 = "@" + escape_markdown(slapped_user.username)
+        else:
+            user2 = "[{}](tg://user?id={})".format(slapped_user.first_name,
+                                                   slapped_user.id)
+
+    # if no target found, bot targets the sender
+    else:
+        user1 = "[{}](tg://user?id={})".format(bot.first_name, bot.id)
+        user2 = curr_user
+
+    temp = random.choice(PUNCH_TEMPLATES)
+    punch = random.choice(PUNCH)
+
+    repl = temp.format(user1=user1, user2=user2, punches = punch)
+
+    reply_text(repl, parse_mode=ParseMode.MARKDOWN)
 
 @run_async
 def get_bot_ip(bot: Bot, update: Update):
@@ -371,7 +422,7 @@ def echo(bot: Bot, update: Update):
     else:
         message.reply_text(args[1], quote=False)
     message.delete()
-
+    
 def ping(bot: Bot, update: Update):
     start_time = time.time()
     requests.get('https://api.telegram.org')
@@ -479,6 +530,7 @@ TIME_HANDLER = CommandHandler("time", get_time, pass_args=True)
 RUNS_HANDLER = DisableAbleCommandHandler("runs", runs)
 SMACK_HANDLER = DisableAbleCommandHandler("smack", smack)
 SLAP_HANDLER = DisableAbleCommandHandler("slap", slap, pass_args=True)
+PUNCH_HANDLER = DisableAbleCommandHandler("punch", punch, pass_args=True)
 SPANK_HANDLER = DisableAbleCommandHandler("spank", slap, pass_args=True)
 INFO_HANDLER = DisableAbleCommandHandler("info", info, pass_args=True)
 PING_HANDLER = DisableAbleCommandHandler("ping", ping, filters=CustomFilters.sudo_filter)
@@ -496,6 +548,7 @@ dispatcher.add_handler(IP_HANDLER)
 dispatcher.add_handler(RUNS_HANDLER)
 dispatcher.add_handler(SMACK_HANDLER)
 dispatcher.add_handler(SLAP_HANDLER)
+dispatcher.add_handler(PUNCH_HANDLER)
 dispatcher.add_handler(SPANK_HANDLER)
 dispatcher.add_handler(INFO_HANDLER)
 dispatcher.add_handler(ECHO_HANDLER)
