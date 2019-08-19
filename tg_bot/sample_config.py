@@ -36,6 +36,8 @@ class Config(object):
     STRICT_GMUTE = False
     WORKERS = 8  # Number of subthreads to use. This is the recommended amount - see for yourself what works best!
     BAN_STICKER = 'CAADAgADOwADPPEcAXkko5EB3YGYAg'  # banhammer marie sticker
+    START_STICKER = False #add a START_STICKER_ID = 'stickerid' in your config.py if you use this as true
+    START_STICKER_ID = 'CAADAgAD0QMAAjq5FQKizo2AiTQCBQI' #putin hand sticker
     ALLOW_EXCL = False  # Allow ! commands as well as /
     API_OPENWEATHER = None # OpenWeather API
 
