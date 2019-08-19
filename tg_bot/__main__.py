@@ -146,7 +146,7 @@ def start(bot: Bot, update: Update, args: List[str]):
         if START_STICKER:
             bot.send_sticker(update.effective_chat.id, START_STICKER_ID)
 	
-        update.effective_message.reply_text("Top o' the morning")
+        update.effective_message.reply_text("Yo, whadup?")
 
 
 # for test purposes
