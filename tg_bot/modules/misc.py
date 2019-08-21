@@ -90,6 +90,36 @@ PUNCH_TEMPLATES = (
     "{user1} {punches} {user2} to see if they shut the fuck up for once.",
     "{user1} {punches} {user2} because they were asking for it.",
     "It's over {user2}, they have the high ground.",
+    "{user1} performs a superman punch on {user2}, {user2} is rekt now.",
+    "{user1} kills off {user2} with a T.K.O",
+    "{user1} attacks {user2} with a billiard cue. A bloody mess.",
+    "{user1} disintegrates {user2} with a MG.",
+    "A hit and run over {user2} performed by {user1}",
+    "{user1} punches {user2} into the throat. Warning, choking hazard!",
+    "{user1} drops a piano on top of {user2}. A harmonical death.",
+    "{user1} throws rocks at {user2}",
+    "{user1} forces {user2} to drink chlorox. What a painful death.",
+    "{user2} got sliced in half by {user1}'s katana.",
+    "{user1} makes {user2} fall on their sword. A stabby death lol.",
+    "{user1} kangs {user2} 's life energy away.",
+    "{user1} shoot's {user2} into a million pieces. Hasta la vista baby.",
+    "{user1} drop's the frigde on {user2}. Beware of crushing.",
+    "{user1} engage's a guerilla tactic on {user2}",
+    "{user1} ignite's {user2} into flames. IT'S LIT FAM.",
+    "{user1} pulls a loaded 12 gauge on {user2}.",
+    "{user1} throws a Galaxy Note7 into {user2}'s general direction. A bombing massacre.",
+    "{user1} walks with {user2} to the end of the world, then pushes him over the edge.",
+    "{user1} performs a Stabby McStabby on {user2} with a butterfly.",
+    "{user1} cut's {user2}'s neck off with a machete. A blood bath.",
+    "{user1} secretly fills in {user2}'s cup with Belle Delphine's Gamer Girl Bathwater instead of water. Highly contagious herpes.",
+    "{user1} is tea cupping on {user2} after a 1v1, to assert their dominance.",
+    "{user1} ask's for {user2}'s last words. {user2} is ded now.",
+    "{user1} let's {user2} know their position.",
+    "{user1} makes {user2} to his slave. What is your bidding? My Master.",
+    "{user1} forces {user2} to commit suicide.",
+    "{user1} shout's 'it's garbage day' at {user2}.",
+    "{user1} throws his axe at {user2}.",
+    "{user1} is now {user2}'s grim reaper.",
 )
 
 PUNCH = (
@@ -450,24 +480,20 @@ def gdpr(bot: Bot, update: Update):
 MARKDOWN_HELP = """
 Markdown is a very powerful formatting tool supported by telegram. {} has some enhancements, to make sure that \
 saved messages are correctly parsed, and to allow you to create buttons.
-
 - <code>_italic_</code>: wrapping text with '_' will produce italic text
 - <code>*bold*</code>: wrapping text with '*' will produce bold text
 - <code>`code`</code>: wrapping text with '`' will produce monospaced text, also known as 'code'
 - <code>[sometext](someURL)</code>: this will create a link - the message will just show <code>sometext</code>, \
 and tapping on it will open the page at <code>someURL</code>.
 EG: <code>[test](example.com)</code>
-
 - <code>[buttontext](buttonurl:someURL)</code>: this is a special enhancement to allow users to have telegram \
 buttons in their markdown. <code>buttontext</code> will be what is displayed on the button, and <code>someurl</code> \
 will be the url which is opened.
 EG: <code>[This is a button](buttonurl:example.com)</code>
-
 If you want multiple buttons on the same line, use :same, as such:
 <code>[one](buttonurl://example.com)
 [two](buttonurl://google.com:same)</code>
 This will create two buttons on a single line, instead of one button per line.
-
 Keep in mind that your message <b>MUST</b> contain some text other than just a button!
 """.format(dispatcher.bot.first_name)
 
@@ -509,14 +535,12 @@ def gps(bot: Bot, update: Update, args: List[str]):
 # /ip is for private use
 __help__ = """
 An "odds and ends" module for small, simple commands which don't really fit anywhere
-
  - /id: get the current group id. If used by replying to a message, gets that user's id.
  - /runs: reply a random string from an array of replies.
  - /spank: same as /slap but nastier.
  - /slap: slap a user, or get slapped if not a reply.
  - /info: get information about a user.
  - /gdpr: deletes your information from the bot's database. Private chats only.
-
  - /markdownhelp: quick summary of how markdown works in telegram - can only be called in private chats.
 """
 
