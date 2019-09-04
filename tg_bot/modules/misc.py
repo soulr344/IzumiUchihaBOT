@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Optional, List
 import time
 import requests
+import os
 from telegram import Message, Chat, Update, Bot, MessageEntity
 from telegram import ParseMode
 from telegram.ext import CommandHandler, run_async, Filters
@@ -462,13 +463,15 @@ def echo(bot: Bot, update: Update):
         message.reply_text(args[1], quote=False)
     message.delete()
     
+@run_async
 def ping(bot: Bot, update: Update):
-    start_time = time.time()
-    requests.get('https://api.telegram.org')
-    end_time = time.time()
-    ping_time = float(end_time - start_time)*1000
+    start = datetime.now()
+    hostname = "google.com" #example
+    response = os.system("ping -c 1 " + hostname)
+    end = datetime.now()
+    ping_time = (end - start).microseconds / 1000
     update.effective_message.reply_text(" Ping speed was : {}ms".format(ping_time))
-
+        
 
 @run_async
 def gdpr(bot: Bot, update: Update):

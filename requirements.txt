@@ -7,3 +7,5 @@ psycopg2-binary
 pyowm
 feedparser
 geopy
+speedtest-cli>=2.0.2
+
