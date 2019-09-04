@@ -319,15 +319,6 @@ def punch(bot: Bot, update: Update, args: List[str]):
     reply_text(repl, parse_mode=ParseMode.MARKDOWN)
 
 @run_async
-def get_bot_ip(bot: Bot, update: Update):
-    """ Sends the bot's IP address, so as to be able to ssh in if necessary.
-        OWNER ONLY.
-    """
-    res = requests.get("http://ipinfo.io/ip")
-    update.message.reply_text(res.text)
-
-
-@run_async
 def get_id(bot: Bot, update: Update, args: List[str]):
     user_id = extract_user(update.effective_message, args)
     if user_id:
@@ -354,7 +345,6 @@ def get_id(bot: Bot, update: Update, args: List[str]):
         else:
             update.effective_message.reply_text("This group's id is `{}`.".format(chat.id),
                                                 parse_mode=ParseMode.MARKDOWN)
-
 
 @run_async
 def info(bot: Bot, update: Update, args: List[str]):
@@ -410,7 +400,6 @@ def info(bot: Bot, update: Update, args: List[str]):
 
     update.effective_message.reply_text(text, parse_mode=ParseMode.HTML)
 
-
 @run_async
 def get_time(bot: Bot, update: Update, args: List[str]):
     location = " ".join(args)
@@ -452,7 +441,6 @@ def get_time(bot: Bot, update: Update, args: List[str]):
                 time_there = datetime.fromtimestamp(timenow + timestamp + offset).strftime("%H:%M:%S on %A %d %B")
                 update.message.reply_text("It's {} in {}".format(time_there, location))
 
-
 @run_async
 def echo(bot: Bot, update: Update):
     args = update.effective_message.text.split(None, 1)
@@ -462,17 +450,7 @@ def echo(bot: Bot, update: Update):
     else:
         message.reply_text(args[1], quote=False)
     message.delete()
-    
-@run_async
-def ping(bot: Bot, update: Update):
-    start = datetime.now()
-    hostname = "google.com" #example
-    response = os.system("ping -c 1 " + hostname)
-    end = datetime.now()
-    ping_time = (end - start).microseconds / 1000
-    update.effective_message.reply_text(" Ping speed was : {}ms".format(ping_time))
-        
-
+         
 @run_async
 def gdpr(bot: Bot, update: Update):
     update.effective_message.reply_text("Deleting identifiable data...")
@@ -559,7 +537,6 @@ An "odds and ends" module for small, simple commands which don't really fit anyw
 __mod_name__ = "Misc"
 
 ID_HANDLER = DisableAbleCommandHandler("id", get_id, pass_args=True)
-IP_HANDLER = CommandHandler("ip", get_bot_ip, filters=Filters.chat(OWNER_ID))
 
 TIME_HANDLER = CommandHandler("time", get_time, pass_args=True)
 
@@ -569,7 +546,6 @@ SLAP_HANDLER = DisableAbleCommandHandler("slap", slap, pass_args=True)
 PUNCH_HANDLER = DisableAbleCommandHandler("punch", punch, pass_args=True)
 SPANK_HANDLER = DisableAbleCommandHandler("spank", slap, pass_args=True)
 INFO_HANDLER = DisableAbleCommandHandler("info", info, pass_args=True)
-PING_HANDLER = DisableAbleCommandHandler("ping", ping, filters=CustomFilters.sudo_filter)
 ECHO_HANDLER = CommandHandler("echo", echo, filters=Filters.user(OWNER_ID))
 MD_HELP_HANDLER = CommandHandler("markdownhelp", markdown_help, filters=Filters.private)
 
@@ -578,8 +554,6 @@ GDPR_HANDLER = CommandHandler("gdpr", gdpr, filters=Filters.private)
 GPS_HANDLER = DisableAbleCommandHandler("gps", gps, pass_args=True)
 
 dispatcher.add_handler(ID_HANDLER)
-dispatcher.add_handler(PING_HANDLER)
-dispatcher.add_handler(IP_HANDLER)
 # dispatcher.add_handler(TIME_HANDLER)
 dispatcher.add_handler(RUNS_HANDLER)
 dispatcher.add_handler(SMACK_HANDLER)
