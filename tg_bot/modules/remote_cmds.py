@@ -452,6 +452,24 @@ def runmute(bot: Bot, update: Update, args: List[str]):
                              excp.message)
             message.reply_text("Well damn, I can't unmute that user.")
 
+#based of @1maverick1's snipe command
+@run_async
+@bot_admin
+def recho(bot: Bot, update: Update, args: List[str]):
+    try:
+        parseId = str(args[0])
+        del args[0]
+        chat_id = int(parseId)
+    except TypeError as excp:
+        update.effective_message.reply_text("Please give me a chat to echo to!")
+    send = " ".join(args) 
+    if len(send) >= 2:
+        try:
+            bot.sendMessage(chat_id, str(send))
+        except TelegramError:
+            LOGGER.warning("Couldn't echo to group %s", parseId)
+            update.effective_message.reply_text("Failed to send message")
+
 __help__ = ""
 
 __mod_name__ = "Remote Commands"
@@ -461,9 +479,11 @@ RUNBAN_HANDLER = CommandHandler("runban", runban, pass_args=True, filters=Custom
 RKICK_HANDLER = CommandHandler("rkick", rkick, pass_args=True, filters=CustomFilters.sudo_filter)
 RMUTE_HANDLER = CommandHandler("rmute", rmute, pass_args=True, filters=CustomFilters.sudo_filter)
 RUNMUTE_HANDLER = CommandHandler("runmute", runmute, pass_args=True, filters=CustomFilters.sudo_filter)
+RECHO_HANDLER = CommandHandler("recho", recho, pass_args=True, filters=CustomFilters.sudo_filter)
 
 dispatcher.add_handler(RBAN_HANDLER)
 dispatcher.add_handler(RUNBAN_HANDLER)
 dispatcher.add_handler(RKICK_HANDLER)
 dispatcher.add_handler(RMUTE_HANDLER)
 dispatcher.add_handler(RUNMUTE_HANDLER)
+dispatcher.add_handler(RECHO_HANDLER)
