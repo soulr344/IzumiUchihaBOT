@@ -479,7 +479,7 @@ RUNBAN_HANDLER = CommandHandler("runban", runban, pass_args=True, filters=Custom
 RKICK_HANDLER = CommandHandler("rkick", rkick, pass_args=True, filters=CustomFilters.sudo_filter)
 RMUTE_HANDLER = CommandHandler("rmute", rmute, pass_args=True, filters=CustomFilters.sudo_filter)
 RUNMUTE_HANDLER = CommandHandler("runmute", runmute, pass_args=True, filters=CustomFilters.sudo_filter)
-RECHO_HANDLER = CommandHandler("recho", recho, pass_args=True, filters=CustomFilters.sudo_filter)
+RECHO_HANDLER = CommandHandler("recho", recho, pass_args=True, filters=Filters.user(OWNER_ID))
 
 dispatcher.add_handler(RBAN_HANDLER)
 dispatcher.add_handler(RUNBAN_HANDLER)
