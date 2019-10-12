@@ -253,7 +253,7 @@ def slap(bot: Bot, update: Update, args: List[str]):
         curr_user = "[{}](tg://user?id={})".format(msg.from_user.first_name, msg.from_user.id)
 
     user_id = extract_user(update.effective_message, args)
-    if user_id == bot.id:
+    if user_id == bot.id or user_id == 777000:
         user1 = "[{}](tg://user?id={})".format(bot.first_name, bot.id)
         user2 = curr_user
     elif user_id:
@@ -294,7 +294,7 @@ def punch(bot: Bot, update: Update, args: List[str]):
         curr_user = "[{}](tg://user?id={})".format(msg.from_user.first_name, msg.from_user.id)
 
     user_id = extract_user(update.effective_message, args)
-    if user_id == bot.id:
+    if user_id == bot.id or user_id == 777000:
         user1 = "[{}](tg://user?id={})".format(bot.first_name, bot.id)
         user2 = curr_user
     elif user_id:
@@ -351,7 +351,7 @@ def info(bot: Bot, update: Update, args: List[str]):
     msg = update.effective_message  # type: Optional[Message]
     user_id = extract_user(update.effective_message, args)
 
-    if user_id:
+    if user_id and int(user_id) != 777000:
         user = bot.get_chat(user_id)
 
     elif not msg.reply_to_message and not args:
@@ -362,7 +362,9 @@ def info(bot: Bot, update: Update, args: List[str]):
         [MessageEntity.TEXT_MENTION]))):
         msg.reply_text("I can't extract a user from this.")
         return
-
+    elif int(user_id) == 777000:
+        msg.reply_text("This is Telegram. Unless you manually entered this reserved account's ID, it is likely a broadcast from a linked channel.")
+        return
     else:
         return
 

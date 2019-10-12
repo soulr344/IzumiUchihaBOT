@@ -46,8 +46,8 @@ def gkick(bot: Bot, update: Update, args: List[str]):
     except TelegramError:
             pass
 
-    if not user_id:
-        message.reply_text("You do not seems to be referring to a user")
+    if not user_id or int(user_id)==777000:
+        message.reply_text("You don't seem to be referring to a user")
         return
     if int(user_id) in SUDO_USERS or int(user_id) in SUPPORT_USERS:
         message.reply_text("OHHH! Someone's trying to gkick a sudo/support user! *Grabs popcorn*")
