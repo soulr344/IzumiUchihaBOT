@@ -6,14 +6,12 @@ from typing import Optional, List
 import time
 import requests
 import os
-from telegram import Message, Chat, Update, Bot, MessageEntity
-from telegram import ParseMode
+from telegram import Message, Chat, Update, Bot, MessageEntity, ParseMode
 from telegram.ext import CommandHandler, run_async, Filters
 from telegram.utils.helpers import escape_markdown, mention_html
 
 from tg_bot import dispatcher, OWNER_ID, SUDO_USERS, SUPPORT_USERS, WHITELIST_USERS, BAN_STICKER
-from tg_bot.__main__ import GDPR
-from tg_bot.__main__ import STATS, USER_INFO
+from tg_bot.__main__ import STATS, USER_INFO, GDPR
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.helper_funcs.extraction import extract_user
 from tg_bot.modules.helper_funcs.filters import CustomFilters
@@ -353,7 +351,11 @@ def info(bot: Bot, update: Update, args: List[str]):
 
     if user_id and int(user_id) != 777000:
         user = bot.get_chat(user_id)
-
+    
+    elif user_id and int(user_id) == 777000:
+        msg.reply_text("This is Telegram. Unless you manually entered this reserved account's ID, it is likely a broadcast from a linked channel.")
+        return
+      
     elif not msg.reply_to_message and not args:
         user = msg.from_user
 
@@ -361,9 +363,6 @@ def info(bot: Bot, update: Update, args: List[str]):
             len(args) >= 1 and not args[0].startswith("@") and not args[0].isdigit() and not msg.parse_entities(
         [MessageEntity.TEXT_MENTION]))):
         msg.reply_text("I can't extract a user from this.")
-        return
-    elif int(user_id) == 777000:
-        msg.reply_text("This is Telegram. Unless you manually entered this reserved account's ID, it is likely a broadcast from a linked channel.")
         return
     else:
         return
