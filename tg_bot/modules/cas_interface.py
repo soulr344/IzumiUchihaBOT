@@ -7,11 +7,12 @@ from typing import Optional, List
 from telegram import User, Chat, ChatMember, Update, Bot, Message, ParseMode
 from telegram.ext import CommandHandler, run_async, Filters, MessageHandler
 
-from tg_bot import dispatcher, OWNER_ID, SUDO_USERS
+from tg_bot import dispatcher, OWNER_ID, SUDO_USERS, SUPPORT_USERS
 from tg_bot.modules.helper_funcs.chat_status import user_admin
 from tg_bot.modules.helper_funcs.extraction import extract_user
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.helper_funcs.filters import CustomFilters
+from tg_bot.modules.helper_funcs.misc import send_to_list
 
 @run_async
 @user_admin
@@ -81,6 +82,10 @@ def caschecker(bot: Bot, update: Update, args: List[str]):
     text += "\n\nCAS Banned: "
     result = cas.banchecker(user.id)
     text += str(result)
+    if result:
+        text += "\nTotal of Offenses: "
+        parsing = cas.offenses(user.id)
+        text += str(parsing)
     update.effective_message.reply_text(text, parse_mode=ParseMode.HTML)
 
 #this sends direct request to combot server. Will return true if user is banned, false if
@@ -114,7 +119,7 @@ def watcher(bot: Bot, update: Update):
                                              can_add_web_page_previews=False)
             msg.reply_text("Warning! This user is CAS Banned. I have muted them to avoid spam. Ban is adviced.")
             report += str(user.id)
-            bot.send_message(OWNER_ID, report, parse_mode=ParseMode.HTML) #for now owner only
+            send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report)
 
 __mod_name__ = "CAS Interface"
 
