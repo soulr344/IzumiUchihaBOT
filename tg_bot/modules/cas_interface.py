@@ -42,7 +42,9 @@ def get_current_setting(bot: Bot, update: Update):
     chat = update.effective_chat
     msg = update.effective_message
     stats = sql.get_status(chat.id)
-    msg.reply_text("This chat has the CAS preferences set to: " + str(stats))
+    autoban = sql.get_autoban(chat.id)
+    rtext = "<b>CAS Preferences</b>\n\nCAS Checking: {}\nAutoban: {}".format(stats, autoban)
+    msg.reply_text(rtext, parse_mode=ParseMode.HTML)
     return
 
 @run_async
@@ -133,7 +135,7 @@ Commands:
  
  *Admin only:*
  - /setcas <on/off/true/false>: Enables/disables CAS Checking on welcome
- - /getcas: Gets the current CAS setting
+ - /getcas: Gets the current CAS settings
  """
 
 SETCAS_HANDLER = CommandHandler("setcas", setcas, filters=Filters.group)
