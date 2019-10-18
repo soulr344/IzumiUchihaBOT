@@ -19,7 +19,7 @@ CAS_LOCK = threading.RLock()
 def get_status(chat_id):
     try:
         resultObj = SESSION.query(CombotCASStatus).get(str(chat_id))
-        if resultObj:
+        if resultObj and resultObj.status:
             return resultObj.status
         return True
     finally:
@@ -39,7 +39,7 @@ def set_status(chat_id, status):
 def get_autoban(chat_id):
     try:
         resultObj = SESSION.query(CombotCASStatus).get(str(chat_id))
-        if resultObj and returnObj.autoban:
+        if resultObj and resultObj.autoban:
             return resultObj.autoban
         return False
     finally:
