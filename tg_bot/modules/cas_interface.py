@@ -21,19 +21,19 @@ def setcas(bot: Bot, update: Update):
     msg = update.effective_message
     split_msg = msg.text.split(' ')
     if len(split_msg)!= 2:
-        msg.reply_text("Invalid arguments")
+        msg.reply_text("Invalid arguments!")
         return
     param = split_msg[1]
     if param == "on" or param == "true":
         sql.set_status(chat.id, True)
-        msg.reply_text("Successfully updated configuration")
+        msg.reply_text("Successfully updated configuration.")
         return
     elif param == "off" or param == "false":
         sql.set_status(chat.id, False)
-        msg.reply_text("Successfully updated configuration")
+        msg.reply_text("Successfully updated configuration.")
         return
     else:
-        msg.reply_text("Invalid status to set") #on or off ffs
+        msg.reply_text("Invalid status to set!") #on or off ffs
         return
 
 @run_async
@@ -96,7 +96,7 @@ def casquery(bot: Bot, update: Update, args: List[str]):
     try:
         user_id = msg.text.split(' ')[1]
     except:
-        msg.reply_text("There was a problem parsing the query")
+        msg.reply_text("There was a problem parsing the query.")
         return
     text = "Your query returned: "
     result = cas.banchecker(user_id)
