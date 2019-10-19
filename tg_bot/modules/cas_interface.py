@@ -38,6 +38,28 @@ def setcas(bot: Bot, update: Update):
 
 @run_async
 @user_admin
+def setban(bot: Bot, update: Update):
+    chat = update.effective_chat
+    msg = update.effective_message
+    split_msg = msg.text.split(' ')
+    if len(split_msg)!= 2:
+        msg.reply_text("Invalid arguments!")
+        return
+    param = split_msg[1]
+    if param == "on" or param == "true":
+        sql.set_autoban(chat.id, True)
+        msg.reply_text("Successfully updated configuration.")
+        return
+    elif param == "off" or param == "false":
+        sql.set_autoban(chat.id, False)
+        msg.reply_text("Successfully updated configuration.")
+        return
+    else:
+        msg.reply_text("Invalid autoban definition to set!") #on or off ffs
+        return
+
+@run_async
+@user_admin
 def get_current_setting(bot: Bot, update: Update):
     chat = update.effective_chat
     msg = update.effective_message
@@ -111,8 +133,9 @@ def watcher(bot: Bot, update: Update):
     user = update.effective_user  # type: Optional[User]
     msg = update.effective_message # type: Optional[Message]
     casPrefs = sql.get_status(str(chat.id)) #check if enabled, obviously
+    autoban = sql.get_autoban(str(chat.id))
     report = "CAS Banned user detected: "
-    if casPrefs:
+    if casPrefs and not autoban:
         if cas.banchecker(user.id):
             bot.restrict_chat_member(chat.id, user.id, 
                                              can_send_messages=False, 
@@ -122,6 +145,13 @@ def watcher(bot: Bot, update: Update):
             msg.reply_text("Warning! This user is CAS Banned. I have muted them to avoid spam. Ban is adviced.")
             report += str(user.id)
             send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report)
+    elif casPrefs and autoban:
+        if cas.banchecker(user.id):
+            chat.kick_member(user.id)
+            msg.reply_text("CAS banned user detected! User has been automatically banned!")
+            report += str(user.id)
+            send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report)
+        
 
 __mod_name__ = "CAS Interface"
 
@@ -136,6 +166,7 @@ Commands:
  *Admin only:*
  - /setcas <on/off/true/false>: Enables/disables CAS Checking on welcome
  - /getcas: Gets the current CAS settings
+ - /setban <on/off/true/false>: Enables/disables autoban on CAS banned user detected.
  """
 
 SETCAS_HANDLER = CommandHandler("setcas", setcas, filters=Filters.group)
@@ -143,6 +174,7 @@ GETCAS_HANDLER = CommandHandler("getcas", get_current_setting, filters=Filters.g
 GETVER_HANDLER = DisableAbleCommandHandler("casver", get_version)
 CASCHECK_HANDLER = CommandHandler("cascheck", caschecker, pass_args=True)
 CASQUERY_HANDLER = CommandHandler("casquery", casquery, pass_args=True ,filters=CustomFilters.sudo_filter)
+SETBAN_HANDLER = CommandHandler("setban", setban, filters=Filters.group)
 WATCHER_HANDLER = MessageHandler(Filters.status_update.new_chat_members, watcher)
 
 dispatcher.add_handler(SETCAS_HANDLER)
@@ -150,4 +182,5 @@ dispatcher.add_handler(GETCAS_HANDLER)
 dispatcher.add_handler(GETVER_HANDLER)
 dispatcher.add_handler(CASCHECK_HANDLER)
 dispatcher.add_handler(CASQUERY_HANDLER)
+dispatcher.add_handler(SETBAN_HANDLER)
 dispatcher.add_handler(WATCHER_HANDLER)
