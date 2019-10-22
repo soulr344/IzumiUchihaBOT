@@ -141,6 +141,7 @@ def watcher(bot: Bot, update: Update):
                                              can_send_media_messages=False, 
                                              can_send_other_messages=False, 
                                              can_add_web_page_previews=False)
+            report = "CAS Banned user detected: <code>{}</code>".format(user.id)
             msg.reply_text("Warning! This user is CAS Banned. I have muted them to avoid spam. Ban is adviced.")
             send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report)
     elif casPrefs and autoban:
