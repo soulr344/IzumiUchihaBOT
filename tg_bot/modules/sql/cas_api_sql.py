@@ -19,7 +19,7 @@ CAS_LOCK = threading.RLock()
 def get_status(chat_id):
     try:
         resultObj = SESSION.query(CombotCASStatus).get(str(chat_id))
-        if resultObj and resultObj.status:
+        if resultObj:
             return resultObj.status
         return True
     finally:
