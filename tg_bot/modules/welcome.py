@@ -2,6 +2,8 @@ import html, time
 import re
 from typing import Optional, List
 
+import tg_bot.modules.helper_funcs.cas_api as cas
+
 from telegram import Message, Chat, Update, Bot, User, CallbackQuery, ChatMember, ParseMode, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.error import BadRequest
 from telegram.ext import MessageHandler, Filters, CommandHandler, run_async, CallbackQueryHandler
@@ -81,7 +83,6 @@ def send(update, message, keyboard, backup_message):
 
     return msg
 
-
 @run_async
 def new_member(bot: Bot, update: Update):
     chat = update.effective_chat  # type: Optional[Chat]
@@ -90,7 +91,24 @@ def new_member(bot: Bot, update: Update):
     chat_name = chat.title or chat.first or chat.username # type: Optional:[chat name]
     should_welc, cust_welcome, welc_type = sql.get_welc_pref(chat.id)
     welc_mutes = sql.welcome_mutes(chat.id)
-    if should_welc:
+    casPrefs = sql.get_cas_status(str(chat.id)) #check if enabled, obviously
+    autoban = sql.get_cas_autoban(str(chat.id))
+    report = "CAS Banned user detected: "
+    if casPrefs and not autoban and cas.banchecker(user.id):
+        bot.restrict_chat_member(chat.id, user.id, 
+                                         can_send_messages=False, 
+                                         can_send_media_messages=False, 
+                                         can_send_other_messages=False, 
+                                         can_add_web_page_previews=False)
+        msg.reply_text("Warning! This user is CAS Banned. I have muted them to avoid spam. Ban is adviced.")
+        report += str(user.id)
+        send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report)
+    elif casPrefs and autoban and cas.banchecker(user.id):
+        chat.kick_member(user.id)
+        msg.reply_text("CAS banned user detected! User has been automatically banned!")
+        report += str(user.id)
+        send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report)
+    elif should_welc:
         sent = None
         new_members = update.effective_message.new_chat_members
         for new_mem in new_members:
@@ -220,7 +238,6 @@ def left_member(bot: Bot, update: Update):
 
             send(update, res, keyboard, sql.DEFAULT_GOODBYE)
 
-
 @run_async
 @user_admin
 def welcome(bot: Bot, update: Update, args: List[str]):
@@ -265,7 +282,6 @@ def welcome(bot: Bot, update: Update, args: List[str]):
         else:
             # idek what you're writing, say yes or no
             update.effective_message.reply_text("I understand 'on/yes' or 'off/no' only!")
-
 
 @run_async
 @user_admin
@@ -312,7 +328,6 @@ def goodbye(bot: Bot, update: Update, args: List[str]):
             # idek what you're writing, say yes or no
             update.effective_message.reply_text("I understand 'on/yes' or 'off/no' only!")
 
-
 @run_async
 @user_admin
 @loggable
@@ -336,7 +351,6 @@ def set_welcome(bot: Bot, update: Update) -> str:
            "\nSet the welcome message.".format(html.escape(chat.title),
                                                mention_html(user.id, user.first_name))
 
-
 @run_async
 @user_admin
 @loggable
@@ -350,7 +364,6 @@ def reset_welcome(bot: Bot, update: Update) -> str:
            "\n<b>Admin:</b> {}" \
            "\nReset the welcome message to default.".format(html.escape(chat.title),
                                                             mention_html(user.id, user.first_name))
-
 
 @run_async
 @user_admin
@@ -372,7 +385,6 @@ def set_goodbye(bot: Bot, update: Update) -> str:
            "\n<b>Admin:</b> {}" \
            "\nSet the goodbye message.".format(html.escape(chat.title),
                                                mention_html(user.id, user.first_name))
-
 
 @run_async
 @user_admin
@@ -495,7 +507,6 @@ def del_joined(bot: Bot, update: Update, args: List[str]) -> str:
         update.effective_message.reply_text("I understand 'on/yes' or 'off/no' only!")
         return ""
 
-
 @run_async
 def delete_join(bot: Bot, update: Update):
     chat = update.effective_chat  # type: Optional[Chat]
@@ -525,6 +536,118 @@ def user_button(bot: Bot, update: Update):
     else:
         query.answer(text="Fuck off, this button is not for you!")
 
+@run_async
+@user_admin
+def setcas(bot: Bot, update: Update):
+    chat = update.effective_chat
+    msg = update.effective_message
+    split_msg = msg.text.split(' ')
+    if len(split_msg)!= 2:
+        msg.reply_text("Invalid arguments!")
+        return
+    param = split_msg[1]
+    if param == "on" or param == "true":
+        sql.set_cas_status(chat.id, True)
+        msg.reply_text("Successfully updated configuration.")
+        return
+    elif param == "off" or param == "false":
+        sql.set_cas_status(chat.id, False)
+        msg.reply_text("Successfully updated configuration.")
+        return
+    else:
+        msg.reply_text("Invalid status to set!") #on or off ffs
+        return
+
+@run_async
+@user_admin
+def setban(bot: Bot, update: Update):
+    chat = update.effective_chat
+    msg = update.effective_message
+    split_msg = msg.text.split(' ')
+    if len(split_msg)!= 2:
+        msg.reply_text("Invalid arguments!")
+        return
+    param = split_msg[1]
+    if param == "on" or param == "true":
+        sql.set_cas_autoban(chat.id, True)
+        msg.reply_text("Successfully updated configuration.")
+        return
+    elif param == "off" or param == "false":
+        sql.set_cas_autoban(chat.id, False)
+        msg.reply_text("Successfully updated configuration.")
+        return
+    else:
+        msg.reply_text("Invalid autoban definition to set!") #on or off ffs
+        return
+
+@run_async
+@user_admin
+def get_current_setting(bot: Bot, update: Update):
+    chat = update.effective_chat
+    msg = update.effective_message
+    stats = sql.get_cas_status(chat.id)
+    autoban = sql.get_cas_autoban(chat.id)
+    rtext = "<b>CAS Preferences</b>\n\nCAS Checking: {}\nAutoban: {}".format(stats, autoban)
+    msg.reply_text(rtext, parse_mode=ParseMode.HTML)
+    return
+
+@run_async
+def get_version(bot: Bot, update: Update):
+    msg = update.effective_message
+    ver = cas.vercheck()
+    msg.reply_text("CAS API version: "+ver)
+    return
+
+@run_async
+def caschecker(bot: Bot, update: Update, args: List[str]):
+    #/info logic
+    msg = update.effective_message  # type: Optional[Message]
+    user_id = extract_user(update.effective_message, args)
+    if user_id and int(user_id) != 777000:
+        user = bot.get_chat(user_id)
+    elif user_id and int(user_id) == 777000:
+        msg.reply_text("This is Telegram. Unless you manually entered this reserved account's ID, it is likely a broadcast from a linked channel.")
+        return
+    elif not msg.reply_to_message and not args:
+        user = msg.from_user
+    elif not msg.reply_to_message and (not args or (
+            len(args) >= 1 and not args[0].startswith("@") and not args[0].isdigit() and not msg.parse_entities(
+        [MessageEntity.TEXT_MENTION]))):
+        msg.reply_text("I can't extract a user from this.")
+        return
+    else:
+        return
+
+    text = "<b>CAS Check</b>:" \
+           "\nID: <code>{}</code>" \
+           "\nFirst Name: {}".format(user.id, html.escape(user.first_name))
+    if user.last_name:
+        text += "\nLast Name: {}".format(html.escape(user.last_name))
+    if user.username:
+        text += "\nUsername: @{}".format(html.escape(user.username))
+    text += "\n\nCAS Banned: "
+    result = cas.banchecker(user.id)
+    text += str(result)
+    if result:
+        text += "\nTotal of Offenses: "
+        parsing = cas.offenses(user.id)
+        text += str(parsing)
+    update.effective_message.reply_text(text, parse_mode=ParseMode.HTML)
+
+#this sends direct request to combot server. Will return true if user is banned, false if
+#id invalid or user not banned
+@run_async
+def casquery(bot: Bot, update: Update, args: List[str]):
+    msg = update.effective_message  # type: Optional[Message]
+    try:
+        user_id = msg.text.split(' ')[1]
+    except:
+        msg.reply_text("There was a problem parsing the query.")
+        return
+    text = "Your query returned: "
+    result = cas.banchecker(user_id)
+    text += str(result)
+    msg.reply_text(text)        
 
 WELC_HELP_TXT = "Your group's welcome/goodbye messages can be personalised in multiple ways. If you want the messages" \
                 " to be individually generated, like the default welcome message is, you can use *these* variables:\n" \
@@ -550,12 +673,10 @@ WELC_HELP_TXT = "Your group's welcome/goodbye messages can be personalised in mu
                 "If you're feeling fun, you can even set images/gifs/videos/voice messages as the welcome message by " \
                 "replying to the desired media, and calling /setwelcome.".format(dispatcher.bot.username)
 
-
 @run_async
 @user_admin
 def welcome_help(bot: Bot, update: Update):
     update.effective_message.reply_text(WELC_HELP_TXT, parse_mode=ParseMode.MARKDOWN)
-
 
 # TODO: get welcome data from group butler snap
 # def __import_data__(chat_id, data):
@@ -568,10 +689,8 @@ def welcome_help(bot: Bot, update: Update):
 #     welcome = welcome.replace('$rules', '{rules}')
 #     sql.set_custom_welcome(chat_id, welcome, sql.Types.TEXT)
 
-
 def __migrate__(old_chat_id, new_chat_id):
     sql.migrate_chat(old_chat_id, new_chat_id)
-
 
 def __chat_settings__(chat_id, user_id):
     welcome_pref, _, _ = sql.get_welc_pref(chat_id)
@@ -579,9 +698,12 @@ def __chat_settings__(chat_id, user_id):
     return "This chat has it's welcome preference set to `{}`.\n" \
            "It's goodbye preference is `{}`.".format(welcome_pref, goodbye_pref)
 
-
 __help__ = """
 {}
+
+Commands:
+ - /casver: Returns the API version that the bot is currently running
+ - /cascheck: Checks you or another user for CAS BAN
 
 *Admin only:*
  - /welcome <on/off>: enable/disable welcome messages.
@@ -596,6 +718,9 @@ __help__ = """
  - /rmjoin <on/off>: when someone joins, try to delete the *user* joined the group message.
  - /safemode <on/off>: all users that join, get muted; a button gets added to the welcome message for them to unmute themselves. This proves they aren't a bot! This will also restrict users ability to post media for 24 hours.
  - /welcomehelp: view more formatting information for custom welcome/goodbye messages.
+ - /setcas <on/off/true/false>: Enables/disables CAS Checking on welcome
+ - /getcas: Gets the current CAS settings
+ - /setban <on/off/true/false>: Enables/disables autoban on CAS banned user detected.
 """.format(WELC_HELP_TXT)
 
 __mod_name__ = "Welcomes/Goodbyes"
@@ -613,6 +738,12 @@ SAFEMODE_HANDLER = CommandHandler("safemode", safemode, pass_args=True, filters=
 DEL_JOINED = CommandHandler("rmjoin", del_joined, pass_args=True, filters=Filters.group)
 WELCOME_HELP = CommandHandler("welcomehelp", welcome_help)
 BUTTON_VERIFY_HANDLER = CallbackQueryHandler(user_button, pattern=r"userverify_")
+SETCAS_HANDLER = CommandHandler("setcas", setcas, filters=Filters.group)
+GETCAS_HANDLER = CommandHandler("getcas", get_current_setting, filters=Filters.group)
+GETVER_HANDLER = DisableAbleCommandHandler("casver", get_version)
+CASCHECK_HANDLER = CommandHandler("cascheck", caschecker, pass_args=True)
+CASQUERY_HANDLER = CommandHandler("casquery", casquery, pass_args=True ,filters=CustomFilters.sudo_filter)
+SETBAN_HANDLER = CommandHandler("setban", setban, filters=Filters.group)
 
 dispatcher.add_handler(NEW_MEM_HANDLER)
 dispatcher.add_handler(LEFT_MEM_HANDLER)
@@ -627,3 +758,9 @@ dispatcher.add_handler(SAFEMODE_HANDLER)
 dispatcher.add_handler(BUTTON_VERIFY_HANDLER)
 dispatcher.add_handler(DEL_JOINED)
 dispatcher.add_handler(WELCOME_HELP)
+dispatcher.add_handler(SETCAS_HANDLER)
+dispatcher.add_handler(GETCAS_HANDLER)
+dispatcher.add_handler(GETVER_HANDLER)
+dispatcher.add_handler(CASCHECK_HANDLER)
+dispatcher.add_handler(CASQUERY_HANDLER)
+dispatcher.add_handler(SETBAN_HANDLER)
