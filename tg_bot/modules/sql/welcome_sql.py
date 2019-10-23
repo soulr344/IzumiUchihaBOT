@@ -8,7 +8,6 @@ from tg_bot.modules.sql import SESSION, BASE
 DEFAULT_WELCOME = "Hey {first}, how are you?"
 DEFAULT_GOODBYE = "Nice knowing ya!"
 
-
 class Welcome(BASE):
     __tablename__ = "welcome_pref"
     chat_id = Column(String(14), primary_key=True)
@@ -32,7 +31,6 @@ class Welcome(BASE):
     def __repr__(self):
         return "<Chat {} should Welcome new users: {}>".format(self.chat_id, self.should_welcome)
 
-
 class WelcomeButtons(BASE):
     __tablename__ = "welcome_urls"
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -46,7 +44,6 @@ class WelcomeButtons(BASE):
         self.name = name
         self.url = url
         self.same_line = same_line
-
 
 class GoodbyeButtons(BASE):
     __tablename__ = "leave_urls"
@@ -71,17 +68,28 @@ class WelcomeMute(BASE):
         self.chat_id = str(chat_id) # ensure string
         self.welcomemutes = welcomemutes
 
-
+class CombotCASStatus(BASE):
+    __tablename__ = "cas_stats"
+    chat_id = Column(String(14), primary_key=True)
+    status = Column(Boolean, default=True)
+    autoban = Column(Boolean, default=False)
+    
+    def __init__(self, chat_id, status, autoban):
+        self.chat_id = str(chat_id) #chat_id is int, make sure it's string
+        self.status = status
+        self.autoban = autoban
 
 Welcome.__table__.create(checkfirst=True)
 WelcomeButtons.__table__.create(checkfirst=True)
 GoodbyeButtons.__table__.create(checkfirst=True)
 WelcomeMute.__table__.create(checkfirst=True)
+CombotCASStatus.__table__.create(checkfirst=True)
 
 INSERTION_LOCK = threading.RLock()
 WELC_BTN_LOCK = threading.RLock()
 LEAVE_BTN_LOCK = threading.RLock()
 WM_LOCK = threading.RLock()
+CAS_LOCK = threading.RLock()
 
 def welcome_mutes(chat_id):
     try:
@@ -92,7 +100,6 @@ def welcome_mutes(chat_id):
     finally:
         SESSION.close()
 
-
 def set_welcome_mutes(chat_id, welcomemutes):
     with WM_LOCK:
         prev = SESSION.query(WelcomeMute).get((str(chat_id)))
@@ -101,7 +108,6 @@ def set_welcome_mutes(chat_id, welcomemutes):
         welcome_m = WelcomeMute(str(chat_id), welcomemutes)
         SESSION.add(welcome_m)
         SESSION.commit()
-
 
 def get_welc_pref(chat_id):
     welc = SESSION.query(Welcome).get(str(chat_id))
@@ -112,7 +118,6 @@ def get_welc_pref(chat_id):
         # Welcome by default.
         return True, DEFAULT_WELCOME, Types.TEXT
 
-
 def get_gdbye_pref(chat_id):
     welc = SESSION.query(Welcome).get(str(chat_id))
     SESSION.close()
@@ -121,7 +126,6 @@ def get_gdbye_pref(chat_id):
     else:
         # Welcome by default.
         return True, DEFAULT_GOODBYE, Types.TEXT
-
 
 def set_clean_welcome(chat_id, clean_welcome):
     with INSERTION_LOCK:
@@ -134,7 +138,6 @@ def set_clean_welcome(chat_id, clean_welcome):
         SESSION.add(curr)
         SESSION.commit()
 
-
 def get_clean_pref(chat_id):
     welc = SESSION.query(Welcome).get(str(chat_id))
     SESSION.close()
@@ -143,7 +146,6 @@ def get_clean_pref(chat_id):
         return welc.clean_welcome
 
     return False
-
 
 def set_del_joined(chat_id, del_joined):
     with INSERTION_LOCK:
@@ -156,7 +158,6 @@ def set_del_joined(chat_id, del_joined):
         SESSION.add(curr)
         SESSION.commit()
 
-
 def get_del_pref(chat_id):
     welc = SESSION.query(Welcome).get(str(chat_id))
     SESSION.close()
@@ -165,7 +166,6 @@ def get_del_pref(chat_id):
         return welc.del_joined
 
     return False
-
 
 def set_welc_preference(chat_id, should_welcome):
     with INSERTION_LOCK:
@@ -178,7 +178,6 @@ def set_welc_preference(chat_id, should_welcome):
         SESSION.add(curr)
         SESSION.commit()
 
-
 def set_gdbye_preference(chat_id, should_goodbye):
     with INSERTION_LOCK:
         curr = SESSION.query(Welcome).get(str(chat_id))
@@ -189,7 +188,6 @@ def set_gdbye_preference(chat_id, should_goodbye):
 
         SESSION.add(curr)
         SESSION.commit()
-
 
 def set_custom_welcome(chat_id, custom_welcome, welcome_type, buttons=None):
     if buttons is None:
@@ -221,7 +219,6 @@ def set_custom_welcome(chat_id, custom_welcome, welcome_type, buttons=None):
 
         SESSION.commit()
 
-
 def get_custom_welcome(chat_id):
     welcome_settings = SESSION.query(Welcome).get(str(chat_id))
     ret = DEFAULT_WELCOME
@@ -230,7 +227,6 @@ def get_custom_welcome(chat_id):
 
     SESSION.close()
     return ret
-
 
 def set_custom_gdbye(chat_id, custom_goodbye, goodbye_type, buttons=None):
     if buttons is None:
@@ -262,7 +258,6 @@ def set_custom_gdbye(chat_id, custom_goodbye, goodbye_type, buttons=None):
 
         SESSION.commit()
 
-
 def get_custom_gdbye(chat_id):
     welcome_settings = SESSION.query(Welcome).get(str(chat_id))
     ret = DEFAULT_GOODBYE
@@ -272,14 +267,12 @@ def get_custom_gdbye(chat_id):
     SESSION.close()
     return ret
 
-
 def get_welc_buttons(chat_id):
     try:
         return SESSION.query(WelcomeButtons).filter(WelcomeButtons.chat_id == str(chat_id)).order_by(
             WelcomeButtons.id).all()
     finally:
         SESSION.close()
-
 
 def get_gdbye_buttons(chat_id):
     try:
@@ -288,6 +281,45 @@ def get_gdbye_buttons(chat_id):
     finally:
         SESSION.close()
 
+def get_cas_status(chat_id):
+    try:
+        resultObj = SESSION.query(CombotCASStatus).get(str(chat_id))
+        if resultObj and resultObj.status:
+            return resultObj.status
+        return True
+    finally:
+        SESSION.close()
+
+def set_cas_status(chat_id, status):
+    with CAS_LOCK:
+        ban = False
+        prevObj = SESSION.query(CombotCASStatus).get(str(chat_id))
+        if prevObj:
+            ban = prevObj.autoban
+            SESSION.delete(prevObj)
+        newObj = CombotCASStatus(str(chat_id), status, ban)
+        SESSION.add(newObj)
+        SESSION.commit()
+
+def get_cas_autoban(chat_id):
+    try:
+        resultObj = SESSION.query(CombotCASStatus).get(str(chat_id))
+        if resultObj and resultObj.autoban:
+            return resultObj.autoban
+        return False
+    finally:
+        SESSION.close()
+        
+def set_cas_autoban(chat_id, autoban):
+    with CAS_LOCK:
+        status = True
+        prevObj = SESSION.query(CombotCASStatus).get(str(chat_id))
+        if prevObj:
+            status = prevObj.status
+            SESSION.delete(prevObj)
+        newObj = CombotCASStatus(str(chat_id), status, autoban)
+        SESSION.add(newObj)
+        SESSION.commit()
 
 def migrate_chat(old_chat_id, new_chat_id):
     with INSERTION_LOCK:
