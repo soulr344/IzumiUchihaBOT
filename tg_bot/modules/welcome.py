@@ -2,8 +2,7 @@ import html, time
 import re
 from typing import Optional, List
 
-from telegram import Message, Chat, Update, Bot, User, CallbackQuery, ChatMember, ParseMode
-from telegram import ParseMode, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import Message, Chat, Update, Bot, User, CallbackQuery, ChatMember, ParseMode, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.error import BadRequest
 from telegram.ext import MessageHandler, Filters, CommandHandler, run_async, CallbackQueryHandler
 from telegram.utils.helpers import mention_markdown, mention_html, escape_markdown
