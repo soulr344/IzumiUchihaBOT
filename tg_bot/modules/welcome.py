@@ -93,7 +93,6 @@ def new_member(bot: Bot, update: Update):
     welc_mutes = sql.welcome_mutes(chat.id)
     casPrefs = sql.get_cas_status(str(chat.id)) #check if enabled, obviously
     autoban = sql.get_cas_autoban(str(chat.id))
-    report = "CAS Banned user detected: "
     if casPrefs and not autoban and cas.banchecker(user.id):
         bot.restrict_chat_member(chat.id, user.id, 
                                          can_send_messages=False, 
@@ -101,13 +100,13 @@ def new_member(bot: Bot, update: Update):
                                          can_send_other_messages=False, 
                                          can_add_web_page_previews=False)
         msg.reply_text("Warning! This user is CAS Banned. I have muted them to avoid spam. Ban is adviced.")
-        report += str(user.id)
-        send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report)
+        report = "CAS Banned user detected: <code>{}</code>".format(user.id)
+        send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report, html=True)
     elif casPrefs and autoban and cas.banchecker(user.id):
         chat.kick_member(user.id)
         msg.reply_text("CAS banned user detected! User has been automatically banned!")
-        report += str(user.id)
-        send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report)
+        report = "CAS Banned user detected: <code>{}</code>".format(user.id)
+        send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report, html=True)
     elif should_welc:
         sent = None
         new_members = update.effective_message.new_chat_members
