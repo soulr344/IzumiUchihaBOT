@@ -1,7 +1,7 @@
 import urllib.request as url
 import json
 
-VERSION = "1.2"
+VERSION = "1.3"
 CAS_QUERY_URL = "https://combot.org/api/cas/check?user_id="
 
 def get_user_data(user_id):
@@ -26,3 +26,11 @@ def offenses(user_id):
     except:
         return "None"
     
+def timeadded(user_id):
+    userdata = get_user_data(user_id)
+    try:
+        timeEp = userdata['result']['time_added']
+        timeHuman = datetime.datetime.utcfromtimestamp(timeEp).strftime('%H:%M:%S, %d-%m-%Y')
+        return timeHuman
+    except:
+        return "None"
