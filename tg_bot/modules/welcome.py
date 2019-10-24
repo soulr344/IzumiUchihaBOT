@@ -631,6 +631,10 @@ def caschecker(bot: Bot, update: Update, args: List[str]):
         text += "\nTotal of Offenses: "
         parsing = cas.offenses(user.id)
         text += str(parsing)
+        text += "\nAdded: "
+        parsing = cas.timeadded(user.id)
+        text += str(parsing)
+        text += "\n\nAll times are in UTC"
     update.effective_message.reply_text(text, parse_mode=ParseMode.HTML)
 
 #this sends direct request to combot server. Will return true if user is banned, false if
