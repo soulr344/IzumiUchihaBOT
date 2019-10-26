@@ -1,5 +1,6 @@
 import urllib.request as url
 import json
+import datetime
 
 VERSION = "1.3"
 CAS_QUERY_URL = "https://combot.org/api/cas/check?user_id="
