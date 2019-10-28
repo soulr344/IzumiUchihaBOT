@@ -10,6 +10,8 @@ from telegram.ext import MessageHandler, Filters, CommandHandler, run_async, Cal
 from telegram.utils.helpers import mention_markdown, mention_html, escape_markdown
 
 import tg_bot.modules.sql.welcome_sql as sql
+import tg_bot.modules.sql.global_bans_sql as gbansql
+
 from tg_bot import dispatcher, OWNER_ID, LOGGER, SUDO_USERS, SUPPORT_USERS
 from tg_bot.modules.helper_funcs.chat_status import user_admin, can_delete, is_user_ban_protected
 from tg_bot.modules.helper_funcs.misc import build_keyboard, revert_buttons, send_to_list
@@ -17,8 +19,7 @@ from tg_bot.modules.helper_funcs.msg_types import get_welcome_type
 from tg_bot.modules.helper_funcs.extraction import extract_user
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.helper_funcs.filters import CustomFilters
-from tg_bot.modules.helper_funcs.string_handling import markdown_parser, \
-    escape_invalid_curly_brackets
+from tg_bot.modules.helper_funcs.string_handling import markdown_parser, escape_invalid_curly_brackets
 from tg_bot.modules.log_channel import loggable
 
 VALID_WELCOME_FORMATTERS = ['first', 'last', 'fullname', 'username', 'id', 'count', 'chatname', 'mention']
@@ -100,12 +101,14 @@ def new_member(bot: Bot, update: Update):
                                          can_send_other_messages=False, 
                                          can_add_web_page_previews=False)
         msg.reply_text("Warning! This user is CAS Banned. I have muted them to avoid spam. Ban is adviced.")
-        report = "CAS Banned user detected: <code>{}</code>".format(user.id)
+        isUserGbanned = gbansql.is_user_gbanned(user.id)
+        report = "CAS Banned user detected: <code>{}</code>\nGlobal Banned: {}".format(user.id, isUserGbanned)
         send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report, html=True)
     elif casPrefs and autoban and cas.banchecker(user.id):
         chat.kick_member(user.id)
         msg.reply_text("CAS banned user detected! User has been automatically banned!")
-        report = "CAS Banned user detected: <code>{}</code>".format(user.id)
+        isUserGbanned = gbansql.is_user_gbanned(user.id)
+        report = "CAS Banned user detected: <code>{}</code>\nGlobal Banned: {}".format(user.id, isUserGbanned)
         send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report, html=True)
     elif should_welc:
         sent = None
