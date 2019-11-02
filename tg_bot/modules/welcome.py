@@ -94,9 +94,12 @@ def new_member(bot: Bot, update: Update):
     welc_mutes = sql.welcome_mutes(chat.id)
     casPrefs = sql.get_cas_status(str(chat.id)) #check if enabled, obviously
     autoban = sql.get_cas_autoban(str(chat.id))
+    chatbanned = sql.isBanned(str(chat.id))
+    if chatbanned:
+        bot.leave_chat(int(chat.id))
     if casPrefs and not autoban and cas.banchecker(user.id):
         bot.restrict_chat_member(chat.id, user.id, 
-                                         can_send_messages=False, 
+                                         can_send_messages=False,
                                          can_send_media_messages=False, 
                                          can_send_other_messages=False, 
                                          can_add_web_page_previews=False)
@@ -686,6 +689,33 @@ WELC_HELP_TXT = "Your group's welcome/goodbye messages can be personalised in mu
 def welcome_help(bot: Bot, update: Update):
     update.effective_message.reply_text(WELC_HELP_TXT, parse_mode=ParseMode.MARKDOWN)
 
+@run_async
+def gbanChat(bot: Bot, update: Update, args: List[str]):
+    if args and len(args) == 1:
+        chat_id = str(args[0])
+        del args[0]
+        try:
+            sql.blacklistChat(chat_id)
+            update.effective_message.reply_text("Chat has been successfully blacklisted!")
+            bot.leave_chat(int(chat_id))
+        except:
+            update.effective_message.reply_text("Error blacklisting chat!")
+    else:
+        update.effective_message.reply_text("Give me a valid chat id!") 
+
+@run_async
+def ungbanChat(bot: Bot, update: Update, args: List[str]):
+    if args and len(args) == 1:
+        chat_id = str(args[0])
+        del args[0]
+        try:
+            sql.unblacklistChat(chat_id)
+            update.effective_message.reply_text("Chat has been successfully un-blacklisted!")
+        except:
+            update.effective_message.reply_text("Error unblacklisting chat!")
+    else:
+        update.effective_message.reply_text("Give me a valid chat id!") 
+
 # TODO: get welcome data from group butler snap
 # def __import_data__(chat_id, data):
 #     welcome = data.get('info', {}).get('rules')
@@ -752,6 +782,8 @@ GETVER_HANDLER = DisableAbleCommandHandler("casver", get_version)
 CASCHECK_HANDLER = CommandHandler("cascheck", caschecker, pass_args=True)
 CASQUERY_HANDLER = CommandHandler("casquery", casquery, pass_args=True ,filters=CustomFilters.sudo_filter)
 SETBAN_HANDLER = CommandHandler("setban", setban, filters=Filters.group)
+GBANCHAT_HANDLER = CommandHandler("blchat", gbanChat, pass_args=True, filters=CustomFilters.sudo_filter)
+UNGBANCHAT_HANDLER = CommandHandler("unblchat", ungbanChat, pass_args=True, filters=CustomFilters.sudo_filter)
 
 dispatcher.add_handler(NEW_MEM_HANDLER)
 dispatcher.add_handler(LEFT_MEM_HANDLER)
@@ -772,3 +804,5 @@ dispatcher.add_handler(GETVER_HANDLER)
 dispatcher.add_handler(CASCHECK_HANDLER)
 dispatcher.add_handler(CASQUERY_HANDLER)
 dispatcher.add_handler(SETBAN_HANDLER)
+dispatcher.add_handler(GBANCHAT_HANDLER)
+dispatcher.add_handler(UNGBANCHAT_HANDLER)

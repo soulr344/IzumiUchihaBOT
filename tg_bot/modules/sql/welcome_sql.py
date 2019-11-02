@@ -79,17 +79,28 @@ class CombotCASStatus(BASE):
         self.status = status
         self.autoban = autoban
 
+class BannedChat(BASE):
+    __tablename__ = "chat_blacklists"
+    chat_id = Column(String(14), primary_key=True)
+    
+    def __init__(self, chat_id):
+        self.chat_id = str(chat_id) #chat_id is int, make sure it is string
+
 Welcome.__table__.create(checkfirst=True)
 WelcomeButtons.__table__.create(checkfirst=True)
 GoodbyeButtons.__table__.create(checkfirst=True)
 WelcomeMute.__table__.create(checkfirst=True)
 CombotCASStatus.__table__.create(checkfirst=True)
+BannedChat.__table__.create(checkfirst=True)
 
 INSERTION_LOCK = threading.RLock()
 WELC_BTN_LOCK = threading.RLock()
 LEAVE_BTN_LOCK = threading.RLock()
 WM_LOCK = threading.RLock()
 CAS_LOCK = threading.RLock()
+BANCHATLOCK = threading.RLock()
+
+BLACKLIST = set()
 
 def welcome_mutes(chat_id):
     try:
@@ -338,3 +349,32 @@ def migrate_chat(old_chat_id, new_chat_id):
                 btn.chat_id = str(new_chat_id)
 
         SESSION.commit()
+
+def __load_blacklisted_chats_list(): #load shit to memory to be faster, and reduce disk access 
+    global BLACKLIST
+    try:
+        BLACKLIST = {x.chat_id for x in SESSION.query(BannedChat).all()}
+    finally:
+        SESSION.close()
+
+def blacklistChat(chat_id):
+    with BANCHATLOCK:
+        chat = SESSION.query(BannedChat).get(chat_id)
+        if not chat:
+            chat = BannedChat(chat_id)
+            SESSION.merge(chat)
+        SESSION.commit()
+        __load_blacklisted_chats_list()
+    
+def unblacklistChat(chat_id):
+    with BANCHATLOCK:
+        chat = SESSION.query(BannedChat).get(chat_id)
+        if chat:
+            SESSION.delete(chat)
+        SESSION.commit()
+        __load_blacklisted_chats_list()
+
+def isBanned(chat_id):
+    return chat_id in BLACKLIST
+
+__load_blacklisted_chats_list()
