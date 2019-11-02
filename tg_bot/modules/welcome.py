@@ -706,7 +706,10 @@ def gbanChat(bot: Bot, update: Update, args: List[str]):
                      "\n<b>ID:</b> <code>{}</code>".format(mention_html(banner.id, banner.first_name),userssql.get_chat_name(chat_id),chat_id), html=True)
             sql.blacklistChat(chat_id)
             update.effective_message.reply_text("Chat has been successfully blacklisted!")
-            bot.leave_chat(int(chat_id))
+            try:
+                bot.leave_chat(int(chat_id))
+            except:
+                pass
         except:
             update.effective_message.reply_text("Error blacklisting chat!")
     else:
