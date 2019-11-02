@@ -151,6 +151,11 @@ def num_users():
     finally:
         SESSION.close()
 
+def get_chat_name(chat_id):
+    try:
+        return SESSION.query(Chats).get(str(chat_id)).chat_name
+    finally:
+        SESSION.close()
 
 def migrate_chat(old_chat_id, new_chat_id):
     with INSERTION_LOCK:

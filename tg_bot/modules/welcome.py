@@ -11,6 +11,7 @@ from telegram.utils.helpers import mention_markdown, mention_html, escape_markdo
 
 import tg_bot.modules.sql.welcome_sql as sql
 import tg_bot.modules.sql.global_bans_sql as gbansql
+import tg_bot.modules.sql.users_sql as userssql
 
 from tg_bot import dispatcher, OWNER_ID, LOGGER, SUDO_USERS, SUPPORT_USERS
 from tg_bot.modules.helper_funcs.chat_status import user_admin, can_delete, is_user_ban_protected
@@ -695,6 +696,14 @@ def gbanChat(bot: Bot, update: Update, args: List[str]):
         chat_id = str(args[0])
         del args[0]
         try:
+            banner = update.effective_user
+            send_to_list(bot, SUDO_USERS,
+                     "<b>Chat Blacklist</b>" \
+                     "\n#BLCHAT" \
+                     "\n<b>Status:</b> <code>Blacklisted</code>" \
+                     "\n<b>Sudo Admin:</b> {}" \
+                     "\n<b>Chat Name:</b> {}" \
+                     "\n<b>ID:</b> <code>{}</code>".format(mention_html(banner.id, banner.first_name),userssql.get_chat_name(chat_id),chat_id), html=True)
             sql.blacklistChat(chat_id)
             update.effective_message.reply_text("Chat has been successfully blacklisted!")
             bot.leave_chat(int(chat_id))
@@ -709,6 +718,14 @@ def ungbanChat(bot: Bot, update: Update, args: List[str]):
         chat_id = str(args[0])
         del args[0]
         try:
+            banner = update.effective_user
+            send_to_list(bot, SUDO_USERS,
+                     "<b>Regression of Chat Blacklist</b>" \
+                     "\n#UNBLCHAT" \
+                     "\n<b>Status:</b> <code>Un-Blacklisted</code>" \
+                     "\n<b>Sudo Admin:</b> {}" \
+                     "\n<b>Chat Name:</b> {}" \
+                     "\n<b>ID:</b> <code>{}</code>".format(mention_html(banner.id, banner.first_name),userssql.get_chat_name(chat_id),chat_id), html=True)
             sql.unblacklistChat(chat_id)
             update.effective_message.reply_text("Chat has been successfully un-blacklisted!")
         except:
