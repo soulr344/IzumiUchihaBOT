@@ -641,8 +641,11 @@ def caschecker(bot: Bot, update: Update, args: List[str]):
             text += str(parsing)
         parsing = cas.timeadded(user.id)
         if parsing:
-            text += "\nAdded: "
-            text += str(parsing)
+            parseArray=str(parsing).split(", ")
+            text += "\nDay added: "
+            text += str(parseArray[1])
+            text += "\nTime added: "
+            text += str(parseArray[0])
             text += "\n\nAll times are in UTC"
     update.effective_message.reply_text(text, parse_mode=ParseMode.HTML)
 
