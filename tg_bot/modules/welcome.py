@@ -98,6 +98,7 @@ def new_member(bot: Bot, update: Update):
     chatbanned = sql.isBanned(str(chat.id))
     if chatbanned:
         bot.leave_chat(int(chat.id))
+    print("ChatBlacklist done\n")
     if casPrefs and not autoban and cas.banchecker(user.id):
         bot.restrict_chat_member(chat.id, user.id, 
                                          can_send_messages=False,
@@ -114,11 +115,13 @@ def new_member(bot: Bot, update: Update):
         isUserGbanned = gbansql.is_user_gbanned(user.id)
         report = "CAS Banned user detected: <code>{}</code>\nGlobally Banned: {}".format(user.id, isUserGbanned)
         send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report, html=True)
+    print("Cas ban checking\n")
     elif should_welc:
         sent = None
         new_members = update.effective_message.new_chat_members
         for new_mem in new_members:
             # Give the owner a special welcome
+            print("checking who entered\n")
             if new_mem.id == OWNER_ID:
                 update.effective_message.reply_text("Master is in the houseeee, let's get this party started!")
                 continue
@@ -140,6 +143,7 @@ def new_member(bot: Bot, update: Update):
                 first_name = new_mem.first_name or "PersonWithNoName"  # edge case of empty name - occurs for some bugs.
 
                 if cust_welcome:
+                    print("Custom welcome check\n")
                     if new_mem.last_name:
                         fullname = "{} {}".format(first_name, new_mem.last_name)
                     else:
@@ -150,7 +154,7 @@ def new_member(bot: Bot, update: Update):
                         username = "@" + escape_markdown(new_mem.username)
                     else:
                         username = mention
-
+                    print("Fetching custom welcome\n")
                     valid_format = escape_invalid_curly_brackets(cust_welcome, VALID_WELCOME_FORMATTERS)
                     res = valid_format.format(first=escape_markdown(first_name),
                                               last=escape_markdown(new_mem.last_name or first_name),
@@ -159,19 +163,21 @@ def new_member(bot: Bot, update: Update):
                     buttons = sql.get_welc_buttons(chat.id)
                     keyb = build_keyboard(buttons)
                 else:
+                    print("Default welcome message\n")
                     res = sql.DEFAULT_WELCOME.format(first=first_name)
                     keyb = []
 
                 keyboard = InlineKeyboardMarkup(keyb)
-
+                
+                print("Sending\n")
                 sent = send(update, res, keyboard,
                             sql.DEFAULT_WELCOME.format(first=first_name))  # type: Optional[Message]
-            
+                print("sent\n")
                 
                 #Sudo user exception from mutes:
                 if is_user_ban_protected(chat, new_mem.id, chat.get_member(new_mem.id)):
                     continue
-
+                print("Safe mode check\n")
                 #Safe mode
                 if welc_mutes == "on":
                     msg.reply_text("Click the button below to prove you're human",
@@ -185,10 +191,13 @@ def new_member(bot: Bot, update: Update):
             delete_join(bot, update)
 
         prev_welc = sql.get_clean_pref(chat.id)
+        print("prev_welc\n")
         if prev_welc:
             try:
                 bot.delete_message(chat.id, prev_welc)
+                print("Try part of try-catch\n")
             except BadRequest as excp:
+                print("Exception\n")
                 pass
 
             if sent:
