@@ -3,7 +3,7 @@ import json
 import datetime
 
 VERSION = "1.3.1"
-CAS_QUERY_URL = "https://104.26.2.111/api/cas/check?user_id="
+CAS_QUERY_URL = "https://combot.org/api/cas/check?user_id="
 
 def get_user_data(user_id):
     with url.urlopen(CAS_QUERY_URL + str(user_id)) as userdata_raw:
