@@ -115,7 +115,6 @@ def new_member(bot: Bot, update: Update):
         isUserGbanned = gbansql.is_user_gbanned(user.id)
         report = "CAS Banned user detected: <code>{}</code>\nGlobally Banned: {}".format(user.id, isUserGbanned)
         send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report, html=True)
-    print("Cas ban checking\n")
     elif should_welc:
         sent = None
         new_members = update.effective_message.new_chat_members
