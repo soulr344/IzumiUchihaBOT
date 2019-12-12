@@ -453,19 +453,40 @@ def echo(bot: Bot, update: Update):
     message.delete()
          
 @run_async
-def gdpr(bot: Bot, update: Update):
-    update.effective_message.reply_text("Deleting identifiable data...")
-    for mod in GDPR:
-        mod.__gdpr__(update.effective_user.id)
-
-    update.effective_message.reply_text("Your personal data has been deleted.\n\nNote that this will not unban "
-                                        "you from any chats, as that is telegram data, not this bot's data. "
-                                        "Flooding, warns, and gbans are also preserved, as of "
-                                        "[this](https://ico.org.uk/for-organisations/guide-to-the-general-data-protection-regulation-gdpr/individual-rights/right-to-erasure/), "
-                                        "which clearly states that the right to erasure does not apply "
-                                        "\"for the performance of a task carried out in the public interest\", as is "
-                                        "the case for the aforementioned pieces of data.",
-                                        parse_mode=ParseMode.MARKDOWN)
+def gdpr(bot: Bot, update: Update, args: List[str]):
+    if update.effective_user.id not in SUDO_USERS:
+        update.effective_message.reply_text("Deleting identifiable data...")
+        for mod in GDPR:
+            mod.__gdpr__(update.effective_user.id)
+        update.effective_message.reply_text("Your personal data has been deleted.\n\nNote that this will not unban "
+                                            "you from any chats, as that is telegram data, not this bot's data. "
+                                            "Flooding, warns, and gbans are also preserved, as of "
+                                            "[this](https://ico.org.uk/for-organisations/guide-to-the-general-data-protection-regulation-gdpr/individual-rights/right-to-erasure/), "
+                                            "which clearly states that the right to erasure does not apply "
+                                            "\"for the performance of a task carried out in the public interest\", as is "
+                                            "the case for the aforementioned pieces of data.",
+                                            parse_mode=ParseMode.MARKDOWN)
+    else:
+        if len(args) == 0:
+            update.effective_message.reply_text("Deleting identifiable data...")
+            for mod in GDPR:
+                 mod.__gdpr__(update.effective_user.id)
+            update.effective_message.reply_text("Your personal data has been deleted.\n\nNote that this will not unban "
+                                            "you from any chats, as that is telegram data, not this bot's data. "
+                                            "Flooding, warns, and gbans are also preserved, as of "
+                                            "[this](https://ico.org.uk/for-organisations/guide-to-the-general-data-protection-regulation-gdpr/individual-rights/right-to-erasure/), "
+                                            "which clearly states that the right to erasure does not apply "
+                                            "\"for the performance of a task carried out in the public interest\", as is "
+                                            "the case for the aforementioned pieces of data.",
+                                            parse_mode=ParseMode.MARKDOWN)
+        else:
+            user_id = extract_user(update.effective_message, args)
+            try:
+                for mod in GDPR:
+                    mod.__gdpr__(user_id)
+                update.effective_message.reply_text("User data has been deleted", parse_mode = ParseMode.MARKDOWN)
+            except:
+                update.effective_message.reply_text("User is not in my DB!", parse_mode = ParseMode.MARKDOWN)
 
 
 MARKDOWN_HELP = """
@@ -551,7 +572,7 @@ ECHO_HANDLER = CommandHandler("echo", echo, filters=Filters.user(OWNER_ID))
 MD_HELP_HANDLER = CommandHandler("markdownhelp", markdown_help, filters=Filters.private)
 
 STATS_HANDLER = CommandHandler("stats", stats, filters=CustomFilters.sudo_filter)
-GDPR_HANDLER = CommandHandler("gdpr", gdpr, filters=Filters.private)
+GDPR_HANDLER = CommandHandler("gdpr", gdpr, filters=Filters.private, pass_args=True)
 GPS_HANDLER = DisableAbleCommandHandler("gps", gps, pass_args=True)
 
 dispatcher.add_handler(ID_HANDLER)
