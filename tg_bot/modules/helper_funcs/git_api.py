@@ -2,7 +2,7 @@ import urllib.request as url
 import json
 import datetime
 
-VERSION = "0.1.2 - Alpha release"
+VERSION = "0.1.2 - Alpha"
 APIURL = "http://api.github.com/repos/"
 
 def vercheck() -> str:
