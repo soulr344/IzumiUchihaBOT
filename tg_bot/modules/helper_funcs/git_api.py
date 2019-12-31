@@ -2,11 +2,13 @@ import urllib.request as url
 import json
 import datetime
 
-VERSION = "0.1.2 - Alpha"
+VERSION = "0.1.3"
 APIURL = "http://api.github.com/repos/"
 
 def vercheck() -> str:
     return str(VERSION)
+
+#Repo-wise stuff
 
 def getData(repoURL):
     try:
@@ -19,8 +21,13 @@ def getData(repoURL):
 def getLastestReleaseData(repoData):
     return repoData[0]
 
+#Release-wise stuff
+
 def getAuthor(releaseData):
     return releaseData['author']['login']
+    
+def getAuthorUrl(releaseData):
+    return releaseData['author']['html_url']
     
 def getReleaseName(releaseData):
     return releaseData['name']
@@ -33,6 +40,8 @@ def getAssetsSize(releaseData):
   
 def getAssets(releaseData):
     return releaseData['assets']
+
+#Asset-wise stuff
 
 def getReleaseFileName(asset): 
     return asset['name']
