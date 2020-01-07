@@ -21,7 +21,13 @@ from tg_bot.modules.helper_funcs.misc import paginate_modules
 PM_START_TEXT = """
 Hello {}, my name is *{}*! I'm a group manager bot.
 
-You can find the list of available commands with /help.
+You can find the list of available commands with /help. 
+
+If you can't find answer to your question, if you want to submit a bug or a feature request - feel free to do it in @bot\_workshop group.
+
+We have a news channel too, @bot\_workshop\_channel, for announcements regarding features added, downtime etc.
+
+Last but not least, if you enjoy using me and/or you want to contribute you can hit /donate to help funding my hosting services.
 """
 
 SOURCE_STRING = """
