@@ -51,8 +51,8 @@ the things I can help you with.
 Other available commands:
 """.format("" if not ALLOW_EXCL else "\nAll commands can either be used with / or !.\n")
 
-DONATE_STRING = """Nice that you wanna donate. \
-You can send a donation to my current maintainers via [PayPal](paypal.me/corsicanu) and [PayPal](paypal.me/nunopenim)."""
+DONATE_STRING = """
+You can send a donation to my current maintainers, @corsicanu and @nunopenim, via PayPal at paypal.me/corsicanu and/or paypal.me/nunopenim."""
 
 IMPORTED = {}
 MIGRATEABLE = []
@@ -385,7 +385,7 @@ def donate(bot: Bot, update: Update):
         try:
             bot.send_message(user.id, DONATE_STRING, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
-            update.effective_message.reply_text("I've PM'ed you about donating to my creator!")
+            update.effective_message.reply_text("I've PM'ed you about donating to my owner!")
         except Unauthorized:
             update.effective_message.reply_text("Contact me in PM first to get donation information.")
 
