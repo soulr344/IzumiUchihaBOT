@@ -2,7 +2,7 @@ import urllib.request as url
 import json
 import datetime
 
-VERSION = "0.1.3"
+VERSION = "0.1.4"
 APIURL = "http://api.github.com/repos/"
 
 def vercheck() -> str:
@@ -40,6 +40,9 @@ def getAssetsSize(releaseData):
   
 def getAssets(releaseData):
     return releaseData['assets']
+    
+def getBody(releaseData): #changelog stuff
+    return releaseData['body']
 
 #Asset-wise stuff
 
