@@ -4,7 +4,7 @@ from typing import Optional, List
 
 import tg_bot.modules.helper_funcs.cas_api as cas
 
-from telegram import Message, Chat, Update, Bot, User, CallbackQuery, ChatMember, ParseMode, InlineKeyboardMarkup, InlineKeyboardButton, MessageEntity
+from telegram import Message, Chat, Update, Bot, User, CallbackQuery, ChatMember, ParseMode, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.error import BadRequest
 from telegram.ext import MessageHandler, Filters, CommandHandler, run_async, CallbackQueryHandler
 from telegram.utils.helpers import mention_markdown, mention_html, escape_markdown
@@ -96,6 +96,7 @@ def new_member(bot: Bot, update: Update):
     casPrefs = sql.get_cas_status(str(chat.id)) #check if enabled, obviously
     autoban = sql.get_cas_autoban(str(chat.id))
     chatbanned = sql.isBanned(str(chat.id))
+    defense = sql.getDefenseStatus(str(chat.id))
     if chatbanned:
         bot.leave_chat(int(chat.id))
     if casPrefs and not autoban and cas.banchecker(user.id):
@@ -108,12 +109,16 @@ def new_member(bot: Bot, update: Update):
         isUserGbanned = gbansql.is_user_gbanned(user.id)
         report = "CAS Banned user detected: <code>{}</code>\nGlobally Banned: {}".format(user.id, isUserGbanned)
         send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report, html=True)
+        if defense:
+            bot.unban_chat_member(chat.id, user.id)
     elif casPrefs and autoban and cas.banchecker(user.id):
         chat.kick_member(user.id)
         msg.reply_text("CAS banned user detected! User has been automatically banned!")
         isUserGbanned = gbansql.is_user_gbanned(user.id)
         report = "CAS Banned user detected: <code>{}</code>\nGlobally Banned: {}".format(user.id, isUserGbanned)
         send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report, html=True)
+    elif defense:
+        bot.unban_chat_member(chat.id, user.id)
     elif should_welc:
         sent = None
         new_members = update.effective_message.new_chat_members
@@ -150,6 +155,7 @@ def new_member(bot: Bot, update: Update):
                         username = "@" + escape_markdown(new_mem.username)
                     else:
                         username = mention
+
                     valid_format = escape_invalid_curly_brackets(cust_welcome, VALID_WELCOME_FORMATTERS)
                     res = valid_format.format(first=escape_markdown(first_name),
                                               last=escape_markdown(new_mem.last_name or first_name),
@@ -162,13 +168,15 @@ def new_member(bot: Bot, update: Update):
                     keyb = []
 
                 keyboard = InlineKeyboardMarkup(keyb)
-                
+
                 sent = send(update, res, keyboard,
                             sql.DEFAULT_WELCOME.format(first=first_name))  # type: Optional[Message]
+            
                 
                 #Sudo user exception from mutes:
                 if is_user_ban_protected(chat, new_mem.id, chat.get_member(new_mem.id)):
                     continue
+
                 #Safe mode
                 if welc_mutes == "on":
                     msg.reply_text("Click the button below to prove you're human",
@@ -736,6 +744,36 @@ def ungbanChat(bot: Bot, update: Update, args: List[str]):
     else:
         update.effective_message.reply_text("Give me a valid chat id!") 
 
+@run_async
+@user_admin
+def setDefense(bot: Bot, update: Update, args: List[str]):
+    chat = update.effective_chat
+    msg = update.effective_message
+    if len(args)!=1:
+        msg.reply_text("Invalid arguments!")
+        return
+    param = args[0]
+    if param == "on" or param == "true":
+        sql.setDefenseStatus(chat.id, True)
+        msg.reply_text("Defense mode has been turned on, this group is under attack. Every user that now joins will be auto kicked.")
+        return
+    elif param == "off" or param == "false":
+        sql.setDefenseStatus(chat.id, False)
+        msg.reply_text("Defense mode has been turned off, group is no longer under attack.")
+        return
+    else:
+        msg.reply_text("Invalid status to set!") #on or off ffs
+        return 
+
+@run_async
+@user_admin
+def getDefense(bot: Bot, update: Update):
+    chat = update.effective_chat
+    msg = update.effective_message
+    stat = sql.getDefenseStatus(chat.id)
+    text = "<b>Defense Status</b>\n\nCurrently, this group has the defense setting set to: <b>{}</b>".format(stat)
+    msg.reply_text(text, parse_mode=ParseMode.HTML)
+
 # TODO: get welcome data from group butler snap
 # def __import_data__(chat_id, data):
 #     welcome = data.get('info', {}).get('rules')
@@ -779,6 +817,8 @@ Commands:
  - /setcas <on/off/true/false>: Enables/disables CAS Checking on welcome
  - /getcas: Gets the current CAS settings
  - /setban <on/off/true/false>: Enables/disables autoban on CAS banned user detected.
+ - /setdefense <on/off/true/false>: Turns on defense mode, will kick any new user automatically.
+ - /getdefense: gets the current defense setting
 """.format(WELC_HELP_TXT)
 
 __mod_name__ = "Welcomes/Goodbyes"
@@ -804,6 +844,8 @@ CASQUERY_HANDLER = CommandHandler("casquery", casquery, pass_args=True ,filters=
 SETBAN_HANDLER = CommandHandler("setban", setban, filters=Filters.group)
 GBANCHAT_HANDLER = CommandHandler("blchat", gbanChat, pass_args=True, filters=CustomFilters.sudo_filter)
 UNGBANCHAT_HANDLER = CommandHandler("unblchat", ungbanChat, pass_args=True, filters=CustomFilters.sudo_filter)
+DEFENSE_HANDLER = CommandHandler("setdefense", setDefense, pass_args=True)
+GETDEF_HANDLER = CommandHandler("getdefense", getDefense)
 
 dispatcher.add_handler(NEW_MEM_HANDLER)
 dispatcher.add_handler(LEFT_MEM_HANDLER)
@@ -826,3 +868,5 @@ dispatcher.add_handler(CASQUERY_HANDLER)
 dispatcher.add_handler(SETBAN_HANDLER)
 dispatcher.add_handler(GBANCHAT_HANDLER)
 dispatcher.add_handler(UNGBANCHAT_HANDLER)
+dispatcher.add_handler(DEFENSE_HANDLER)
+dispatcher.add_handler(GETDEF_HANDLER)

@@ -95,8 +95,6 @@ class DefenseMode(BASE):
         self.chat_id = str(chat_id)
         self.status = status
 
-
-
 Welcome.__table__.create(checkfirst=True)
 WelcomeButtons.__table__.create(checkfirst=True)
 GoodbyeButtons.__table__.create(checkfirst=True)
