@@ -30,7 +30,12 @@ def magisk(bot, update):
 @run_async
 def device(bot, update, args):
     if len(args) == 0:
-        update.effective_message.reply_text("No codename provided, write a codename for fetching informations.")
+        reply = f'No codename provided, write a codename for fetching informations.'
+        del_msg = update.effective_message.reply_text("{}".format(reply),
+                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        time.sleep(5)
+        del_msg.delete()
+        update.effective_message.delete()
         return
     device = " ".join(args)
     found = [
@@ -49,6 +54,12 @@ def device(bot, update, args):
                 f'Codename: <code>{codename}</code>\n\n'                
     else:
         reply = f"Couldn't find info about {device}!\n"
+        del_msg = update.effective_message.reply_text("{}".format(reply),
+                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        time.sleep(5)
+        del_msg.delete()
+        update.effective_message.delete()
+        return
     update.message.reply_text("{}".format(reply),
                                parse_mode=ParseMode.HTML, disable_web_page_preview=True)
 
@@ -59,19 +70,19 @@ def getfw(bot, update, args):
         del_msg = update.effective_message.reply_text("{}".format(reply),
                                parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
         time.sleep(5)
-        update.effective_message.delete()
         del_msg.delete()
+        update.effective_message.delete()
         return
     temp,csc = args
     model = f'sm-'+temp if not temp.upper().startswith('SM-') else temp
     test = get(f'https://samfrew.com/model/{model.upper()}/region/{csc.upper()}/')
     if test.status_code == 404:
-        reply = f"Couldn't find any firmware downloads for {model.upper()} and {csc.upper()}, please refine your search or try again later!"
+        reply = f"Couldn't find any firmware downloads for {temp.upper()} and {csc.upper()}, please refine your search or try again later!"
         del_msg = update.effective_message.reply_text("{}".format(reply),
                                parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
         time.sleep(5)
-        update.effective_message.delete()
         del_msg.delete()
+        update.effective_message.delete()
         return
     url1 = f'• [samfrew.com](https://samfrew.com/model/{model.upper()}/region/{csc.upper()}/)'
     url2 = f'• [sammobile.com](https://www.sammobile.com/samsung/firmware/{model.upper()}/{csc.upper()}/)'
@@ -84,14 +95,25 @@ def getfw(bot, update, args):
     update.message.reply_text("{}".format(reply),
                            parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
+@run_async
 def twrp(bot, update, args):
     if len(args) == 0:
-        update.effective_message.reply_text("No codename provided, write a codename for fetching informations.")
+        reply='No codename provided, write a codename for fetching informations.'
+        del_msg = update.effective_message.reply_text("{}".format(reply),
+                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        time.sleep(5)
+        del_msg.delete()
+        update.effective_message.delete()
         return
     device = " ".join(args)
     url = get(f'https://eu.dl.twrp.me/{device}/')
     if url.status_code == 404:
         reply = f"Couldn't find twrp downloads for {device}!\n"
+        del_msg = update.effective_message.reply_text("{}".format(reply),
+                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        time.sleep(5)
+        del_msg.delete()
+        update.effective_message.delete()
         return
     reply = f'*Latest Official TWRP for {device}*\n'            
     db = get(DEVICES_DATA).json()
