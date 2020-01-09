@@ -92,13 +92,23 @@ def checkfw(bot, update, args):
     if page1.find("latest").text.strip():
         pda1,csc1,phone1=page1.find("latest").text.strip().split('/')
         reply = f'*Latest released firmware for {model.upper()} and {csc.upper()} is:*\n'
-        reply += f'• PDA: `{pda1}`\n• CSC: `{csc1}`\n• Phone: `{phone1}`\n• Android: `{os1}`\n\n'
+        reply += f'• PDA: `{pda1}`\n• CSC: `{csc1}`\n'
+        if phone1:
+            reply += f'• Phone: `{phone1}`\n'
+        if os1:
+            reply += f'• Android: `{os1}`\n'
+        reply += f'\n'
     else:
         reply = f'*No public release found for {model.upper()} and {csc.upper()}.*\n\n'
     reply += f'*Latest test firmware for {model.upper()} and {csc.upper()} is:*\n'
     if len(page2.find("latest").text.strip().split('/')) == 3:
         pda2,csc2,phone2=page2.find("latest").text.strip().split('/')
-        reply += f'• PDA: `{pda2}`\n• CSC: `{csc2}`\n• Phone: `{phone2}`\n• Android: `{os2}`\n\n'
+        reply += f'• PDA: `{pda2}`\n• CSC: `{csc2}`\n'
+        if phone2:
+            reply += f'• Phone: `{phone2}`\n'
+        if os2:
+            reply += f'• Android: `{os2}`\n'
+        reply += f'\n'
     else:
         md5=page2.find("latest").text.strip()
         reply += f'• Hash: `{md5}`\n• Android: `{os2}`\n\n'
@@ -138,7 +148,12 @@ def getfw(bot, update, args):
     if page.find("latest").text.strip():
         pda,csc2,phone=page.find("latest").text.strip().split('/')
         reply += f'*Latest firmware for {model.upper()} and {csc.upper()} is:*\n'
-        reply += f'• PDA: `{pda}`\n• CSC: `{csc2}`\n• Phone: `{phone}`\n• Android: `{os}`\n\n'
+        reply += f'• PDA: `{pda}`\n• CSC: `{csc2}`\n'
+    if phone:
+        reply += f'• Phone: `{phone}`\n'
+    if os:
+        reply += f'• Android: `{os}`\n'
+    reply += f'\n'
     reply += f'*Downloads for {model.upper()} and {csc.upper()}*\n'
     reply += f'• [samfrew.com]({url1})\n'
     reply += f'• [sammobile.com]({url2})\n'
