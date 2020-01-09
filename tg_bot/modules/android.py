@@ -77,28 +77,7 @@ def checkfw(bot, update, args):
     model = f'sm-'+temp if not temp.upper().startswith('SM-') else temp
     fota = get(f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.xml')
     test = get(f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.test.xml')
-    if test.status_code == 200:
-        page1 = BeautifulSoup(fota.content, 'lxml')
-        page2 = BeautifulSoup(test.content, 'lxml')
-        os1 = page1.find("latest").get("o")
-        os2 = page2.find("latest").get("o")
-        if page1.find("latest").text.strip():
-            pda1,csc1,phone1=page1.find("latest").text.strip().split('/')
-            reply = f'*Latest released firmware for {model.upper()} and {csc.upper()} is:*\n'
-            reply += f'• PDA: `{pda1}`\n• CSC: `{csc1}`\n• Phone: `{phone1}`\n• Android: `{os1}`\n\n'
-        else:
-            reply = f'*No public release found for {model.upper()} and {csc.upper()}.*\n\n'
-        reply += f'*Latest test firmware for {model.upper()} and {csc.upper()} is:*\n'
-        if len(page2.find("latest").text.strip().split('/')) == 3:
-            pda2,csc2,phone2=page2.find("latest").text.strip().split('/')
-            reply += f'• PDA: `{pda2}`\n• CSC: `{csc2}`\n• Phone: `{phone2}`\n• Android: `{os2}`\n\n'
-        else:
-            md5=page2.find("latest").text.strip()
-            reply += f'• Hash: `{md5}`\n• Android: `{os2}`\n\n'
-        
-        update.message.reply_text("{}".format(reply),
-                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
-    else:
+    if test.status_code != 200:
         reply = f"Couldn't check for {temp.upper()} and {csc.upper()}, please refine your search or try again later!"
         del_msg = update.effective_message.reply_text("{}".format(reply),
                                parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
@@ -106,6 +85,26 @@ def checkfw(bot, update, args):
         del_msg.delete()
         update.effective_message.delete()
         return
+    page1 = BeautifulSoup(fota.content, 'lxml')
+    page2 = BeautifulSoup(test.content, 'lxml')
+    os1 = page1.find("latest").get("o")
+    os2 = page2.find("latest").get("o")
+    if page1.find("latest").text.strip():
+        pda1,csc1,phone1=page1.find("latest").text.strip().split('/')
+        reply = f'*Latest released firmware for {model.upper()} and {csc.upper()} is:*\n'
+        reply += f'• PDA: `{pda1}`\n• CSC: `{csc1}`\n• Phone: `{phone1}`\n• Android: `{os1}`\n\n'
+    else:
+        reply = f'*No public release found for {model.upper()} and {csc.upper()}.*\n\n'
+    reply += f'*Latest test firmware for {model.upper()} and {csc.upper()} is:*\n'
+    if len(page2.find("latest").text.strip().split('/')) == 3:
+        pda2,csc2,phone2=page2.find("latest").text.strip().split('/')
+        reply += f'• PDA: `{pda2}`\n• CSC: `{csc2}`\n• Phone: `{phone2}`\n• Android: `{os2}`\n\n'
+    else:
+        md5=page2.find("latest").text.strip()
+        reply += f'• Hash: `{md5}`\n• Android: `{os2}`\n\n'
+    
+    update.message.reply_text("{}".format(reply),
+                           parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
 @run_async
 def getfw(bot, update, args):
@@ -119,8 +118,8 @@ def getfw(bot, update, args):
         return
     temp,csc = args
     model = f'sm-'+temp if not temp.upper().startswith('SM-') else temp
-    test = get(f'https://samfrew.com/model/{model.upper()}/region/{csc.upper()}/')
-    if test.status_code == 404:
+    test = get(f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.test.xml')
+    if test.status_code != 200:
         reply = f"Couldn't find any firmware downloads for {temp.upper()} and {csc.upper()}, please refine your search or try again later!"
         del_msg = update.effective_message.reply_text("{}".format(reply),
                                parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
@@ -128,14 +127,23 @@ def getfw(bot, update, args):
         del_msg.delete()
         update.effective_message.delete()
         return
-    url1 = f'• [samfrew.com](https://samfrew.com/model/{model.upper()}/region/{csc.upper()}/)'
-    url2 = f'• [sammobile.com](https://www.sammobile.com/samsung/firmware/{model.upper()}/{csc.upper()}/)'
-    url3 = f'• [sfirmware.com](https://sfirmware.com/samsung-{model.lower()}/#tab=firmwares)'
-
-    reply = f'*Downloads for {model.upper()} and {csc.upper()}*\n'
-    reply += f'{url1}\n'
-    reply += f'{url2}\n'
-    reply += f'{url3}\n'
+    url1 = f'https://samfrew.com/model/{model.upper()}/region/{csc.upper()}/'
+    url2 = f'https://www.sammobile.com/samsung/firmware/{model.upper()}/{csc.upper()}/'
+    url3 = f'https://sfirmware.com/samsung-{model.lower()}/#tab=firmwares'
+    url4 = f'https://samfw.com/firmware/{model.upper()}/{csc.upper()}/'
+    fota = get(f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.xml')
+    page = BeautifulSoup(fota.content, 'lxml')
+    os = page.find("latest").get("o")
+    reply = ""
+    if page.find("latest").text.strip():
+        pda,csc2,phone=page.find("latest").text.strip().split('/')
+        reply += f'*Latest firmware for {model.upper()} and {csc.upper()} is:*\n'
+        reply += f'• PDA: `{pda}`\n• CSC: `{csc2}`\n• Phone: `{phone}`\n• Android: `{os}`\n\n'
+    reply += f'*Downloads for {model.upper()} and {csc.upper()}*\n'
+    reply += f'• [samfrew.com]({url1})\n'
+    reply += f'• [sammobile.com]({url2})\n'
+    reply += f'• [sfirmware.com]({url3})\n'
+    reply += f'• [samfw.com]({url4})\n'
     update.message.reply_text("{}".format(reply),
                            parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
