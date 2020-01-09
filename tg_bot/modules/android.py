@@ -64,6 +64,50 @@ def device(bot, update, args):
                                parse_mode=ParseMode.HTML, disable_web_page_preview=True)
 
 @run_async
+def checkfw(bot, update, args):
+    if not len(args) == 2:
+        reply = f'Give me something to fetch, like:\n`/checkfw SM-N975F DBT`'
+        del_msg = update.effective_message.reply_text("{}".format(reply),
+                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        time.sleep(5)
+        del_msg.delete()
+        update.effective_message.delete()
+        return
+    temp,csc = args
+    model = f'sm-'+temp if not temp.upper().startswith('SM-') else temp
+    fota = get(f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.xml')
+    test = get(f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.test.xml')
+    if test.status_code == 200:
+        page1 = BeautifulSoup(fota.content, 'lxml')
+        page2 = BeautifulSoup(test.content, 'lxml')
+        os1 = page1.find("latest").get("o")
+        os2 = page2.find("latest").get("o")
+        if page1.find("latest").text.strip():
+            pda1,csc1,phone1=page1.find("latest").text.strip().split('/')
+            reply = f'*Latest released firmware for {model.upper()} and {csc.upper()} is:*\n'
+            reply += f'• PDA: `{pda1}`\n• CSC: `{csc1}`\n• Phone: `{phone1}`\n• Android: `{os1}`\n\n'
+        else:
+            reply = f'*No public release found for {model.upper()} and {csc.upper()}.*\n\n'
+        reply += f'*Latest test firmware for {model.upper()} and {csc.upper()} is:*\n'
+        if len(page2.find("latest").text.strip().split('/')) == 3:
+            pda2,csc2,phone2=page2.find("latest").text.strip().split('/')
+            reply += f'• PDA: `{pda2}`\n• CSC: `{csc2}`\n• Phone: `{phone2}`\n• Android: `{os2}`\n\n'
+        else:
+            md5=page2.find("latest").text.strip()
+            reply += f'• Hash: `{md5}`\n• Android: `{os2}`\n\n'
+        
+        update.message.reply_text("{}".format(reply),
+                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    else:
+        reply = f"Couldn't check for {temp.upper()} and {csc.upper()}, please refine your search or try again later!"
+        del_msg = update.effective_message.reply_text("{}".format(reply),
+                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        time.sleep(5)
+        del_msg.delete()
+        update.effective_message.delete()
+        return
+
+@run_async
 def getfw(bot, update, args):
     if not len(args) == 2:
         reply = f'Give me something to fetch, like:\n`/getfw SM-N975F DBT`'
@@ -145,12 +189,14 @@ __help__ = """
  - /magisk - gets the latest magisk release for Stable/Beta/Canary
  - /device <codename> - gets android device basic info from its codename
  - /twrp <codename> -  gets latest twrp for the android device using the codename
+ - /checkfw <model> <csc> - Samsung only - shows the latest firmware info for the given device, taken from samsung servers
  - /getfw <model> <csc> - Samsung only - gets firmware download links from samfrew, sammobile and sfirmwares for the given device
  
  *Examples:*
- /device greatlte
- /twrp a5y17lte
- /getfw SM-M205FN SER
+  /device greatlte
+  /twrp a5y17lte
+  /checkfw SM-A305F INS
+  /getfw SM-M205FN SER
  
 """
 
@@ -160,8 +206,10 @@ MAGISK_HANDLER = DisableAbleCommandHandler("magisk", magisk)
 DEVICE_HANDLER = DisableAbleCommandHandler("device", device, pass_args=True)
 TWRP_HANDLER = DisableAbleCommandHandler("twrp", twrp, pass_args=True)
 GETFW_HANDLER = DisableAbleCommandHandler("getfw", getfw, pass_args=True)
+CHECKFW_HANDLER = DisableAbleCommandHandler("checkfw", checkfw, pass_args=True)
 
 dispatcher.add_handler(MAGISK_HANDLER)
 dispatcher.add_handler(DEVICE_HANDLER)
 dispatcher.add_handler(TWRP_HANDLER)
 dispatcher.add_handler(GETFW_HANDLER)
+dispatcher.add_handler(CHECKFW_HANDLER)
