@@ -1,9 +1,10 @@
 import re
-import html
+import html, time
 from requests import get
 from bs4 import BeautifulSoup
 from telegram import Message, Update, Bot, User, Chat, ParseMode, InlineKeyboardMarkup
 from telegram.ext import run_async
+from tg_bot.modules.helper_funcs.misc import split_message
 from telegram.utils.helpers import escape_markdown, mention_html
 
 from tg_bot import dispatcher, updater
@@ -50,8 +51,39 @@ def device(bot, update, args):
         reply = f"Couldn't find info about {device}!\n"
     update.message.reply_text("{}".format(reply),
                                parse_mode=ParseMode.HTML, disable_web_page_preview=True)
-        
-        
+
+@run_async
+def getfw(bot, update, args):
+    if not len(args) == 2:
+        reply = f'Give me something to fetch, like:\n`/getfw SM-N975F DBT`'
+        del_msg = update.effective_message.reply_text("{}".format(reply),
+                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        time.sleep(5)
+        update.effective_message.delete()
+        del_msg.delete()
+        return
+    temp,csc = args
+    model = f'sm-'+temp if not temp.upper().startswith('SM-') else temp
+    test = get(f'https://samfrew.com/model/{model.upper()}/region/{csc.upper()}/')
+    if test.status_code == 404:
+        reply = f"Couldn't find any firmware downloads for {model.upper()} and {csc.upper()}, please refine your search or try again later!"
+        del_msg = update.effective_message.reply_text("{}".format(reply),
+                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        time.sleep(5)
+        update.effective_message.delete()
+        del_msg.delete()
+        return
+    url1 = f'• [samfrew.com](https://samfrew.com/model/{model.upper()}/region/{csc.upper()}/)'
+    url2 = f'• [sammobile.com](https://www.sammobile.com/samsung/firmware/{model.upper()}/{csc.upper()}/)'
+    url3 = f'• [sfirmware.com](https://sfirmware.com/samsung-{model.lower()}/#tab=firmwares)'
+
+    reply = f'*Downloads for {model.upper()} and {csc.upper()}*\n'
+    reply += f'{url1}\n'
+    reply += f'{url2}\n'
+    reply += f'{url3}\n'
+    update.message.reply_text("{}".format(reply),
+                           parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+
 def twrp(bot, update, args):
     if len(args) == 0:
         update.effective_message.reply_text("No codename provided, write a codename for fetching informations.")
@@ -86,11 +118,17 @@ def twrp(bot, update, args):
                                parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
 __help__ = """
-Android related commands:
+*Android related commands:*
 
  - /magisk - gets the latest magisk release for Stable/Beta/Canary
  - /device <codename> - gets android device basic info from its codename
  - /twrp <codename> -  gets latest twrp for the android device using the codename
+ - /getfw <model> <csc> - Samsung only - gets firmware download links from samfrew, sammobile and sfirmwares for the given device
+ 
+ *Examples:*
+ /device greatlte
+ /twrp a5y17lte
+ /getfw SM-M205FN SER
  
 """
 
@@ -99,7 +137,9 @@ __mod_name__ = "Android"
 MAGISK_HANDLER = DisableAbleCommandHandler("magisk", magisk)
 DEVICE_HANDLER = DisableAbleCommandHandler("device", device, pass_args=True)
 TWRP_HANDLER = DisableAbleCommandHandler("twrp", twrp, pass_args=True)
+GETFW_HANDLER = DisableAbleCommandHandler("getfw", getfw, pass_args=True)
 
 dispatcher.add_handler(MAGISK_HANDLER)
 dispatcher.add_handler(DEVICE_HANDLER)
 dispatcher.add_handler(TWRP_HANDLER)
+dispatcher.add_handler(GETFW_HANDLER)
