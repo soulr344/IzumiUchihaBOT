@@ -99,7 +99,7 @@ def new_member(bot: Bot, update: Update):
     defense = sql.getDefenseStatus(str(chat.id))
     if chatbanned:
         bot.leave_chat(int(chat.id))
-    if casPrefs and not autoban and cas.banchecker(user.id):
+    elif casPrefs and not autoban and cas.banchecker(user.id):
         bot.restrict_chat_member(chat.id, user.id, 
                                          can_send_messages=False,
                                          can_send_media_messages=False, 
