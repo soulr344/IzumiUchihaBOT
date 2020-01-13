@@ -34,18 +34,16 @@ def getsticker(bot: Bot, update: Update):
     else:
         update.effective_message.reply_text("Please reply to a sticker for me to upload its PNG.")
 
-# /ip is for private use
-#__help__ = """
-#Kanging or fetching ID of stickers are made easy! With this stickers command you simply can grab \
-#raw png file or fetch ID of sticker.
-#
-# - /stickerid: reply to a sticker to me to tell you its file ID.
-# - /getsticker: reply to a sticker to me to upload its raw PNG file.
-#"""
+__help__ = """
+Fetching ID of stickers is made easy! With this stickers command you simply can \
+fetch ID of sticker.
 
-#__mod_name__ = "Stickers"
+ - /stickerid: reply to a sticker to me to tell you its file ID.
+"""
 
-STICKERID_HANDLER = DisableAbleCommandHandler("stickerid", stickerid, filters=CustomFilters.sudo_filter)
+__mod_name__ = "Stickers"
+
+STICKERID_HANDLER = DisableAbleCommandHandler("stickerid", stickerid)
 GETSTICKER_HANDLER = DisableAbleCommandHandler("getsticker", getsticker, filters=CustomFilters.sudo_filter)
 
 dispatcher.add_handler(STICKERID_HANDLER)
