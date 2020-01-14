@@ -107,16 +107,18 @@ def new_member(bot: Bot, update: Update):
                                          can_add_web_page_previews=False)
         msg.reply_text("Warning! This user is CAS Banned. I have muted them to avoid spam. Ban is adviced.")
         isUserGbanned = gbansql.is_user_gbanned(user.id)
-        report = "CAS Banned user detected: <code>{}</code>\nGlobally Banned: {}".format(user.id, isUserGbanned)
-        send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report, html=True)
+        if not isUserGbanned:
+            report = "CAS Banned user detected: <code>{}</code>".format(user.id)
+            send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report, html=True)
         if defense:
             bot.unban_chat_member(chat.id, user.id)
     elif casPrefs and autoban and cas.banchecker(user.id):
         chat.kick_member(user.id)
         msg.reply_text("CAS banned user detected! User has been automatically banned!")
         isUserGbanned = gbansql.is_user_gbanned(user.id)
-        report = "CAS Banned user detected: <code>{}</code>\nGlobally Banned: {}".format(user.id, isUserGbanned)
-        send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report, html=True)
+        if not isUserGbanned:
+            report = "CAS Banned user detected: <code>{}</code>".format(user.id)
+            send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report, html=True)
     elif defense:
         bot.unban_chat_member(chat.id, user.id)
     elif should_welc:
