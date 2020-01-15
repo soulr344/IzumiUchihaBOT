@@ -1,10 +1,9 @@
-import re
-import html, time
-from requests import get
+import re, html, time
 from bs4 import BeautifulSoup
+from requests import get
 from telegram import Message, Update, Bot, User, Chat, ParseMode, InlineKeyboardMarkup
+from telegram.error import BadRequest
 from telegram.ext import run_async
-from tg_bot.modules.helper_funcs.misc import split_message
 from telegram.utils.helpers import escape_markdown, mention_html
 
 from tg_bot import dispatcher, updater
@@ -34,9 +33,12 @@ def device(bot, update, args):
         del_msg = update.effective_message.reply_text("{}".format(reply),
                                parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
         time.sleep(5)
-        del_msg.delete()
-        update.effective_message.delete()
-        return
+        try:
+            del_msg.delete()
+            update.effective_message.delete()
+        except BadRequest as err:
+            if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
+                return
     device = " ".join(args)
     found = [
         i for i in get(DEVICES_DATA).json()
@@ -57,9 +59,12 @@ def device(bot, update, args):
         del_msg = update.effective_message.reply_text("{}".format(reply),
                                parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
         time.sleep(5)
-        del_msg.delete()
-        update.effective_message.delete()
-        return
+        try:
+            del_msg.delete()
+            update.effective_message.delete()
+        except BadRequest as err:
+            if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
+                return
     update.message.reply_text("{}".format(reply),
                                parse_mode=ParseMode.HTML, disable_web_page_preview=True)
 
@@ -70,9 +75,12 @@ def checkfw(bot, update, args):
         del_msg = update.effective_message.reply_text("{}".format(reply),
                                parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
         time.sleep(5)
-        del_msg.delete()
-        update.effective_message.delete()
-        return
+        try:
+            del_msg.delete()
+            update.effective_message.delete()
+        except BadRequest as err:
+            if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
+                return
     temp,csc = args
     model = f'sm-'+temp if not temp.upper().startswith('SM-') else temp
     fota = get(f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.xml')
@@ -82,9 +90,12 @@ def checkfw(bot, update, args):
         del_msg = update.effective_message.reply_text("{}".format(reply),
                                parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
         time.sleep(5)
-        del_msg.delete()
-        update.effective_message.delete()
-        return
+        try:
+            del_msg.delete()
+            update.effective_message.delete()
+        except BadRequest as err:
+            if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
+                return
     page1 = BeautifulSoup(fota.content, 'lxml')
     page2 = BeautifulSoup(test.content, 'lxml')
     os1 = page1.find("latest").get("o")
@@ -123,9 +134,12 @@ def getfw(bot, update, args):
         del_msg = update.effective_message.reply_text("{}".format(reply),
                                parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
         time.sleep(5)
-        del_msg.delete()
-        update.effective_message.delete()
-        return
+        try:
+            del_msg.delete()
+            update.effective_message.delete()
+        except BadRequest as err:
+            if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
+                return
     temp,csc = args
     model = f'sm-'+temp if not temp.upper().startswith('SM-') else temp
     test = get(f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.test.xml')
@@ -134,9 +148,12 @@ def getfw(bot, update, args):
         del_msg = update.effective_message.reply_text("{}".format(reply),
                                parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
         time.sleep(5)
-        del_msg.delete()
-        update.effective_message.delete()
-        return
+        try:
+            del_msg.delete()
+            update.effective_message.delete()
+        except BadRequest as err:
+            if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
+                return
     url1 = f'https://samfrew.com/model/{model.upper()}/region/{csc.upper()}/'
     url2 = f'https://www.sammobile.com/samsung/firmware/{model.upper()}/{csc.upper()}/'
     url3 = f'https://sfirmware.com/samsung-{model.lower()}/#tab=firmwares'
@@ -169,9 +186,12 @@ def twrp(bot, update, args):
         del_msg = update.effective_message.reply_text("{}".format(reply),
                                parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
         time.sleep(5)
-        del_msg.delete()
-        update.effective_message.delete()
-        return
+        try:
+            del_msg.delete()
+            update.effective_message.delete()
+        except BadRequest as err:
+            if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
+                return
     device = " ".join(args)
     url = get(f'https://eu.dl.twrp.me/{device}/')
     if url.status_code == 404:
@@ -179,9 +199,12 @@ def twrp(bot, update, args):
         del_msg = update.effective_message.reply_text("{}".format(reply),
                                parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
         time.sleep(5)
-        del_msg.delete()
-        update.effective_message.delete()
-        return
+        try:
+            del_msg.delete()
+            update.effective_message.delete()
+        except BadRequest as err:
+            if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
+                return
     reply = f'*Latest Official TWRP for {device}*\n'            
     db = get(DEVICES_DATA).json()
     newdevice = device.strip('lte') if device.startswith('beyond') else device
