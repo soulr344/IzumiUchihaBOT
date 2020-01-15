@@ -40,6 +40,7 @@ def weather(bot, update, args):
     
     cityname = result['name']
     curtemp = result['main']['temp']
+    feels_like = result['main']['feels_like']
     humidity = result['main']['humidity']
     wind = result['wind']['speed']
     weath = result['weather'][0]
@@ -68,10 +69,12 @@ def weather(bot, update, args):
         icon = "☁️"
     kmph = str(wind * 3.6).split(".")
     def celsius(c):
-        temp = str((c - 273.15)).split(".")
-        return temp[0]
+        k = 273.15
+        c = k if ( c > (k - 1) ) and ( c < k ) else c
+        temp = str(round((c - k)))
+        return temp
 
-    reply = f"*Current weather for {cityname}, {country_name} is*:\n\n*Temperature:* `{celsius(curtemp)}°C\n`*Condition:* `{condmain}, {conddet}` {icon}\n*Humidity:* `{humidity}%`\n*Wind:* `{kmph[0]} km/h`\n"
+    reply = f"*Current weather for {cityname}, {country_name} is*:\n\n*Temperature:* `{celsius(curtemp)}°C, feels like {celsius(feels_like)}°C \n`*Condition:* `{condmain}, {conddet}` {icon}\n*Humidity:* `{humidity}%`\n*Wind:* `{kmph[0]} km/h`\n"
     del_msg = update.effective_message.reply_text("{}".format(reply),
                            parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
     time.sleep(30)
@@ -81,8 +84,6 @@ def weather(bot, update, args):
     except BadRequest as err:
         if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
             return
-
-    
 
 __help__ = """
 Weather module:
