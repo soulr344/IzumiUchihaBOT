@@ -10,4 +10,5 @@ geopy
 speedtest-cli>=2.0.2
 bs4
 lxml
+pytz
 
