@@ -1,6 +1,6 @@
-import pyowm
+import pyowm, time
 from pyowm import timeutils, exceptions
-from telegram import Message, Chat, Update, Bot
+from telegram import Message, Chat, Update, Bot, ParseMode
 from telegram.ext import run_async
 
 from tg_bot import dispatcher, updater, API_WEATHER
@@ -9,15 +9,15 @@ from tg_bot.modules.disable import DisableAbleCommandHandler
 @run_async
 def weather(bot, update, args):
     if len(args) == 0:
-        update.effective_message.reply_text("Write a location to check the weather.")
+        reply = f'Write a location to check the weather.'
+        del_msg = update.effective_message.reply_text("{}".format(reply),
+                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        time.sleep(5)
+        del_msg.delete()
+        update.effective_message.delete()
         return
 
     location = " ".join(args)
-    if location.lower() == bot.first_name.lower():
-        update.effective_message.reply_text("I will keep an eye on both happy and sad times!")
-        bot.send_sticker(update.effective_chat.id, BAN_STICKER)
-        return
-
     try:
         owm = pyowm.OWM(API_WEATHER)
         observation = owm.weather_at_place(location)
@@ -28,7 +28,9 @@ def weather(bot, update, args):
         theweather = observation.get_weather()
         temperature = theweather.get_temperature(unit='celsius').get('temp')
         if temperature == None:
-            temperature = "Unknown"
+            temperature[0] = "Unknown"
+        else:
+            temperature = str(temperature).split(".")
 
         # Weather symbols
         status = ""
@@ -52,17 +54,28 @@ def weather(bot, update, args):
         elif status_now < 804: # Cloudy
              status += "☁️ "
         status += theweather._detailed_status
-                        
-
-        update.message.reply_text("Today in {} is being {}, around {}°C.\n".format(thelocation,
-                status, temperature))
+        
+        del_msg = update.effective_message.reply_text("Today in {} is being {}, around {}°C.\n".format(thelocation,
+                status, temperature[0]))
+        time.sleep(30)
+        del_msg.delete()
+        update.effective_message.delete()
 
     except pyowm.exceptions.api_response_error.NotFoundError:
-        update.effective_message.reply_text("Sorry, location not found.")
+        reply = f'Location not valid.'
+        del_msg = update.effective_message.reply_text("{}".format(reply),
+                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        time.sleep(5)
+        del_msg.delete()
+        update.effective_message.delete()
 
 
 __help__ = """
- - /weather <city>: get weather info in a particular place
+Weather module:
+
+ - /weather <city>: gets weather info in a particular place using openweathermap.org api
+ 
+ \* For obvious reasons the weather command and the output will be deleted after 30 seconds
 """
 
 __mod_name__ = "Weather"
