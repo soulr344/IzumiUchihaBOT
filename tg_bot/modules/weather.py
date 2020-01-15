@@ -73,8 +73,16 @@ def weather(bot, update, args):
         c = k if ( c > (k - 1) ) and ( c < k ) else c
         temp = str(round((c - k)))
         return temp
+    def fahr(c):
+        c1 = 9/5
+        c2 = 459.67
+        tF = c * c1 - c2
+        if tF<0 and tF>-1:
+            tF = 0
+        temp = str(round(tF))
+        return temp
 
-    reply = f"*Current weather for {cityname}, {country_name} is*:\n\n*Temperature:* `{celsius(curtemp)}°C, feels like {celsius(feels_like)}°C \n`*Condition:* `{condmain}, {conddet}` {icon}\n*Humidity:* `{humidity}%`\n*Wind:* `{kmph[0]} km/h`\n"
+    reply = f"*Current weather for {cityname}, {country_name} is*:\n\n*Temperature:* `{celsius(curtemp)}°C ({fahr(curtemp)}ºF), feels like {celsius(feels_like)}°C ({fahr(feels_like)}ºF) \n`*Condition:* `{condmain}, {conddet}` {icon}\n*Humidity:* `{humidity}%`\n*Wind:* `{kmph[0]} km/h`\n"
     del_msg = update.effective_message.reply_text("{}".format(reply),
                            parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
     time.sleep(30)
