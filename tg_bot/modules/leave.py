@@ -56,5 +56,5 @@ __help__ = ""
 __mod_name__ = "Leave"
 
 LEAVE_HANDLER = CommandHandler("leave", leave, pass_args = True, filters=Filters.user(OWNER_ID))
-LEAVE_HANDLER = CommandHandler("selfdestroy", selfDestroy, filters=Filters.user(OWNER_ID))
+SELFDESTROY_HANDLER = CommandHandler("selfdestroy", selfDestroy, filters=Filters.user(OWNER_ID))
 dispatcher.add_handler(LEAVE_HANDLER)
