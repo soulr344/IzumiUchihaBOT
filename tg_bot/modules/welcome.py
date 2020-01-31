@@ -180,7 +180,9 @@ def new_member(bot: Bot, update: Update):
                     continue
 
                 #Safe mode
-                if welc_mutes == "on":
+                newMember = chat.get_member(int(new_mem.id))
+                
+                if welc_mutes == "on" and (newMember.can_send_messages is None or newMember.can_send_messages):
                     msg.reply_text("Click the button below to prove you're human",
                          reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(text="Yes, I'm a human", 
                          callback_data="userverify_({})".format(new_mem.id))]]))
