@@ -97,6 +97,7 @@ def new_member(bot: Bot, update: Update):
     autoban = sql.get_cas_autoban(str(chat.id))
     chatbanned = sql.isBanned(str(chat.id))
     defense = sql.getDefenseStatus(str(chat.id))
+    time_value = sql.getKickTime(str(chat.id))
     if chatbanned:
         bot.leave_chat(int(chat.id))
     elif casPrefs and not autoban and cas.banchecker(user.id):
@@ -181,9 +182,9 @@ def new_member(bot: Bot, update: Update):
 
                 #Safe mode
                 newMember = chat.get_member(int(new_mem.id))
-                
+                c = False
                 if welc_mutes == "on" and (newMember.can_send_messages is None or newMember.can_send_messages):
-                    msg.reply_text("Click the button below to prove you're human",
+                    msg.reply_text("Click the button below to prove you're human (you have " + str(time_value) + " seconds)",
                          reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(text="Yes, I'm a human", 
                          callback_data="userverify_({})".format(new_mem.id))]]))
                     bot.restrict_chat_member(chat.id, new_mem.id, 
@@ -191,6 +192,17 @@ def new_member(bot: Bot, update: Update):
                                              can_send_media_messages=False, 
                                              can_send_other_messages=False, 
                                              can_add_web_page_previews=False)
+                    time.sleep(10)
+                    newMember = chat.get_member(int(new_mem.id)) #I MISS POINTERS
+                    i = 10
+                    while i < time_value and newMember.can_send_messages == False:
+                        i+=1
+                        time.sleep(1)
+                    if newMember.can_send_messages == False:
+                        chat.kick_member(new_mem.id)
+                        time.sleep(10)
+                        chat.unban_member(new_mem.id)
+                        
             delete_join(bot, update)
 
         prev_welc = sql.get_clean_pref(chat.id)
@@ -607,6 +619,32 @@ def get_current_setting(bot: Bot, update: Update):
     return
 
 @run_async
+@user_admin
+def getTimeSetting(bot: Bot, update: Update):
+    chat = update.effective_chat
+    msg = update.effective_message
+    timeSetting = sql.getKickTime(chat.id)
+    text = "This group will automatically kick people in " + str(timeSetting) + " seconds."
+    msg.reply_text(text)
+    return
+
+@run_async
+@user_admin
+def setTimeSetting(bot: Bot, update: Update, args: List[str]):
+    chat = update.effective_chat
+    msg = update.effective_message
+    if (not args) or len(args) != 1 or (not args[0].isdigit()):
+        msg.reply_text("Give me a valid value to set! 30 to 900 secs")
+        return
+    value = int(args[0])
+    if value < 30 or value > 900:
+        msg.reply_text("Invalid value! Please use a value between 30 and 900 seconds (15 minutes)")
+        return
+    sql.setKickTime(str(chat.id), value)
+    msg.reply_text("Success! Users that don't confirm being people will be kicked after " + str(value) + " seconds.")
+    return
+
+@run_async
 def get_version(bot: Bot, update: Update):
     msg = update.effective_message
     ver = cas.vercheck()
@@ -850,6 +888,8 @@ GBANCHAT_HANDLER = CommandHandler("blchat", gbanChat, pass_args=True, filters=Cu
 UNGBANCHAT_HANDLER = CommandHandler("unblchat", ungbanChat, pass_args=True, filters=CustomFilters.sudo_filter)
 DEFENSE_HANDLER = CommandHandler("setdefense", setDefense, pass_args=True)
 GETDEF_HANDLER = CommandHandler("getdefense", getDefense)
+GETTIMESET_HANDLER = CommandHandler("kicktime", getTimeSetting)
+SETTIMER_HANDLER = CommandHandler("setkicktime", setTimeSetting, pass_args=True)
 
 dispatcher.add_handler(NEW_MEM_HANDLER)
 dispatcher.add_handler(LEFT_MEM_HANDLER)
@@ -874,3 +914,5 @@ dispatcher.add_handler(GBANCHAT_HANDLER)
 dispatcher.add_handler(UNGBANCHAT_HANDLER)
 dispatcher.add_handler(DEFENSE_HANDLER)
 dispatcher.add_handler(GETDEF_HANDLER)
+dispatcher.add_handler(GETTIMESET_HANDLER)
+dispatcher.add_handler(SETTIMER_HANDLER)

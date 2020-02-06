@@ -95,6 +95,15 @@ class DefenseMode(BASE):
         self.chat_id = str(chat_id)
         self.status = status
 
+class AutoKickSafeMode(BASE):
+    __tablename__ = "autokicks_safemode"
+    chat_id = Column(String(14), primary_key=True)
+    timeK = Column(Integer, default=90)
+    
+    def __init__(self, chat_id, timeK):
+        self.chat_id = str(chat_id)
+        self.timeK = timeK
+
 Welcome.__table__.create(checkfirst=True)
 WelcomeButtons.__table__.create(checkfirst=True)
 GoodbyeButtons.__table__.create(checkfirst=True)
@@ -102,6 +111,7 @@ WelcomeMute.__table__.create(checkfirst=True)
 CombotCASStatus.__table__.create(checkfirst=True)
 BannedChat.__table__.create(checkfirst=True)
 DefenseMode.__table__.create(checkfirst=True)
+AutoKickSafeMode.__table__.create(checkfirst=True)
 
 INSERTION_LOCK = threading.RLock()
 WELC_BTN_LOCK = threading.RLock()
@@ -110,6 +120,7 @@ WM_LOCK = threading.RLock()
 CAS_LOCK = threading.RLock()
 BANCHATLOCK = threading.RLock()
 DEFENSE_LOCK = threading.RLock()
+AUTOKICK_LOCK = threading.RLock()
 
 BLACKLIST = set()
 
@@ -405,5 +416,24 @@ def setDefenseStatus(chat_id, status):
         newObj = DefenseMode(str(chat_id), status)
         SESSION.add(newObj)
         SESSION.commit()
+
+def getKickTime(chat_id):
+    try:
+        resultObj = SESSION.query(AutoKickSafeMode).get(str(chat_id))
+        if resultObj:
+            return resultObj.timeK
+        return 90 #90 seconds
+    finally:
+        SESSION.close()
+
+def setKickTime(chat_id, value):
+    with AUTOKICK_LOCK:
+        prevObj = SESSION.query(AutoKickSafeMode).get(str(chat_id))
+        if prevObj:
+            SESSION.delete(prevObj)
+        newObj = AutoKickSafeMode(str(chat_id), int(value))
+        SESSION.add(newObj)
+        SESSION.commit()
+
 
 __load_blacklisted_chats_list()
