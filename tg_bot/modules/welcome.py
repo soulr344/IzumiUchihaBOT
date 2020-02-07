@@ -861,6 +861,8 @@ Commands:
  - /setban <on/off/true/false>: Enables/disables autoban on CAS banned user detected.
  - /setdefense <on/off/true/false>: Turns on defense mode, will kick any new user automatically.
  - /getdefense: gets the current defense setting
+ - /kicktime: gets the auto-kick time setting
+ - /setkicktime: sets new auto-kick time value (between 30 and 900 seconds)
 """.format(WELC_HELP_TXT)
 
 __mod_name__ = "Welcomes/Goodbyes"
