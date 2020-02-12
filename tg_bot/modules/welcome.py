@@ -198,9 +198,11 @@ def new_member(bot: Bot, update: Update):
                         i+=1
                         time.sleep(1)
                     if newMember.can_send_messages == False and newMember.status is not "left":
-                        bantime = int(time.time()) + 35
+                        bantime = int(time.time()) + 60
                         chat.kick_member(new_mem.id, until_date=bantime)
                         buttonMsg.delete()
+                        sent.delete()
+                        update.message.delete()
                         
             delete_join(bot, update)
 
