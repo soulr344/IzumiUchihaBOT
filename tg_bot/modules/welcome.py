@@ -106,7 +106,7 @@ def new_member(bot: Bot, update: Update):
                                          can_send_media_messages=False, 
                                          can_send_other_messages=False, 
                                          can_add_web_page_previews=False)
-        msg.reply_text("Warning! This user is CAS Banned. I have muted them to avoid spam. Ban is adviced.")
+        msg.reply_text("Warning! This user is CAS Banned. I have muted them to avoid spam. Ban is advised.")
         isUserGbanned = gbansql.is_user_gbanned(user.id)
         if not isUserGbanned:
             report = "CAS Banned user detected: <code>{}</code>".format(user.id)
