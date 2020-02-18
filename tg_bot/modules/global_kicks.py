@@ -28,7 +28,8 @@ GKICK_ERRORS = {
     "Peer_id_invalid",
     "User is an administrator of the chat",
     "User_not_participant",
-    "Reply message not found"
+    "Reply message not found",
+    "User not found"
 }
 
 @run_async
