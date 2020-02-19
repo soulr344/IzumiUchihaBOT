@@ -183,7 +183,7 @@ def new_member(bot: Bot, update: Update):
                 #Safe mode
                 newMember = chat.get_member(int(new_mem.id))
                 if welc_mutes == "on" and ((newMember.can_send_messages is None or newMember.can_send_messages)):
-                    buttonMsg = msg.reply_text("Click the button below to prove you're human, otherwise you will be kicked in about " + str(time_value) + " seconds. Thank you!",
+                    buttonMsg = msg.reply_text("Click the button below to prove you're human",
                          reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(text="I'm not a bot!", 
                          callback_data="userverify_({})".format(new_mem.id))]]))
                     bot.restrict_chat_member(chat.id, new_mem.id, 
@@ -191,18 +191,6 @@ def new_member(bot: Bot, update: Update):
                                              can_send_media_messages=False, 
                                              can_send_other_messages=False, 
                                              can_add_web_page_previews=False)
-                    time.sleep(10)
-                    newMember = chat.get_member(int(new_mem.id)) #I MISS POINTERS
-                    i = 10
-                    while i < time_value and newMember.can_send_messages == False and (newMember.status is not "left"):
-                        i+=1
-                        time.sleep(1)
-                    if newMember.can_send_messages == False and newMember.status is not "left":
-                        bantime = int(time.time()) + 60
-                        chat.kick_member(new_mem.id, until_date=bantime)
-                        buttonMsg.delete()
-                        sent.delete()
-                        update.message.delete()
                         
             delete_join(bot, update)
 
