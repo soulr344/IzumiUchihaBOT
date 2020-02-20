@@ -16,15 +16,24 @@ DEVICES_DATA = 'https://raw.githubusercontent.com/androidtrackers/certified-andr
 def magisk(bot, update):
     url = 'https://raw.githubusercontent.com/topjohnwu/magisk_files/'
     releases = ""
-    for type, path  in {"Stable":"master/stable", "Beta":"master/beta", "Canary":"canary/release"}.items():
-        data = get(url + path + '.json').json()
-        releases += f'{type}: [ZIP v{data["magisk"]["version"]}]({data["magisk"]["link"]}) | ' \
-                    f'[APP v{data["app"]["version"]}]({data["app"]["link"]}) | ' \
-                    f'[Uninstaller]({data["uninstaller"]["link"]})\n'
+    for type, branch in {"Stable":["master/stable","master"], "Beta":["master/beta","master"], "Canary (release)":["canary/release","canary"], "Canary (debug)":["canary/debug","canary"]}.items():
+        data = get(url + branch[0] + '.json').json()
+        releases += f'*{type}*: \n' \
+                    f'• [Changelog](https://github.com/topjohnwu/magisk_files/blob/{branch[1]}/notes.md)\n' \
+                    f'• Zip - [{data["magisk"]["version"]}-{data["magisk"]["versionCode"]}]({data["magisk"]["link"]}) \n' \
+                    f'• App - [{data["app"]["version"]}-{data["app"]["versionCode"]}]({data["app"]["link"]}) \n' \
+                    f'• Uninstaller - [{data["magisk"]["version"]}-{data["magisk"]["versionCode"]}]({data["uninstaller"]["link"]})\n\n'
                         
 
-    update.message.reply_text("*Latest Magisk Releases:*\n{}".format(releases),
+    del_msg = update.message.reply_text("*Latest Magisk Releases:*\n{}".format(releases),
                                parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    time.sleep(300)
+    try:
+        del_msg.delete()
+        update.effective_message.delete()
+    except BadRequest as err:
+        if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
+            return
 
 @run_async
 def device(bot, update, args):
