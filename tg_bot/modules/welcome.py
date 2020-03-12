@@ -184,7 +184,7 @@ def new_member(bot: Bot, update: Update):
                 #Safe mode
                 newMember = chat.get_member(int(new_mem.id))
                 if welc_mutes == "on" and ((newMember.can_send_messages is None or newMember.can_send_messages)):
-                    buttonMsg = msg.reply_text("Click the button below to prove you're human, otherwise you will be kicked in about " + str(time_value) + " seconds. Thank you!",
+                    buttonMsg = msg.reply_text("Click the button below to prove you're human",
                          reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(text="I'm not a bot!", 
                          callback_data="userverify_({})".format(new_mem.id))]]))
                     bot.restrict_chat_member(chat.id, new_mem.id, 
