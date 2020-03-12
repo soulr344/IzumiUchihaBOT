@@ -112,7 +112,8 @@ def new_member(bot: Bot, update: Update):
             report = "CAS Banned user detected: <code>{}</code>".format(user.id)
             send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report, html=True)
         if defense:
-            bot.unban_chat_member(chat.id, user.id)
+            bantime = int(time.time()) + 60
+            chat.kick_member(new_mem.id, until_date=bantime)
     elif casPrefs and autoban and cas.banchecker(user.id):
         chat.kick_member(user.id)
         msg.reply_text("CAS banned user detected! User has been automatically banned!")
@@ -183,7 +184,7 @@ def new_member(bot: Bot, update: Update):
                 #Safe mode
                 newMember = chat.get_member(int(new_mem.id))
                 if welc_mutes == "on" and ((newMember.can_send_messages is None or newMember.can_send_messages)):
-                    buttonMsg = msg.reply_text("Click the button below to prove you're human",
+                    buttonMsg = msg.reply_text("Click the button below to prove you're human, otherwise you will be kicked in about " + str(time_value) + " seconds. Thank you!",
                          reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(text="I'm not a bot!", 
                          callback_data="userverify_({})".format(new_mem.id))]]))
                     bot.restrict_chat_member(chat.id, new_mem.id, 
