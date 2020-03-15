@@ -21,6 +21,14 @@
       "description": "An integer of consisting of your owner ID",
       "value": ""
     },
+    "DONATION_LINK": {
+      "description": "Optional: link where you would like to receive donations.",
+      "value": ""
+    },
+    "PORT": {
+      "description": "Port to use for your webhooks",
+      "value": "8443"
+    },
     "OWNER_USERNAME": {
       "description": "Your username",
       "value": ""
