@@ -18,7 +18,7 @@ Feel free to join to report bugs, and stay in the loop on the status of the bot 
 
 Note to maintainers that all schema changes will be found in the commit messages, and its their responsibility to read any new commits.
 
-## Heroku Deployment (TESTING, DON'T USE)
+## Heroku Deployment
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/corsicanu/tgbot/tree/mybot)
 
 ## Starting the bot.

@@ -24,18 +24,6 @@
       "description": "Your username",
       "value": ""
     },
-    "WEBHOOK": {
-      "description": "Setting this to ANYTHING will enable webhooks when in env mode messages",
-      "value": "ANYTHING"
-    },
-    "URL": {
-      "description": "The Heroku App URL similar to https://<appname>.herokuapp.com/",
-      "value": ""
-    },
-    "MESSAGE_DUMP": {
-      "description": "optional: a chat where your replied saved messages are stored, to stop people deleting their old",
-      "value": ""
-    },
     "SUDO_USERS": {
       "description": "A space separated list of user_ids which should be considered sudo users",
       "value": ""
@@ -69,12 +57,8 @@
       "value": "True"
     },
     "BAN_STICKER": {
-      "description": "Which sticker to use when banning people. Use https://telegram.dog/ShowJsonBot to get the file_id",
+      "description": "Which sticker to use when banning people.",
       "value": "CAADAgADOwADPPEcAXkko5EB3YGYAg"
-    },
-    "API_OPENWEATHER": {
-      "description": "Your open weather API key for weather module to run",
-      "value": ""
     }
   },
   "addons": [
