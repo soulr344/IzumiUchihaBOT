@@ -7,6 +7,7 @@
     "management"
   ],
   "repository": "https://github.com/corsicanu/tgbot",
+  "stack": "container",
   "env": {
     "ENV": {
       "description": "Setting this to ANYTHING will enable env variables",
