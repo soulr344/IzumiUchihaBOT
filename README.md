@@ -18,6 +18,9 @@ Feel free to join to report bugs, and stay in the loop on the status of the bot 
 
 Note to maintainers that all schema changes will be found in the commit messages, and its their responsibility to read any new commits.
 
+## Heroku Deployment (TESTING, DON'T USE)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
 ## Starting the bot.
 
 Once you've setup your database and your configuration (see below) is complete, simply run:
