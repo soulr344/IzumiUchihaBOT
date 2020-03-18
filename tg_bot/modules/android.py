@@ -49,21 +49,18 @@ def device(bot, update, args):
             if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
                 return
     device = " ".join(args)
-    found = [
-        i for i in get(DEVICES_DATA).json()
-        if i["device"] == device or i["model"] == device
-    ]
-    if found:
+    db = get(DEVICES_DATA).json()
+    newdevice = device.strip('lte') if device.startswith('beyond') else device
+    try:
         reply = f'Search results for {device}:\n\n'
-        for item in found:
-            brand = item['brand']
-            name = item['name']
-            codename = item['device']
-            model = item['model']
-            reply += f'<b>{brand} {name}</b>\n' \
-                f'Model: <code>{model}</code>\n' \
-                f'Codename: <code>{codename}</code>\n\n'                
-    else:
+        brand = db[newdevice][0]['brand']
+        name = db[newdevice][0]['name']
+        model = db[newdevice][0]['model']
+        codename = newdevice
+        reply += f'<b>{brand} {name}</b>\n' \
+            f'Model: <code>{model}</code>\n' \
+            f'Codename: <code>{codename}</code>\n\n'  
+    except KeyError as err:
         reply = f"Couldn't find info about {device}!\n"
         del_msg = update.effective_message.reply_text("{}".format(reply),
                                parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
@@ -219,10 +216,12 @@ def twrp(bot, update, args):
         reply = f'*Latest Official TWRP for {device}*\n'            
         db = get(DEVICES_DATA).json()
         newdevice = device.strip('lte') if device.startswith('beyond') else device
-        if db[newdevice][0]['brand']:
-             brand = db[newdevice][0]['brand']
-             name = db[newdevice][0]['name']
-             reply += f'*{brand} - {name}*\n'
+        try:
+            brand = db[newdevice][0]['brand']
+            name = db[newdevice][0]['name']
+            reply += f'*{brand} - {name}*\n'
+        except KeyError as err:
+            pass
         page = BeautifulSoup(url.content, 'lxml')
         date = page.find("em").text.strip()
         reply += f'*Updated:* {date}\n'
