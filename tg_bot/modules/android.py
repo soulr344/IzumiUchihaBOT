@@ -10,7 +10,7 @@ from tg_bot import dispatcher, updater
 from tg_bot.modules.disable import DisableAbleCommandHandler
 
 GITHUB = 'https://github.com'
-DEVICES_DATA = 'https://raw.githubusercontent.com/androidtrackers/certified-android-devices/master/devices.json'
+DEVICES_DATA = 'https://raw.githubusercontent.com/androidtrackers/certified-android-devices/master/by_device.json'
 
 @run_async
 def magisk(bot, update):
@@ -201,6 +201,7 @@ def twrp(bot, update, args):
         except BadRequest as err:
             if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
                 return
+
     device = " ".join(args)
     url = get(f'https://eu.dl.twrp.me/{device}/')
     if url.status_code == 404:
@@ -214,28 +215,27 @@ def twrp(bot, update, args):
         except BadRequest as err:
             if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
                 return
-    reply = f'*Latest Official TWRP for {device}*\n'            
-    db = get(DEVICES_DATA).json()
-    newdevice = device.strip('lte') if device.startswith('beyond') else device
-    for dev in db:
-        if (dev['device'] == newdevice) or (dev['model'] == newdevice):
-            brand = dev['brand']
-            name = dev['name']
-            reply += f'*{brand} - {name}*\n'
-            break
-    page = BeautifulSoup(url.content, 'lxml')
-    date = page.find("em").text.strip()
-    reply += f'*Updated:* {date}\n'
-    trs = page.find('table').find_all('tr')
-    row = 2 if trs[0].find('a').text.endswith('tar') else 1
-    for i in range(row):
-        download = trs[i].find('a')
-        dl_link = f"https://eu.dl.twrp.me{download['href']}"
-        dl_file = download.text
-        size = trs[i].find("span", {"class": "filesize"}).text
-        reply += f'[{dl_file}]({dl_link}) - {size}\n'
+    else:
+        reply = f'*Latest Official TWRP for {device}*\n'            
+        db = get(DEVICES_DATA).json()
+        newdevice = device.strip('lte') if device.startswith('beyond') else device
+        if db[newdevice][0]['brand']:
+             brand = db[newdevice][0]['brand']
+             name = db[newdevice][0]['name']
+             reply += f'*{brand} - {name}*\n'
+        page = BeautifulSoup(url.content, 'lxml')
+        date = page.find("em").text.strip()
+        reply += f'*Updated:* {date}\n'
+        trs = page.find('table').find_all('tr')
+        row = 2 if trs[0].find('a').text.endswith('tar') else 1
+        for i in range(row):
+            download = trs[i].find('a')
+            dl_link = f"https://eu.dl.twrp.me{download['href']}"
+            dl_file = download.text
+            size = trs[i].find("span", {"class": "filesize"}).text
+            reply += f'[{dl_file}]({dl_link}) - {size}\n'
 
-    update.message.reply_text("{}".format(reply),
+        update.message.reply_text("{}".format(reply),
                                parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
 __help__ = """
