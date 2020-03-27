@@ -121,8 +121,9 @@ def new_member(bot: Bot, update: Update):
         if not isUserGbanned:
             report = "CAS Banned user detected: <code>{}</code>".format(user.id)
             send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report, html=True)
-    elif defense:
-        bot.unban_chat_member(chat.id, user.id)
+    elif defense and (user.id not in SUDO_USERS + SUPPORT_USERS):
+        bantime = int(time.time()) + 60
+        chat.kick_member(user.id, until_date=bantime)
     elif should_welc:
         sent = None
         new_members = update.effective_message.new_chat_members
