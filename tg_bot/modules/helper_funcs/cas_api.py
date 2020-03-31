@@ -2,8 +2,9 @@ import urllib.request as url
 import json
 import datetime
 
-VERSION = "1.3.1"
-CAS_QUERY_URL = "https://combot.org/api/cas/check?user_id="
+VERSION = "1.3.2"
+CAS_QUERY_URL = "https://api.cas.chat/check?user_id="
+DL_DIR = "./csvExports"
 
 def get_user_data(user_id):
     with url.urlopen(CAS_QUERY_URL + str(user_id)) as userdata_raw:
