@@ -1,14 +1,16 @@
 import urllib.request as url
 import json
 import datetime
+import requests
 
-VERSION = "1.3.2"
+
+VERSION = "1.3.3"
 CAS_QUERY_URL = "https://api.cas.chat/check?user_id="
 DL_DIR = "./csvExports"
 
 def get_user_data(user_id):
-    with url.urlopen(CAS_QUERY_URL + str(user_id)) as userdata_raw:
-        userdata = json.loads(userdata_raw.read().decode())
+    with requests.request('GET', CAS_QUERY_URL + str(user_id)) as userdata_raw:
+        userdata = json.loads(userdata_raw.text)
         return userdata
 
 def isbanned(userdata):
