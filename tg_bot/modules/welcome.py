@@ -880,7 +880,7 @@ SETBAN_HANDLER = CommandHandler("setban", setban, filters=Filters.group)
 GBANCHAT_HANDLER = CommandHandler("blchat", gbanChat, pass_args=True, filters=CustomFilters.sudo_filter)
 UNGBANCHAT_HANDLER = CommandHandler("unblchat", ungbanChat, pass_args=True, filters=CustomFilters.sudo_filter)
 DEFENSE_HANDLER = CommandHandler("setdefense", setDefense, pass_args=True)
-GETDEF_HANDLER = CommandHandler("getdefense", getDefense)
+GETDEF_HANDLER = CommandHandler("defense", getDefense)
 GETTIMESET_HANDLER = CommandHandler("kicktime", getTimeSetting)
 SETTIMER_HANDLER = CommandHandler("setkicktime", setTimeSetting, pass_args=True)
 
