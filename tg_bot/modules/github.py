@@ -1,6 +1,9 @@
 import html
 from typing import Optional, List
 
+from telegram.ext import CommandHandler, run_async, Filters, RegexHandler
+from telegram import Message, Chat, Update, Bot, User, ParseMode, InlineKeyboardMarkup, MAX_MESSAGE_LENGTH
+
 import tg_bot.modules.helper_funcs.git_api as api
 import tg_bot.modules.sql.github_sql as sql
 
@@ -9,9 +12,6 @@ from tg_bot.modules.helper_funcs.filters import CustomFilters
 from tg_bot.modules.helper_funcs.chat_status import user_admin
 from tg_bot.modules.disable import DisableAbleCommandHandler
 
-from telegram.ext import CommandHandler, run_async, Filters, RegexHandler
-
-from telegram import Message, Chat, Update, Bot, User, ParseMode, InlineKeyboardMarkup, MAX_MESSAGE_LENGTH
 
 #do not async
 def getData(url, index):
@@ -25,13 +25,13 @@ def getData(url, index):
     name = api.getReleaseName(recentRelease)
     assets = api.getAssets(recentRelease)
     releaseName = api.getReleaseName(recentRelease)
-    message = "Author: [{}]({})\n".format(author, authorUrl)
-    message += "Release Name: "+releaseName+"\n\n"
+    message = "<b>Author:</b> <a href='{}'>{}</a>\n".format(authorUrl, author)
+    message += "<b>Release Name:</b> "+releaseName+"\n\n"
     for asset in assets:
-        message += "*Asset:* \n"
+        message += "<b>Asset:</b> \n"
         fileName = api.getReleaseFileName(asset)
         fileURL = api.getReleaseFileURL(asset)
-        assetFile = "[{}]({})".format(fileName, fileURL)
+        assetFile = "<a href='{}'>{}</a>".format(fileURL, fileName)
         sizeB = ((api.getSize(asset))/1024)/1024
         size = "{0:.2f}".format(sizeB)
         downloadCount = api.getDownloadCount(asset)
@@ -40,6 +40,7 @@ def getData(url, index):
         message += "\nDownload Count: " + str(downloadCount) + "\n\n"
     return message
 
+
 #likewise, aux function, not async
 def getRepo(bot, update, reponame):
     chat_id = update.effective_chat.id
@@ -47,6 +48,7 @@ def getRepo(bot, update, reponame):
     if repo:
         return repo.value, repo.backoffset
     return None, None
+
 
 @run_async
 def getRelease(bot: Bot, update: Update, args: List[str]):
@@ -59,8 +61,9 @@ def getRelease(bot: Bot, update: Update, args: List[str]):
         index = int(args[1])
     url = args[0]
     text = getData(url, index)
-    msg.reply_text(text, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    msg.reply_text(text, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
     return
+
 
 @run_async
 def hashFetch(bot: Bot, update: Update): #kanged from notes
@@ -70,12 +73,13 @@ def hashFetch(bot: Bot, update: Update): #kanged from notes
     no_hash = fst_word[1:]
     url, index = getRepo(bot, update, no_hash)
     if url is None and index is None:
-        msg.reply_text("There was a problem parsing your request. Likely this is not a saved repo shortcut", parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        msg.reply_text("There was a problem parsing your request. Likely this is not a saved repo shortcut", parse_mode=ParseMode.HTML, disable_web_page_preview=True)
         return
     text = getData(url, index)
-    msg.reply_text(text, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    msg.reply_text(text, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
     return
-    
+
+
 @run_async
 def cmdFetch(bot: Bot, update: Update, args: List[str]):
     msg = update.effective_message
@@ -84,12 +88,13 @@ def cmdFetch(bot: Bot, update: Update, args: List[str]):
         return
     url, index = getRepo(bot, update, args[0])
     if url is None and index is None:
-        msg.reply_text("There was a problem parsing your request. Likely this is not a saved repo shortcut", parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        msg.reply_text("There was a problem parsing your request. Likely this is not a saved repo shortcut", parse_mode=ParseMode.HTML, disable_web_page_preview=True)
         return
     text = getData(url, index)
-    msg.reply_text(text, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    msg.reply_text(text, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
     return
-    
+
+
 @run_async
 def changelog(bot: Bot, update: Update, args: List[str]):
     msg = update.effective_message
@@ -105,8 +110,8 @@ def changelog(bot: Bot, update: Update, args: List[str]):
     body = api.getBody(release)
     msg.reply_text(body)
     return
-    
-    
+
+
 @run_async
 @user_admin
 def saveRepo(bot: Bot, update: Update, args: List[str]):
@@ -121,7 +126,8 @@ def saveRepo(bot: Bot, update: Update, args: List[str]):
     sql.add_repo_to_db(str(chat_id), args[0], args[1], index)
     msg.reply_text("Repo shortcut saved successfully!")
     return
-    
+
+
 @run_async
 @user_admin
 def delRepo(bot: Bot, update: Update, args: List[str]):
@@ -133,25 +139,26 @@ def delRepo(bot: Bot, update: Update, args: List[str]):
     sql.rm_repo(str(chat_id), args[0])
     msg.reply_text("Repo shortcut deleted successfully!")
     return
-    
+ 
+
 @run_async
 def listRepo(bot: Bot, update: Update):
     chat_id = update.effective_chat.id
     chat = update.effective_chat
     chat_name = chat.title or chat.first or chat.username
     repo_list = sql.get_all_repos(str(chat_id))
-    msg = "*List of repo shotcuts in {}:*\n"
-    des = "You can get repo shortcuts by using `/fetch repo`, or `&repo`.\n"
+    msg = "<b>GitHub repo shotcuts in {}:</b>\n"
+    des = "\nYou can retrieve these repos by using <code>/fetch repo</code>, or <code>&repo</code>\n"
     for repo in repo_list:
-        repo_name = (" • `{}`\n".format(repo.name))
+        repo_name = (" • <code>&{}</code>\n".format(repo.name))
         if len(msg) + len(repo_name) > MAX_MESSAGE_LENGTH:
-            update.effective_message.reply_text(msg, parse_mode=ParseMode.MARKDOWN)
+            update.effective_message.reply_text(msg, parse_mode=ParseMode.HTML)
             msg = ""
         msg += repo_name
-    if msg == "*List of repo shotcuts in {}:*\n":
+    if msg == "<b>List of repo shotcuts in {}:</b>\n":
         update.effective_message.reply_text("No repo shortcuts in this chat!")
     elif len(msg) != 0:
-        update.effective_message.reply_text(msg.format(chat_name) + des, parse_mode=ParseMode.MARKDOWN)
+        update.effective_message.reply_text(msg.format(chat_name) + des, parse_mode=ParseMode.HTML)
         
 def getVer(bot: Bot, update: Update):
     msg = update.effective_message
@@ -159,9 +166,11 @@ def getVer(bot: Bot, update: Update):
     msg.reply_text("GitHub API version: "+ver)
     return
 
+
 __help__ = """
-Github module. This module will fetch github releases.
-Commands:
+GitHub module. This module will help you to fetch GitHub releases.
+
+*Available Commands:*
  - /git <user>/<repo>: will fetch the most recent release from that repo.
  - /git <user>/<repo> <number>: will fetch releases in past.
  - /fetch <reponame> or &reponame: same as /git, but you can use a saved repo shortcut
@@ -169,14 +178,12 @@ Commands:
  - /gitver: returns the current API version
  - /changelog <reponame>: gets the changelog of a saved repo shortcut
  
-Admin only:
+*Admin only:*
  - /saverepo <name> <user>/<repo> <number (optional)>: saves a repo value as shortcut
  - /delrepo <name>: deletes a repo shortcut
 """
 
 __mod_name__ = "GitHub"
-
-
 
 RELEASE_HANDLER = DisableAbleCommandHandler("git", getRelease, pass_args=True, admin_ok=True)
 FETCH_HANDLER = DisableAbleCommandHandler("fetch", cmdFetch, pass_args=True, admin_ok=True)
