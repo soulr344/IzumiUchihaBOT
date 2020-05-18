@@ -31,7 +31,13 @@ def ban(bot: Bot, update: Update, args: List[str]) -> str:
 
     userIds = extract_multiple_users(message, args)
 
-    if len(userIds) > 1:
+    allTrue = True
+
+    for id in userIds:
+        if id is None or not isinstance(id, int) or id == "":
+            allTrue = False
+
+    if len(userIds) > 1 and allTrue:
         banType = 1
 
     if banType == 1:
