@@ -45,7 +45,7 @@ def ban(bot: Bot, update: Update, args: List[str]) -> str:
                 integerID = int(id)
                 member = chat.get_member(integerID)
                 if is_user_ban_protected(chat, integerID, member):
-                    message.reply_text("Can't ban " + str(integerID) + ", user is Ban protected.")
+                    message.reply_text("Can't ban " + str(integerID) + ", user is ban protected.")
                     continue
                 if integerID == bot.id:
                     message.reply_text("I wont ban myself... " + str(integerID) + " is my ID.")
@@ -233,13 +233,13 @@ def kick(bot: Bot, update: Update, args: List[str]) -> str:
                 integerID = int(id)
                 member = chat.get_member(integerID)
                 if is_user_ban_protected(chat, integerID, member):
-                    message.reply_text("Can't ban " + str(integerID) + ", user is Ban protected.")
+                    message.reply_text("Can't kick " + str(integerID) + ", user is ban protected.")
                     continue
                 if integerID == bot.id:
                     message.reply_text("I wont ban myself... " + str(integerID) + " is my ID.")
                     continue
                 if integerID == 777000:
-                    message.reply_text(str(integerID) + " is an account reserved for telegram, I cannot ban it")
+                    message.reply_text(str(integerID) + " is an account reserved for telegram, I cannot kick it")
                     continue
                 res = chat.unban_member(integerID)
                 if res:
