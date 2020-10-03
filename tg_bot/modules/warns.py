@@ -31,7 +31,7 @@ def warn(user: User, chat: Chat, reason: str, message: Message, warner: User = N
         return ""
 
     if not user.id or int(user.id) == 777000 or int(user.id) == 1087968824:
-        message.reply_text("Damn Telegram, can't even be warned!")
+        message.reply_text("This is the Telegram Service Bot or the Group Anonymous Bot. Kinda pointless to warn it, don't you think?")
         return ""
 
     if warner:
