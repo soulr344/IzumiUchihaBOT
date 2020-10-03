@@ -71,7 +71,7 @@ def restr_members(bot, chat_id, members, messages=False, media=False, other=Fals
     for mem in members:
         if (mem.user in SUDO_USERS):
             pass
-        elif mem.user is 777000:
+        elif mem.user is 777000 or mem.user is 1087968824:
             pass
         try:
             bot.restrict_chat_member(chat_id, mem.user,
@@ -130,6 +130,11 @@ def lock(bot: Bot, update: Update, args: List[str]) -> str:
                                      can_send_media_messages=True,
                                      can_send_other_messages=True,
                                      can_add_web_page_previews=True)
+                    bot.restrict_chat_member(chat.id, int(1087968824),
+                                             can_send_messages=True,
+                                             can_send_media_messages=True,
+                                             can_send_other_messages=True,
+                                             can_add_web_page_previews=True)
 
                 message.reply_text("Locked {} for all non-admins!".format(args[0]))
                 return "<b>{}:</b>" \
@@ -206,8 +211,9 @@ def del_lockables(bot: Bot, update: Update):
     chat = update.effective_chat  # type: Optional[Chat]
     message = update.effective_message  # type: Optional[Message]
     user = update.effective_user
-    if int(user.id)==777000: #777000 is the telegram notification service bot ID. 
+    if int(user.id)==777000 or int(user.id)==1087968824: #777000 is the telegram notification service bot ID.
         return #Group channel notifications are sent via this bot. This adds exception to this userid
+        # newer id is that 108_something
 
     for lockable, filter in LOCK_TYPES.items():
         if filter(message) and sql.is_locked(chat.id, lockable) and can_delete(chat, bot.id):
@@ -239,7 +245,7 @@ def rest_handler(bot: Bot, update: Update):
     msg = update.effective_message  # type: Optional[Message]
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user
-    if (user.id == 777000): #777000 is the telegram notification service bot ID. 
+    if (user.id == 777000 or user.id==1087968824): #777000 is the telegram notification service bot ID.
         return #Group channel notifications are sent via this bot. This adds exception to this userid
 
     for restriction, filter in RESTRICTION_TYPES.items():

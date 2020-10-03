@@ -50,7 +50,7 @@ def ban(bot: Bot, update: Update, args: List[str]) -> str:
                 if integerID == bot.id:
                     message.reply_text("I wont ban myself... " + str(integerID) + " is my ID.")
                     continue
-                if integerID == 777000:
+                if integerID == 777000 or integerID == 1087968824:
                     message.reply_text(str(integerID) + " is an account reserved for telegram, I cannot ban it")
                     continue
                 try:
@@ -77,7 +77,7 @@ def ban(bot: Bot, update: Update, args: List[str]) -> str:
 
     else:
         user_id, reason = extract_user_and_text(message, args)
-        if not user_id or int(user_id) == 777000:
+        if not user_id or int(user_id) == 777000 or int(user_id) == 1087968824:
             message.reply_text("You don't seem to be referring to a user.")
             return ""
         try:
@@ -134,7 +134,7 @@ def temp_ban(bot: Bot, update: Update, args: List[str]) -> str:
 
     user_id, reason = extract_user_and_text(message, args)
 
-    if not user_id or int(user_id)==777000:
+    if not user_id or int(user_id)==777000 or int(user_id) == 1087968824:
         message.reply_text("You don't seem to be referring to a user.")
         return ""
 
@@ -238,7 +238,7 @@ def kick(bot: Bot, update: Update, args: List[str]) -> str:
                 if integerID == bot.id:
                     message.reply_text("I wont ban myself... " + str(integerID) + " is my ID.")
                     continue
-                if integerID == 777000:
+                if integerID == 777000 or integerID == 1087968824:
                     message.reply_text(str(integerID) + " is an account reserved for telegram, I cannot kick it")
                     continue
                 res = chat.unban_member(integerID)
@@ -261,7 +261,7 @@ def kick(bot: Bot, update: Update, args: List[str]) -> str:
         return log
     else:
         user_id, reason = extract_user_and_text(message, args)
-        if not user_id or int(user_id) == 777000:
+        if not user_id or int(user_id) == 777000 or int(user_id) == 1087968824:
             message.reply_text("You don't seem to be referring to a user.")
             return ""
         try:
@@ -349,7 +349,7 @@ def unban(bot: Bot, update: Update, args: List[str]) -> str:
 
     user_id, reason = extract_user_and_text(message, args)
 
-    if not user_id or int(user_id)==777000:
+    if not user_id or int(user_id)==777000 or int(user_id) == 1087968824:
         message.reply_text("You don't seem to be referring to a user.")
         return ""
 

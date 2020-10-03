@@ -27,7 +27,7 @@ def promote(bot: Bot, update: Update, args: List[str]) -> str:
     user = update.effective_user  # type: Optional[User]
 
     user_id = extract_user(message, args)
-    if not user_id or int(user_id) == 777000:
+    if not user_id or int(user_id) == 1087968824:
         message.reply_text("You don't seem to be referring to a user.")
         return ""
 
@@ -73,7 +73,7 @@ def demote(bot: Bot, update: Update, args: List[str]) -> str:
     user = update.effective_user  # type: Optional[User]
 
     user_id = extract_user(message, args)
-    if not user_id or int(user_id) == 777000:
+    if not user_id or int(user_id) == 1087968824 or int(user_id) == 777000:
         message.reply_text("You don't seem to be referring to a user.")
         return ""
 

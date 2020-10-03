@@ -47,7 +47,7 @@ def gkick(bot: Bot, update: Update, args: List[str]):
     except TelegramError:
             pass
 
-    if not user_id or int(user_id)==777000:
+    if not user_id or int(user_id)==777000 or int(user_id) == 1087968824:
         message.reply_text("You don't seem to be referring to a user.")
         return
     if int(user_id) in SUDO_USERS or int(user_id) in SUPPORT_USERS:

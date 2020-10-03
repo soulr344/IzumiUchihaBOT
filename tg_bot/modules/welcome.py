@@ -647,9 +647,9 @@ def caschecker(bot: Bot, update: Update, args: List[str]):
     #/info logic
     msg = update.effective_message  # type: Optional[Message]
     user_id = extract_user(update.effective_message, args)
-    if user_id and int(user_id) != 777000:
+    if user_id and int(user_id) != 777000 and int(user_id) != 1087968824:
         user = bot.get_chat(user_id)
-    elif user_id and int(user_id) == 777000:
+    elif user_id and (int(user_id) == 1087968824 or int(user_id) == 777000):
         msg.reply_text("This is Telegram. Unless you manually entered this reserved account's ID, it is likely a broadcast from a linked channel.")
         return
     elif not msg.reply_to_message and not args:
