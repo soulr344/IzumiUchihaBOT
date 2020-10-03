@@ -30,6 +30,10 @@ def warn(user: User, chat: Chat, reason: str, message: Message, warner: User = N
         message.reply_text("Damn admins, can't even be warned!")
         return ""
 
+    if not user.id or int(user.id) == 777000 or int(user.id) == 1087968824:
+        message.reply_text("Damn Telegram, can't even be warned!")
+        return ""
+
     if warner:
         warner_tag = mention_html(warner.id, warner.first_name)
     else:
