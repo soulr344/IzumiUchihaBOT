@@ -21,7 +21,7 @@ def check_flood(bot: Bot, update: Update) -> str:
     chat = update.effective_chat  # type: Optional[Chat]
     msg = update.effective_message  # type: Optional[Message]
 
-    if not user:  # ignore channels
+    if int(user.id) == 777000 or int(user.id) == 1087968824 or not user:  # ignore channels
         return ""
 
     # ignore admins
@@ -67,6 +67,11 @@ def set_flood(bot: Bot, update: Update, args: List[str]) -> str:
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
+
+    admin = chat.get_member(int(user.id))
+    if ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
+        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
+        return ""
 
     if len(args) >= 1:
         val = args[0].lower()
@@ -128,6 +133,11 @@ def set_flood_strength(bot: Bot, update: Update, args: List[str]):
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     msg = update.effective_message  # type: Optional[Message]
+
+    admin = chat.get_member(int(user.id))
+    if ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
+        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
+        return ""
 
     if args:
         if args[0].lower() in ("on", "yes"):

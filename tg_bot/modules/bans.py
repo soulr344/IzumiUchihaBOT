@@ -7,7 +7,7 @@ from telegram.ext import run_async, CommandHandler, Filters
 from telegram.utils.helpers import mention_html
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, User, CallbackQuery
 
-from tg_bot import dispatcher, BAN_STICKER, LOGGER
+from tg_bot import dispatcher, BAN_STICKER, LOGGER, SUDO_USERS
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.helper_funcs.chat_status import bot_admin, user_admin, is_user_ban_protected, can_restrict, \
     is_user_admin, is_user_in_chat, is_bot_admin
@@ -26,6 +26,11 @@ def ban(bot: Bot, update: Update, args: List[str]) -> str:
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
+
+    admin = chat.get_member(int(user.id))
+    if ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
+        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
+        return ""
 
     banType = 0
     userIds = extract_multiple_users(message, args)
@@ -134,7 +139,12 @@ def temp_ban(bot: Bot, update: Update, args: List[str]) -> str:
 
     user_id, reason = extract_user_and_text(message, args)
 
-    if not user_id or int(user_id)==777000 or int(user_id) == 1087968824:
+    admin = chat.get_member(int(user.id))
+    if ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
+        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
+        return ""
+
+    if not user_id or int(user_id) == 777000 or int(user_id) == 1087968824:
         message.reply_text("You don't seem to be referring to a user.")
         return ""
 
@@ -213,6 +223,11 @@ def kick(bot: Bot, update: Update, args: List[str]) -> str:
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
+
+    admin = chat.get_member(int(user.id))
+    if ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
+        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
+        return ""
 
     banType = 0
     userIds = extract_multiple_users(message, args)
@@ -349,7 +364,12 @@ def unban(bot: Bot, update: Update, args: List[str]) -> str:
 
     user_id, reason = extract_user_and_text(message, args)
 
-    if not user_id or int(user_id)==777000 or int(user_id) == 1087968824:
+    admin = chat.get_member(int(user.id))
+    if ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
+        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
+        return ""
+
+    if not user_id or int(user_id) == 777000 or int(user_id) == 1087968824:
         message.reply_text("You don't seem to be referring to a user.")
         return ""
 

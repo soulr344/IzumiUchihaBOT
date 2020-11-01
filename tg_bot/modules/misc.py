@@ -325,7 +325,7 @@ def slap(bot: Bot, update: Update, args: List[str]):
         curr_user = "[{}](tg://user?id={})".format(msg.from_user.first_name, msg.from_user.id)
 
     user_id = extract_user(update.effective_message, args)
-    if user_id == bot.id or user_id == 777000 or user_id == 1087968824:
+    if user_id == bot.id or user_id == 777000:
         user1 = "[{}](tg://user?id={})".format(bot.first_name, bot.id)
         user2 = curr_user
     elif user_id:
@@ -366,7 +366,7 @@ def punch(bot: Bot, update: Update, args: List[str]):
         curr_user = "[{}](tg://user?id={})".format(msg.from_user.first_name, msg.from_user.id)
 
     user_id = extract_user(update.effective_message, args)
-    if user_id == bot.id or user_id == 777000 or user_id == 1087968824:
+    if user_id == bot.id or user_id == 777000:
         user1 = "[{}](tg://user?id={})".format(bot.first_name, bot.id)
         user2 = curr_user
     elif user_id:
@@ -426,8 +426,12 @@ def info(bot: Bot, update: Update, args: List[str]):
     if user_id and int(user_id) != 777000 and int(user_id) != 1087968824:
         user = bot.get_chat(user_id)
     
-    elif user_id and (int(user_id) == 777000 or int(user_id) == 1087968824):
-        msg.reply_text("This is Telegram. Unless you manually entered this reserved account's ID, it is likely a broadcast from a linked channel.")
+    elif user_id and int(user_id) == 777000:
+        msg.reply_text("This is Telegram. Unless you manually entered this reserved account's ID, it is likely a old broadcast from a linked channel.")
+        return
+        
+    elif user_id and int(user_id) == 1087968824:
+        msg.reply_text("This is Group Anonymous Bot. Unless you manually entered this reserved account's ID, it is likely a broadcast from a linked channel or anonymously sent message.")
         return
       
     elif not msg.reply_to_message and not args:

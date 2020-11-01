@@ -16,8 +16,12 @@ DEVICES_DATA = 'https://raw.githubusercontent.com/androidtrackers/certified-andr
 def magisk(bot, update):
     url = 'https://raw.githubusercontent.com/topjohnwu/magisk_files/'
     releases = ""
-    for type, branch in {"Stable":["master/stable","master"], "Beta":["master/beta","master"], "Canary":["canary/debug","canary"]}.items():
+    for type, branch in {"Stable":["master/stable","master"], "Beta":["master/beta","master"], "Canary":["canary/canary","canary"]}.items():
         data = get(url + branch[0] + '.json').json()
+        if str(type) == "Canary":
+            data["magisk"]["link"] = "https://github.com/topjohnwu/magisk_files/raw/canary/" + data["magisk"]["link"]
+            data["app"]["link"] = "https://github.com/topjohnwu/magisk_files/raw/canary/" + data["app"]["link"]
+            data["uninstaller"]["link"] = "https://github.com/topjohnwu/magisk_files/raw/canary/" + data["uninstaller"]["link"]
         releases += f'*{type}*: \n' \
                     f'• [Changelog](https://github.com/topjohnwu/magisk_files/blob/{branch[1]}/notes.md)\n' \
                     f'• Zip - [{data["magisk"]["version"]}-{data["magisk"]["versionCode"]}]({data["magisk"]["link"]}) \n' \

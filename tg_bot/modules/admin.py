@@ -8,7 +8,7 @@ from telegram.ext import CommandHandler, Filters
 from telegram.ext.dispatcher import run_async
 from telegram.utils.helpers import escape_markdown, mention_html
 
-from tg_bot import dispatcher
+from tg_bot import dispatcher, SUDO_USERS
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.helper_funcs.chat_status import bot_admin, can_promote, user_admin, can_pin
 from tg_bot.modules.helper_funcs.extraction import extract_user
@@ -27,7 +27,12 @@ def promote(bot: Bot, update: Update, args: List[str]) -> str:
     user = update.effective_user  # type: Optional[User]
 
     user_id = extract_user(message, args)
-    if not user_id or int(user_id) == 1087968824:
+    admin = chat.get_member(int(user.id))
+    if ( not admin.can_promote_members ) and ( not int(user.id) in SUDO_USERS ):
+        message.reply_text("You don't have sufficient permissions to promote users!")
+        return ""
+
+    if not user_id or int(user_id) == 777000 or int(user_id) == 1087968824:
         message.reply_text("You don't seem to be referring to a user.")
         return ""
 
@@ -73,7 +78,12 @@ def demote(bot: Bot, update: Update, args: List[str]) -> str:
     user = update.effective_user  # type: Optional[User]
 
     user_id = extract_user(message, args)
-    if not user_id or int(user_id) == 1087968824 or int(user_id) == 777000:
+    admin = chat.get_member(int(user.id))
+    if ( not admin.can_promote_members ) and ( not int(user.id) in SUDO_USERS ):
+        message.reply_text("You don't have sufficient permissions to demote users!")
+        return ""
+
+    if not user_id or int(user_id) == 777000 or int(user_id) == 1087968824:
         message.reply_text("You don't seem to be referring to a user.")
         return ""
 
@@ -92,14 +102,15 @@ def demote(bot: Bot, update: Update, args: List[str]) -> str:
 
     try:
         bot.promoteChatMember(int(chat.id), int(user_id),
-                              can_change_info=False,
-                              can_post_messages=False,
-                              can_edit_messages=False,
-                              can_delete_messages=False,
-                              can_invite_users=False,
-                              can_restrict_members=False,
-                              can_pin_messages=False,
-                              can_promote_members=False)
+                          can_change_info=False,
+                          can_post_messages=False,
+                          can_edit_messages=False,
+                          can_delete_messages=False,
+                          can_invite_users=False,
+                          can_restrict_members=False,
+                          can_pin_messages=False,
+                          can_promote_members=False)
+
         message.reply_text("Successfully demoted!")
         return "<b>{}:</b>" \
                "\n#DEMOTED" \
@@ -122,6 +133,11 @@ def demote(bot: Bot, update: Update, args: List[str]) -> str:
 def pin(bot: Bot, update: Update, args: List[str]) -> str:
     user = update.effective_user  # type: Optional[User]
     chat = update.effective_chat  # type: Optional[Chat]
+
+    admin = chat.get_member(int(user.id))
+    if ( not admin.can_pin_messages ) and ( not int(user.id) in SUDO_USERS ):
+        update.effective_message.reply_text("You don't have sufficient permissions to pin messages!")
+        return ""
 
     is_group = chat.type != "private" and chat.type != "channel"
 
@@ -154,6 +170,11 @@ def pin(bot: Bot, update: Update, args: List[str]) -> str:
 def unpin(bot: Bot, update: Update) -> str:
     chat = update.effective_chat
     user = update.effective_user  # type: Optional[User]
+
+    admin = chat.get_member(int(user.id))
+    if ( not admin.can_pin_messages ) and ( not int(user.id) in SUDO_USERS ):
+        update.effective_message.reply_text("You don't have sufficient permissions to unpin messages!")
+        return ""
 
     try:
         bot.unpinChatMessage(chat.id)

@@ -7,7 +7,7 @@ from telegram.ext import CommandHandler, Filters
 from telegram.ext.dispatcher import run_async
 from telegram.utils.helpers import mention_html
 
-from tg_bot import dispatcher, LOGGER
+from tg_bot import dispatcher, LOGGER, SUDO_USERS
 from tg_bot.modules.helper_funcs.chat_status import bot_admin, user_admin, is_user_admin, can_restrict
 from tg_bot.modules.helper_funcs.extraction import extract_user, extract_user_and_text
 from tg_bot.modules.helper_funcs.string_handling import extract_time
@@ -22,6 +22,11 @@ def mute(bot: Bot, update: Update, args: List[str]) -> str:
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
+
+    admin = chat.get_member(int(user.id))
+    if ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
+        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
+        return ""
 
     user_id = extract_user(message, args)
     if not user_id:
@@ -64,6 +69,13 @@ def unmute(bot: Bot, update: Update, args: List[str]) -> str:
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
+
+
+    admin = chat.get_member(int(user.id))
+    if ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
+        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
+        return ""
+
 
     user_id = extract_user(message, args)
     if not user_id:
@@ -113,6 +125,11 @@ def temp_mute(bot: Bot, update: Update, args: List[str]) -> str:
     message = update.effective_message  # type: Optional[Message]
 
     user_id, reason = extract_user_and_text(message, args)
+
+    admin = chat.get_member(int(user.id))
+    if ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
+        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
+        return ""
 
     if not user_id:
         message.reply_text("You don't seem to be referring to a user.")
