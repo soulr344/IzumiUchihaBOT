@@ -29,7 +29,7 @@ def promote(bot: Bot, update: Update, args: List[str]) -> str:
     user_id = extract_user(message, args)
     admin = chat.get_member(int(user.id))
     if ( admin.status != 'creator' ) and (( not admin.can_promote_members ) and ( not int(user.id) in SUDO_USERS )):
-        message.reply_text("You don't have sufficient permissions to promote users!\n You're a " + admin.status + " in this chat")
+        message.reply_text("You don't have sufficient permissions to promote users!")
         return ""
 
     if not user_id or int(user_id) == 777000 or int(user_id) == 1087968824:
