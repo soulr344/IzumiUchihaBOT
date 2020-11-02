@@ -4,7 +4,7 @@ from telegram import Message, Chat, Update, Bot, User, ParseMode
 from telegram.ext import CommandHandler, MessageHandler, run_async, Filters
 from telegram.utils.helpers import mention_html
 from tg_bot import dispatcher, LOGGER, SUDO_USERS
-from tg_bot.modules.helper_funcs.chat_status import user_not_admin, user_admin, can_delete, is_user_admin
+from tg_bot.modules.helper_funcs.chat_status import user_not_admin, user_admin, can_delete, is_user_admin, bot_admin
 from tg_bot.modules.log_channel import loggable
 from tg_bot.modules.helper_funcs.extraction import extract_text
 from tg_bot.modules.sql import antiarabic_sql as sql
@@ -33,6 +33,7 @@ def antiarabic_setting(bot: Bot, update: Update, args: List[str]):
             msg.reply_text("This chat's current setting is: `{}`".format(sql.chat_antiarabic(chat.id)),
                            parse_mode=ParseMode.MARKDOWN)
 
+@bot_admin
 @user_not_admin
 @run_async
 def antiarabic(bot: Bot, update: Update):

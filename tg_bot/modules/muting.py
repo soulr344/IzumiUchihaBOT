@@ -24,7 +24,7 @@ def mute(bot: Bot, update: Update, args: List[str]) -> str:
     message = update.effective_message  # type: Optional[Message]
 
     admin = chat.get_member(int(user.id))
-    if ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
+    if ( admin.status != 'creator' ) and ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
         update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
         return ""
 
@@ -72,7 +72,7 @@ def unmute(bot: Bot, update: Update, args: List[str]) -> str:
 
 
     admin = chat.get_member(int(user.id))
-    if ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
+    if ( admin.status != 'creator' ) and ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
         update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
         return ""
 
@@ -127,7 +127,7 @@ def temp_mute(bot: Bot, update: Update, args: List[str]) -> str:
     user_id, reason = extract_user_and_text(message, args)
 
     admin = chat.get_member(int(user.id))
-    if ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
+    if ( admin.status != 'creator' ) and ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
         update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
         return ""
 

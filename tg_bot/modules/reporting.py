@@ -11,6 +11,7 @@ from tg_bot.modules.helper_funcs.chat_status import user_not_admin, user_admin
 from tg_bot.modules.log_channel import loggable
 from tg_bot.modules.sql import reporting_sql as sql
 
+REPORT_GROUPS = 5
 
 @run_async
 @user_admin
@@ -57,6 +58,9 @@ def report(bot: Bot, update: Update) -> str:
     
     if chat and message.reply_to_message and sql.chat_should_report(chat.id):
         reported_user = message.reply_to_message.from_user  # type: Optional[User]
+        if reported_user.id == bot.id:
+            message.reply_text("Haha nope, not gonna report myself.")
+            return ""
         chat_name = chat.title or chat.first or chat.username
         admin_list = chat.get_administrators()
 
@@ -115,6 +119,6 @@ REPORT_HANDLER = CommandHandler("report", report, filters=Filters.group)
 SETTING_HANDLER = CommandHandler("reports", report_setting, pass_args=True)
 ADMIN_REPORT_HANDLER = RegexHandler("(?i)@admin(s)?", report)
 
-dispatcher.add_handler(REPORT_HANDLER)
-dispatcher.add_handler(ADMIN_REPORT_HANDLER)
+dispatcher.add_handler(REPORT_HANDLER, group=REPORT_GROUPS)
+dispatcher.add_handler(ADMIN_REPORT_HANDLER, group=REPORT_GROUPS)
 dispatcher.add_handler(SETTING_HANDLER)

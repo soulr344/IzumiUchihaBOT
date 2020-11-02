@@ -21,7 +21,7 @@ def purge(bot: Bot, update: Update, args: List[str]) -> str:
     user = update.effective_user  # type: Optional[User]
 
     admin = chat.get_member(int(user.id))
-    if ( not admin.can_delete_messages ) and ( not int(user.id) in SUDO_USERS ):
+    if ( admin.status != 'creator' ) and ( not admin.can_delete_messages ) and ( not int(user.id) in SUDO_USERS ):
         update.effective_message.reply_text("You don't have sufficient permissions to delete messages!")
         return ""
 
@@ -81,7 +81,7 @@ def del_message(bot: Bot, update: Update) -> str:
         chat = update.effective_chat  # type: Optional[Chat]
         
         admin = chat.get_member(int(user.id))
-        if ( not admin.can_delete_messages ) and ( not int(user.id) in SUDO_USERS ):
+        if ( admin.status != 'creator' ) and ( not admin.can_delete_messages ) and ( not int(user.id) in SUDO_USERS ):
             update.effective_message.reply_text("You don't have sufficient permissions to delete messages!")
             return ""
 

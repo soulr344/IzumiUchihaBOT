@@ -10,7 +10,7 @@ from telegram.utils.helpers import escape_markdown, mention_html
 
 from tg_bot import dispatcher, SUDO_USERS
 from tg_bot.modules.disable import DisableAbleCommandHandler
-from tg_bot.modules.helper_funcs.chat_status import bot_admin, can_promote, user_admin, can_pin
+from tg_bot.modules.helper_funcs.chat_status import bot_admin, can_promote, user_admin, can_pin, is_user_admin
 from tg_bot.modules.helper_funcs.extraction import extract_user
 from tg_bot.modules.log_channel import loggable
 
@@ -28,8 +28,8 @@ def promote(bot: Bot, update: Update, args: List[str]) -> str:
 
     user_id = extract_user(message, args)
     admin = chat.get_member(int(user.id))
-    if ( not admin.can_promote_members ) and ( not int(user.id) in SUDO_USERS ):
-        message.reply_text("You don't have sufficient permissions to promote users!")
+    if ( admin.status != 'creator' ) and (( not admin.can_promote_members ) and ( not int(user.id) in SUDO_USERS )):
+        message.reply_text("You don't have sufficient permissions to promote users!\n You're a " + admin.status + " in this chat")
         return ""
 
     if not user_id or int(user_id) == 777000 or int(user_id) == 1087968824:
@@ -79,7 +79,7 @@ def demote(bot: Bot, update: Update, args: List[str]) -> str:
 
     user_id = extract_user(message, args)
     admin = chat.get_member(int(user.id))
-    if ( not admin.can_promote_members ) and ( not int(user.id) in SUDO_USERS ):
+    if ( admin.status != 'creator' ) and ( not admin.can_promote_members ) and ( not int(user.id) in SUDO_USERS ):
         message.reply_text("You don't have sufficient permissions to demote users!")
         return ""
 
@@ -135,7 +135,7 @@ def pin(bot: Bot, update: Update, args: List[str]) -> str:
     chat = update.effective_chat  # type: Optional[Chat]
 
     admin = chat.get_member(int(user.id))
-    if ( not admin.can_pin_messages ) and ( not int(user.id) in SUDO_USERS ):
+    if ( admin.status != 'creator' ) and ( not admin.can_pin_messages ) and ( not int(user.id) in SUDO_USERS ):
         update.effective_message.reply_text("You don't have sufficient permissions to pin messages!")
         return ""
 
@@ -172,7 +172,7 @@ def unpin(bot: Bot, update: Update) -> str:
     user = update.effective_user  # type: Optional[User]
 
     admin = chat.get_member(int(user.id))
-    if ( not admin.can_pin_messages ) and ( not int(user.id) in SUDO_USERS ):
+    if ( admin.status != 'creator' ) and ( not admin.can_pin_messages ) and ( not int(user.id) in SUDO_USERS ):
         update.effective_message.reply_text("You don't have sufficient permissions to unpin messages!")
         return ""
 
