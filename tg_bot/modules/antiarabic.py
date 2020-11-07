@@ -78,7 +78,21 @@ def __chat_settings__(chat_id, user_id):
 __mod_name__ = "AntiArabicScript"
 
 __help__ = """
-Just Anti-arabic script
+AntiArabicScript module is used to delete messages containing characters from one of the following automatically:
+
+• Arabic
+• Arabic Supplement
+• Arabic Extended-A
+• Arabic Presentation Forms-A
+• Arabic Presentation Forms-B
+• Rumi Numeral Symbols
+• Arabic Mathematical Alphabetic Symbols
+
+*NOTE:* AntiArabicScript module doesn't affect messages sent by admins.
+
+*Admin only:*
+ - /antiarabic <on/off>: turn antiarabic module on/off ( off by default )
+ - /antiarabic: get status of AntiArabicScript module in chat
 """
 
 SETTING_HANDLER = CommandHandler("antiarabic", antiarabic_setting, pass_args=True)
