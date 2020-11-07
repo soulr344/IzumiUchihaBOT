@@ -49,6 +49,7 @@ def device(bot, update, args):
         try:
             del_msg.delete()
             update.effective_message.delete()
+            return
         except BadRequest as err:
             if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
                 return
@@ -88,6 +89,7 @@ def checkfw(bot, update, args):
         try:
             del_msg.delete()
             update.effective_message.delete()
+            return
         except BadRequest as err:
             if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
                 return
@@ -147,6 +149,7 @@ def getfw(bot, update, args):
         try:
             del_msg.delete()
             update.effective_message.delete()
+            return
         except BadRequest as err:
             if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
                 return
@@ -199,6 +202,7 @@ def twrp(bot, update, args):
         try:
             del_msg.delete()
             update.effective_message.delete()
+            return
         except BadRequest as err:
             if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
                 return
