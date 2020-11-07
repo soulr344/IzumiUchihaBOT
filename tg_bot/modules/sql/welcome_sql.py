@@ -15,9 +15,11 @@ class Welcome(BASE):
     should_goodbye = Column(Boolean, default=True)
 
     custom_welcome = Column(UnicodeText, default=DEFAULT_WELCOME)
+    welcome_media = Column(UnicodeText, default="")
     welcome_type = Column(Integer, default=Types.TEXT.value)
 
     custom_leave = Column(UnicodeText, default=DEFAULT_GOODBYE)
+    goodbye_media = Column(UnicodeText, default="")
     leave_type = Column(Integer, default=Types.TEXT.value)
 
     clean_welcome = Column(BigInteger)
@@ -146,19 +148,19 @@ def get_welc_pref(chat_id):
     welc = SESSION.query(Welcome).get(str(chat_id))
     SESSION.close()
     if welc:
-        return welc.should_welcome, welc.custom_welcome, welc.welcome_type
+        return welc.should_welcome, welc.custom_welcome, welc.welcome_media, welc.welcome_type
     else:
         # Welcome by default.
-        return True, DEFAULT_WELCOME, Types.TEXT
+        return True, DEFAULT_WELCOME, "", Types.TEXT
 
 def get_gdbye_pref(chat_id):
     welc = SESSION.query(Welcome).get(str(chat_id))
     SESSION.close()
     if welc:
-        return welc.should_goodbye, welc.custom_leave, welc.leave_type
+        return welc.should_goodbye, welc.custom_leave, welc.goodbye_media, welc.leave_type
     else:
         # Welcome by default.
-        return True, DEFAULT_GOODBYE, Types.TEXT
+        return True, DEFAULT_GOODBYE, "", Types.TEXT
 
 def set_clean_welcome(chat_id, clean_welcome):
     with INSERTION_LOCK:
@@ -222,7 +224,7 @@ def set_gdbye_preference(chat_id, should_goodbye):
         SESSION.add(curr)
         SESSION.commit()
 
-def set_custom_welcome(chat_id, custom_welcome, welcome_type, buttons=None):
+def set_custom_welcome(chat_id, welcome_media, custom_welcome, welcome_type, buttons=None):
     if buttons is None:
         buttons = []
 
@@ -233,10 +235,12 @@ def set_custom_welcome(chat_id, custom_welcome, welcome_type, buttons=None):
 
         if custom_welcome:
             welcome_settings.custom_welcome = custom_welcome
+            welcome_settings.welcome_media = welcome_media
             welcome_settings.welcome_type = welcome_type.value
 
         else:
             welcome_settings.custom_welcome = DEFAULT_GOODBYE
+            welcome_settings.welcome_media = ""
             welcome_settings.welcome_type = Types.TEXT.value
 
         SESSION.add(welcome_settings)
@@ -261,7 +265,7 @@ def get_custom_welcome(chat_id):
     SESSION.close()
     return ret
 
-def set_custom_gdbye(chat_id, custom_goodbye, goodbye_type, buttons=None):
+def set_custom_gdbye(chat_id, goodbye_media, custom_goodbye, goodbye_type, buttons=None):
     if buttons is None:
         buttons = []
 
@@ -272,10 +276,12 @@ def set_custom_gdbye(chat_id, custom_goodbye, goodbye_type, buttons=None):
 
         if custom_goodbye:
             welcome_settings.custom_leave = custom_goodbye
+            welcome_settings.goodbye_media = goodbye_media
             welcome_settings.leave_type = goodbye_type.value
 
         else:
             welcome_settings.custom_leave = DEFAULT_GOODBYE
+            welcome_settings.goodbye_media = ""
             welcome_settings.leave_type = Types.TEXT.value
 
         SESSION.add(welcome_settings)

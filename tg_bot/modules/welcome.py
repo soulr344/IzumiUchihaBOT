@@ -91,7 +91,7 @@ def new_member(bot: Bot, update: Update):
     user = update.effective_user  # type: Optional[User]
     msg = update.effective_message # type: Optional[Message]
     chat_name = chat.title or chat.first or chat.username # type: Optional:[chat name]
-    should_welc, cust_welcome, welc_type = sql.get_welc_pref(chat.id)
+    should_welc, cust_welcome, cust_media, welc_type = sql.get_welc_pref(chat.id)
     welc_mutes = sql.welcome_mutes(chat.id)
     casPrefs = sql.get_cas_status(str(chat.id)) #check if enabled, obviously
     autoban = sql.get_cas_autoban(str(chat.id))
@@ -142,11 +142,7 @@ def new_member(bot: Bot, update: Update):
                 " and be sure to check /help in PM for more commands and tricks!".format(user.first_name, bot.first_name, chat_name))
 
             else:
-                # If welcome message is media, send with appropriate function
-                if welc_type != sql.Types.TEXT and welc_type != sql.Types.BUTTON_TEXT:
-                    ENUM_FUNC_MAP[welc_type](chat.id, cust_welcome)
-                    return
-                # else, move on
+
                 first_name = new_mem.first_name or "PersonWithNoName"  # edge case of empty name - occurs for some bugs.
 
                 if cust_welcome:
@@ -174,8 +170,13 @@ def new_member(bot: Bot, update: Update):
 
                 keyboard = InlineKeyboardMarkup(keyb)
 
-                sent = send(update, res, keyboard,
-                            sql.DEFAULT_WELCOME.format(first=first_name))  # type: Optional[Message]
+                # If welcome message is media, send with appropriate function
+                if welc_type != sql.Types.TEXT and welc_type != sql.Types.BUTTON_TEXT:
+                    ENUM_FUNC_MAP[welc_type](chat.id, cust_media, caption=res, reply_to_message_id=msg.message_id, parse_mode=ParseMode.MARKDOWN)
+                    pass
+                else:
+                    sent = send(update, res, keyboard,
+                                sql.DEFAULT_WELCOME.format(first=first_name))  # type: Optional[Message]
             
                 
                 #Sudo user exception from mutes:
@@ -209,7 +210,7 @@ def new_member(bot: Bot, update: Update):
 @run_async
 def left_member(bot: Bot, update: Update):
     chat = update.effective_chat  # type: Optional[Chat]
-    should_goodbye, cust_goodbye, goodbye_type = sql.get_gdbye_pref(chat.id)
+    should_goodbye, cust_goodbye, cust_media, goodbye_type = sql.get_gdbye_pref(chat.id)
     if should_goodbye:
         left_mem = update.effective_message.left_chat_member
         if left_mem:
@@ -220,11 +221,6 @@ def left_member(bot: Bot, update: Update):
             # Give the owner a special goodbye
             if left_mem.id == OWNER_ID:
                 update.effective_message.reply_text("RIP Master")
-                return
-
-            # if media goodbye, use appropriate function for it
-            if goodbye_type != sql.Types.TEXT and goodbye_type != sql.Types.BUTTON_TEXT:
-                ENUM_FUNC_MAP[goodbye_type](chat.id, cust_goodbye)
                 return
 
             first_name = left_mem.first_name or "PersonWithNoName"  # edge case of empty name - occurs for some bugs.
@@ -254,6 +250,11 @@ def left_member(bot: Bot, update: Update):
 
             keyboard = InlineKeyboardMarkup(keyb)
 
+            # if media goodbye, use appropriate function for it
+            if goodbye_type != sql.Types.TEXT and goodbye_type != sql.Types.BUTTON_TEXT:
+                ENUM_FUNC_MAP[goodbye_type](chat.id, cust_media, caption=res, reply_to_message_id=update.effective_message.message_id, parse_mode=ParseMode.MARKDOWN)
+                return
+
             send(update, res, keyboard, sql.DEFAULT_GOODBYE)
 
 @run_async
@@ -263,7 +264,7 @@ def welcome(bot: Bot, update: Update, args: List[str]):
     # if no args, show current replies.
     if len(args) == 0 or args[0].lower() == "noformat":
         noformat = args and args[0].lower() == "noformat"
-        pref, welcome_m, welcome_type = sql.get_welc_pref(chat.id)
+        pref, welcome_m, welcome_media, welcome_type = sql.get_welc_pref(chat.id)
         update.effective_message.reply_text(
             "This chat has it's welcome setting set to: `{}`.\n*The welcome message "
             "(not filling the {{}}) is:*".format(pref),
@@ -281,12 +282,18 @@ def welcome(bot: Bot, update: Update, args: List[str]):
 
                 send(update, welcome_m, keyboard, sql.DEFAULT_WELCOME)
 
-        else:
+        elif welcome_type == sql.Types.TEXT:
             if noformat:
                 ENUM_FUNC_MAP[welcome_type](chat.id, welcome_m)
 
             else:
                 ENUM_FUNC_MAP[welcome_type](chat.id, welcome_m, parse_mode=ParseMode.MARKDOWN)
+        else:
+            if noformat:
+                ENUM_FUNC_MAP[welcome_type](chat.id, welcome_media, caption=welcome_m)
+
+            else:
+                ENUM_FUNC_MAP[welcome_type](chat.id, welcome_media, caption=welcome_m, parse_mode=ParseMode.MARKDOWN)
 
     elif len(args) >= 1:
         if args[0].lower() in ("on", "yes"):
@@ -308,7 +315,7 @@ def goodbye(bot: Bot, update: Update, args: List[str]):
 
     if len(args) == 0 or args[0] == "noformat":
         noformat = args and args[0] == "noformat"
-        pref, goodbye_m, goodbye_type = sql.get_gdbye_pref(chat.id)
+        pref, goodbye_m, goodbye_media, goodbye_type = sql.get_gdbye_pref(chat.id)
         update.effective_message.reply_text(
             "This chat has it's goodbye setting set to: `{}`.\n*The goodbye  message "
             "(not filling the {{}}) is:*".format(pref),
@@ -326,12 +333,19 @@ def goodbye(bot: Bot, update: Update, args: List[str]):
 
                 send(update, goodbye_m, keyboard, sql.DEFAULT_GOODBYE)
 
-        else:
+        elif goodbye_type == sql.Types.TEXT:
             if noformat:
                 ENUM_FUNC_MAP[goodbye_type](chat.id, goodbye_m)
 
             else:
                 ENUM_FUNC_MAP[goodbye_type](chat.id, goodbye_m, parse_mode=ParseMode.MARKDOWN)
+        else:
+            if noformat:
+                ENUM_FUNC_MAP[goodbye_type](chat.id, goodbye_media, caption=goodbye_m)
+
+            else:
+                ENUM_FUNC_MAP[goodbye_type](chat.id, goodbye_media, caption=goodbye_m, parse_mode=ParseMode.MARKDOWN)
+
 
     elif len(args) >= 1:
         if args[0].lower() in ("on", "yes"):
@@ -360,7 +374,7 @@ def set_welcome(bot: Bot, update: Update) -> str:
         msg.reply_text("You didn't specify what to reply with!")
         return ""
 
-    sql.set_custom_welcome(chat.id, content or text, data_type, buttons)
+    sql.set_custom_welcome(chat.id, content, text, data_type, buttons)
     msg.reply_text("Successfully set custom welcome message!")
 
     return "<b>{}:</b>" \
@@ -396,7 +410,7 @@ def set_goodbye(bot: Bot, update: Update) -> str:
         msg.reply_text("You didn't specify what to reply with!")
         return ""
 
-    sql.set_custom_gdbye(chat.id, content or text, data_type, buttons)
+    sql.set_custom_gdbye(chat.id, content, text, data_type, buttons)
     msg.reply_text("Successfully set custom goodbye message!")
     return "<b>{}:</b>" \
            "\n#SET_GOODBYE" \
