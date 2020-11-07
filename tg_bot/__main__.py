@@ -19,20 +19,19 @@ from tg_bot.modules.helper_funcs.chat_status import is_user_admin
 from tg_bot.modules.helper_funcs.misc import paginate_modules
 
 PM_START_TEXT = """
-Hello {}, my name is *{}*! I'm a group manager bot.
+Yo {}, I'm *{}*! I'm a group manager bot. You can find the list of available commands with /help.
 
-You can find the list of available commands with /help. 
+Feel free to join @bot\_workshop group for bug reports and feature requests and @bot\_workshop\_channel for announcements regarding features added in bot, etc.
 
-If you can't find answer to your question, if you want to submit a bug or a feature request - feel free to do it in @bot\_workshop group.
+You can also contribute to my bot maintainers with /donate.
 
-We have a news channel too, @bot\_workshop\_channel, for announcements regarding features added, downtime etc.
-
-Last but not least, if you enjoy using me and/or you want to contribute you can hit /donate to help funding my hosting services.
+Wanna add me into your group? Click here => [ Add me ](https://t.me/{}?startgroup=true)
 """
 
 SOURCE_STRING = """
-I'm built in python3, using the python-telegram-bot library, and am fully opensource - you can find what makes me tick [here](https://github.com/corsicanu/tgbot)
+I'm built in python3, using the python-telegram-bot library, and am fully opensource - you can find what makes me tick [here](https://github.com/soulr344/tgbot)
 """
+
 
 HELP_STRINGS = """
 Have a look at the following for an idea of some of \
@@ -146,8 +145,8 @@ def start(bot: Bot, update: Update, args: List[str]):
         else:
             first_name = update.effective_user.first_name
             update.effective_message.reply_text(
-                PM_START_TEXT.format(escape_markdown(first_name), escape_markdown(bot.first_name)),
-                parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+                PM_START_TEXT.format(escape_markdown(first_name), escape_markdown(bot.first_name),
+                escape_markdown(bot.username)), parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
     else:
         update.effective_message.reply_text("Yo, whadup?")
 
