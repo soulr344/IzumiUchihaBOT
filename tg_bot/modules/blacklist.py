@@ -49,6 +49,7 @@ def add_blacklist(bot: Bot, update: Update):
     chat = update.effective_chat  # type: Optional[Chat]
     words = msg.text.split(None, 1)
 
+    user = update.effective_user
     admin = chat.get_member(int(user.id))
     if ( admin.status != 'creator' ) and ( not admin.can_delete_messages ) and ( not int(user.id) in SUDO_USERS ):
         update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
@@ -79,6 +80,7 @@ def unblacklist(bot: Bot, update: Update):
     chat = update.effective_chat  # type: Optional[Chat]
     words = msg.text.split(None, 1)
 
+    user = update.effective_user
     admin = chat.get_member(int(user.id))
     if ( admin.status != 'creator' ) and ( not admin.can_delete_messages ) and ( not int(user.id) in SUDO_USERS ):
         update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")

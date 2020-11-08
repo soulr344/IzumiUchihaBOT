@@ -9,7 +9,7 @@ from tg_bot.modules.log_channel import loggable
 from tg_bot.modules.helper_funcs.extraction import extract_text
 from tg_bot.modules.sql import antiarabic_sql as sql
 
-ANTIARABIC_GROUPS = 11
+ANTIARABIC_GROUPS = 12
 
 @run_async
 @user_admin
