@@ -134,7 +134,11 @@ def save(bot: Bot, update: Update):
     chat = update.effective_chat
     msg = update.effective_message  # type: Optional[Message]
     chat_name = chat.title or chat.first or chat.username
-    note_name, text, data_type, content, buttons = get_note_type(msg)
+    try:
+        note_name, text, data_type, content, buttons = get_note_type(msg)
+    except IndexError:
+        msg.reply_text("Yes, I'm dumb enough to save an empty note.", parse_mode=ParseMode.MARKDOWN)
+        return
 
     if data_type is None:
         msg.reply_text("Dude, there's no note")
