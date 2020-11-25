@@ -9,7 +9,7 @@ from telegram.ext import MessageHandler, Filters, CommandHandler
 from telegram.ext.dispatcher import run_async
 
 import tg_bot.modules.sql.users_sql as sql
-from tg_bot import dispatcher, OWNER_ID, LOGGER
+from tg_bot import dispatcher, CallbackContext, OWNER_ID, LOGGER
 from tg_bot.modules.helper_funcs.filters import CustomFilters
 
 USERS_GROUP = 4
@@ -47,8 +47,8 @@ def get_user_id(username):
     return None
 
 
-@run_async
-def broadcast(bot: Bot, update: Update):
+def broadcast(update: Update, context: CallbackContext):
+    bot = context.bot
     to_send = update.effective_message.text.split(None, 1)
     if len(to_send) >= 2:
         chats = sql.get_all_chats() or []
@@ -65,8 +65,8 @@ def broadcast(bot: Bot, update: Update):
                                             "due to being kicked.".format(failed))
 
 
-@run_async
-def log_user(bot: Bot, update: Update):
+def log_user(update: Update, context: CallbackContext):
+    bot = context.bot
     chat = update.effective_chat  # type: Optional[Chat]
     msg = update.effective_message  # type: Optional[Message]
 
@@ -86,8 +86,8 @@ def log_user(bot: Bot, update: Update):
                         msg.forward_from.username)
 
 
-@run_async
-def chats(bot: Bot, update: Update):
+def chats(update: Update, context: CallbackContext):
+    bot = context.bot
     all_chats = sql.get_all_chats() or []
     chatfile = 'List of chats.\n'
     for chat in all_chats:
@@ -122,9 +122,9 @@ __help__ = ""  # no help string
 
 __mod_name__ = "Users"
 
-BROADCAST_HANDLER = CommandHandler("broadcast", broadcast, filters=Filters.user(OWNER_ID))
-USER_HANDLER = MessageHandler(Filters.all & Filters.group, log_user)
-CHATLIST_HANDLER = CommandHandler("chatlist", chats, filters=CustomFilters.sudo_filter)
+BROADCAST_HANDLER = CommandHandler("broadcast", broadcast, filters=Filters.user(OWNER_ID), run_async=True)
+USER_HANDLER = MessageHandler(Filters.all & Filters.group, log_user, run_async=True)
+CHATLIST_HANDLER = CommandHandler("chatlist", chats, filters=CustomFilters.sudo_filter, run_async=True)
 
 dispatcher.add_handler(USER_HANDLER, USERS_GROUP)
 dispatcher.add_handler(BROADCAST_HANDLER)

@@ -1,24 +1,24 @@
 from telegram import Message
-from telegram.ext import BaseFilter
+from telegram.ext import MessageFilter
 from emoji import UNICODE_EMOJI
 
 from tg_bot import SUPPORT_USERS, SUDO_USERS
 
 
 class CustomFilters(object):
-    class _Supporters(BaseFilter):
+    class _Supporters(MessageFilter):
         def filter(self, message: Message):
             return bool(message.from_user and message.from_user.id in SUPPORT_USERS)
 
     support_filter = _Supporters()
 
-    class _Sudoers(BaseFilter):
+    class _Sudoers(MessageFilter):
         def filter(self, message: Message):
             return bool(message.from_user and message.from_user.id in SUDO_USERS)
 
     sudo_filter = _Sudoers()
 
-    class _MimeType(BaseFilter):
+    class _MimeType(MessageFilter):
         def __init__(self, mimetype):
             self.mime_type = mimetype
             self.name = "CustomFilters.mime_type({})".format(self.mime_type)
@@ -28,13 +28,13 @@ class CustomFilters(object):
 
     mime_type = _MimeType
 
-    class _HasText(BaseFilter):
+    class _HasText(MessageFilter):
         def filter(self, message: Message):
             return bool(message.text or message.sticker or message.photo or message.document or message.video)
 
     has_text = _HasText()
     
-    class _HasEmoji(BaseFilter):
+    class _HasEmoji(MessageFilter):
         def filter(self, message: Message):
             text = ""
             if (message.text):
@@ -48,7 +48,7 @@ class CustomFilters(object):
         
     has_emoji = _HasEmoji()
     
-    class _IsEmoji(BaseFilter):
+    class _IsEmoji(MessageFilter):
         def filter(self, message: Message):
             if(message.text and len(message.text)==1):
                for emoji in UNICODE_EMOJI:

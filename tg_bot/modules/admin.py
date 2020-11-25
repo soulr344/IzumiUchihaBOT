@@ -8,19 +8,20 @@ from telegram.ext import CommandHandler, Filters
 from telegram.ext.dispatcher import run_async
 from telegram.utils.helpers import escape_markdown, mention_html
 
-from tg_bot import dispatcher, SUDO_USERS
+from tg_bot import dispatcher, CallbackContext, SUDO_USERS
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.helper_funcs.chat_status import bot_admin, can_promote, user_admin, can_pin, is_user_admin
 from tg_bot.modules.helper_funcs.extraction import extract_user
 from tg_bot.modules.log_channel import loggable
 
 
-@run_async
 @bot_admin
 @can_promote
 @user_admin
 @loggable
-def promote(bot: Bot, update: Update, args: List[str]) -> str:
+def promote(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
+    args = context.args
     chat_id = update.effective_chat.id
     message = update.effective_message  # type: Optional[Message]
     chat = update.effective_chat  # type: Optional[Chat]
@@ -66,13 +67,13 @@ def promote(bot: Bot, update: Update, args: List[str]) -> str:
                                       mention_html(user.id, user.first_name),
                                       mention_html(user_member.user.id, user_member.user.first_name))
 
-
-@run_async
 @bot_admin
 @can_promote
 @user_admin
 @loggable
-def demote(bot: Bot, update: Update, args: List[str]) -> str:
+def demote(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
+    args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
     message = update.effective_message  # type: Optional[Message]
     user = update.effective_user  # type: Optional[User]
@@ -124,13 +125,13 @@ def demote(bot: Bot, update: Update, args: List[str]) -> str:
                            "user, so I can't act upon them!")
         return ""
 
-
-@run_async
 @bot_admin
 @can_pin
 @user_admin
 @loggable
-def pin(bot: Bot, update: Update, args: List[str]) -> str:
+def pin(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
+    args = context.args
     user = update.effective_user  # type: Optional[User]
     chat = update.effective_chat  # type: Optional[Chat]
 
@@ -161,13 +162,12 @@ def pin(bot: Bot, update: Update, args: List[str]) -> str:
 
     return ""
 
-
-@run_async
 @bot_admin
 @can_pin
 @user_admin
 @loggable
-def unpin(bot: Bot, update: Update) -> str:
+def unpin(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
     chat = update.effective_chat
     user = update.effective_user  # type: Optional[User]
 
@@ -189,11 +189,10 @@ def unpin(bot: Bot, update: Update) -> str:
            "\n<b>Admin:</b> {}".format(html.escape(chat.title),
                                        mention_html(user.id, user.first_name))
 
-
-@run_async
 @bot_admin
 @user_admin
-def invite(bot: Bot, update: Update):
+def invite(update: Update, context: CallbackContext):
+    bot = context.bot
     chat = update.effective_chat  # type: Optional[Chat]
     if chat.username:
         update.effective_message.reply_text("@{}".format(chat.username))
@@ -207,9 +206,8 @@ def invite(bot: Bot, update: Update):
     else:
         update.effective_message.reply_text("I can only give you invite links for supergroups and channels, sorry!")
 
-
-@run_async
-def adminlist(bot: Bot, update: Update):
+def adminlist(update: Update, context: CallbackContext):
+    bot = context.bot
     administrators = update.effective_chat.get_administrators()
     msg = update.effective_message
     text = "Members of *{}*:".format(update.effective_chat.title or "this chat")
@@ -264,15 +262,15 @@ An example of promoting someone to admins:
 
 __mod_name__ = "Admin"
 
-PIN_HANDLER = CommandHandler("pin", pin, pass_args=True, filters=Filters.group)
-UNPIN_HANDLER = CommandHandler("unpin", unpin, filters=Filters.group)
+PIN_HANDLER = CommandHandler("pin", pin, pass_args=True, filters=Filters.group, run_async=True)
+UNPIN_HANDLER = CommandHandler("unpin", unpin, filters=Filters.group, run_async=True)
 
-INVITE_HANDLER = CommandHandler(["invitelink", "link"], invite, filters=Filters.group)
+INVITE_HANDLER = CommandHandler(["invitelink", "link"], invite, filters=Filters.group, run_async=True)
 
-PROMOTE_HANDLER = CommandHandler("promote", promote, pass_args=True, filters=Filters.group)
-DEMOTE_HANDLER = CommandHandler("demote", demote, pass_args=True, filters=Filters.group)
+PROMOTE_HANDLER = CommandHandler("promote", promote, pass_args=True, filters=Filters.group, run_async=True)
+DEMOTE_HANDLER = CommandHandler("demote", demote, pass_args=True, filters=Filters.group, run_async=True)
 
-ADMINLIST_HANDLER = DisableAbleCommandHandler(["adminlist", "staff"], adminlist, filters=Filters.group)
+ADMINLIST_HANDLER = DisableAbleCommandHandler(["adminlist", "staff"], adminlist, filters=Filters.group, run_async=True)
 
 dispatcher.add_handler(PIN_HANDLER)
 dispatcher.add_handler(UNPIN_HANDLER)

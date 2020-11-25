@@ -13,7 +13,7 @@ import tg_bot.modules.sql.welcome_sql as sql
 import tg_bot.modules.sql.global_bans_sql as gbansql
 import tg_bot.modules.sql.users_sql as userssql
 
-from tg_bot import dispatcher, OWNER_ID, LOGGER, SUDO_USERS, SUPPORT_USERS
+from tg_bot import dispatcher, CallbackContext, OWNER_ID, LOGGER, SUDO_USERS, SUPPORT_USERS
 from tg_bot.modules.helper_funcs.chat_status import user_admin, can_delete, is_user_ban_protected
 from tg_bot.modules.helper_funcs.misc import build_keyboard, revert_buttons, send_to_list
 from tg_bot.modules.helper_funcs.msg_types import get_welcome_type
@@ -85,8 +85,8 @@ def send(update, message, keyboard, backup_message):
 
     return msg
 
-@run_async
-def new_member(bot: Bot, update: Update):
+def new_member(update: Update, context: CallbackContext):
+    bot = context.bot
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     msg = update.effective_message # type: Optional[Message]
@@ -207,8 +207,8 @@ def new_member(bot: Bot, update: Update):
             if sent:
                 sql.set_clean_welcome(chat.id, sent.message_id)
 
-@run_async
-def left_member(bot: Bot, update: Update):
+def left_member(update: Update, context: CallbackContext):
+    bot = context.bot
     chat = update.effective_chat  # type: Optional[Chat]
     should_goodbye, cust_goodbye, cust_media, goodbye_type = sql.get_gdbye_pref(chat.id)
     if should_goodbye:
@@ -257,9 +257,10 @@ def left_member(bot: Bot, update: Update):
 
             send(update, res, keyboard, sql.DEFAULT_GOODBYE)
 
-@run_async
 @user_admin
-def welcome(bot: Bot, update: Update, args: List[str]):
+def welcome(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
     # if no args, show current replies.
     if len(args) == 0 or args[0].lower() == "noformat":
@@ -308,9 +309,10 @@ def welcome(bot: Bot, update: Update, args: List[str]):
             # idek what you're writing, say yes or no
             update.effective_message.reply_text("I understand 'on/yes' or 'off/no' only!")
 
-@run_async
 @user_admin
-def goodbye(bot: Bot, update: Update, args: List[str]):
+def goodbye(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
 
     if len(args) == 0 or args[0] == "noformat":
@@ -360,10 +362,10 @@ def goodbye(bot: Bot, update: Update, args: List[str]):
             # idek what you're writing, say yes or no
             update.effective_message.reply_text("I understand 'on/yes' or 'off/no' only!")
 
-@run_async
 @user_admin
 @loggable
-def set_welcome(bot: Bot, update: Update) -> str:
+def set_welcome(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     msg = update.effective_message  # type: Optional[Message]
@@ -383,10 +385,10 @@ def set_welcome(bot: Bot, update: Update) -> str:
            "\nSet the welcome message.".format(html.escape(chat.title),
                                                mention_html(user.id, user.first_name))
 
-@run_async
 @user_admin
 @loggable
-def reset_welcome(bot: Bot, update: Update) -> str:
+def reset_welcome(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     sql.set_custom_welcome(chat.id, sql.DEFAULT_WELCOME, sql.Types.TEXT)
@@ -397,10 +399,10 @@ def reset_welcome(bot: Bot, update: Update) -> str:
            "\nReset the welcome message to default.".format(html.escape(chat.title),
                                                             mention_html(user.id, user.first_name))
 
-@run_async
 @user_admin
 @loggable
-def set_goodbye(bot: Bot, update: Update) -> str:
+def set_goodbye(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     msg = update.effective_message  # type: Optional[Message]
@@ -418,10 +420,10 @@ def set_goodbye(bot: Bot, update: Update) -> str:
            "\nSet the goodbye message.".format(html.escape(chat.title),
                                                mention_html(user.id, user.first_name))
 
-@run_async
 @user_admin
 @loggable
-def reset_goodbye(bot: Bot, update: Update) -> str:
+def reset_goodbye(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     sql.set_custom_gdbye(chat.id, sql.DEFAULT_GOODBYE, sql.Types.TEXT)
@@ -432,10 +434,11 @@ def reset_goodbye(bot: Bot, update: Update) -> str:
            "\nReset the goodbye message.".format(html.escape(chat.title),
                                                  mention_html(user.id, user.first_name))
 
-@run_async
 @user_admin
 @loggable
-def safemode(bot: Bot, update: Update, args: List[str]) -> str:
+def safemode(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
+    args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     msg = update.effective_message # type: Optional[Message]
@@ -467,10 +470,11 @@ def safemode(bot: Bot, update: Update, args: List[str]) -> str:
         msg.reply_text(reply.format(curr_setting), parse_mode=ParseMode.MARKDOWN)
         return ""
 
-@run_async
 @user_admin
 @loggable
-def clean_welcome(bot: Bot, update: Update, args: List[str]) -> str:
+def clean_welcome(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
+    args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
 
@@ -503,10 +507,11 @@ def clean_welcome(bot: Bot, update: Update, args: List[str]) -> str:
         update.effective_message.reply_text("I understand 'on/yes' or 'off/no' only!")
         return ""
 
-@run_async
 @user_admin
 @loggable
-def del_joined(bot: Bot, update: Update, args: List[str]) -> str:
+def del_joined(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
+    args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
 
@@ -539,17 +544,17 @@ def del_joined(bot: Bot, update: Update, args: List[str]) -> str:
         update.effective_message.reply_text("I understand 'on/yes' or 'off/no' only!")
         return ""
 
-@run_async
-def delete_join(bot: Bot, update: Update):
+def delete_join(update: Update, context: CallbackContext):
+    bot = context.bot
     chat = update.effective_chat  # type: Optional[Chat]
     join = update.effective_message.new_chat_members
     if can_delete(chat, bot.id):
         del_join = sql.get_del_pref(chat.id)
         if del_join and update.message:
             update.message.delete()
-            
-@run_async
-def user_button(bot: Bot, update: Update):
+
+def user_button(update: Update, context: CallbackContext):
+    bot = context.bot
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     query = update.callback_query  # type: Optional[CallbackQuery]
@@ -568,9 +573,9 @@ def user_button(bot: Bot, update: Update):
     else:
         query.answer(text="Fuck off, this button is not for you!")
 
-@run_async
 @user_admin
-def setcas(bot: Bot, update: Update):
+def setcas(update: Update, context: CallbackContext):
+    bot = context.bot
     chat = update.effective_chat
     msg = update.effective_message
     split_msg = msg.text.split(' ')
@@ -590,9 +595,9 @@ def setcas(bot: Bot, update: Update):
         msg.reply_text("Invalid status to set!") #on or off ffs
         return
 
-@run_async
 @user_admin
-def setban(bot: Bot, update: Update):
+def setban(update: Update, context: CallbackContext):
+    bot = context.bot
     chat = update.effective_chat
     msg = update.effective_message
     split_msg = msg.text.split(' ')
@@ -612,9 +617,9 @@ def setban(bot: Bot, update: Update):
         msg.reply_text("Invalid autoban definition to set!") #on or off ffs
         return
 
-@run_async
 @user_admin
-def get_current_setting(bot: Bot, update: Update):
+def get_current_setting(update: Update, context: CallbackContext):
+    bot = context.bot
     chat = update.effective_chat
     msg = update.effective_message
     stats = sql.get_cas_status(chat.id)
@@ -623,9 +628,9 @@ def get_current_setting(bot: Bot, update: Update):
     msg.reply_text(rtext, parse_mode=ParseMode.HTML)
     return
 
-@run_async
 @user_admin
-def getTimeSetting(bot: Bot, update: Update):
+def getTimeSetting(update: Update, context: CallbackContext):
+    bot = context.bot
     chat = update.effective_chat
     msg = update.effective_message
     timeSetting = sql.getKickTime(chat.id)
@@ -633,9 +638,10 @@ def getTimeSetting(bot: Bot, update: Update):
     msg.reply_text(text)
     return
 
-@run_async
 @user_admin
-def setTimeSetting(bot: Bot, update: Update, args: List[str]):
+def setTimeSetting(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     chat = update.effective_chat
     msg = update.effective_message
     if (not args) or len(args) != 1 or (not args[0].isdigit()):
@@ -649,15 +655,16 @@ def setTimeSetting(bot: Bot, update: Update, args: List[str]):
     msg.reply_text("Success! Users that don't confirm being people will be kicked after " + str(value) + " seconds.")
     return
 
-@run_async
-def get_version(bot: Bot, update: Update):
+def get_version(update: Update, context: CallbackContext):
+    bot = context.bot
     msg = update.effective_message
     ver = cas.vercheck()
     msg.reply_text("CAS API version: "+ver)
     return
 
-@run_async
-def caschecker(bot: Bot, update: Update, args: List[str]):
+def caschecker(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     #/info logic
     msg = update.effective_message  # type: Optional[Message]
     user_id = extract_user(update.effective_message, args)
@@ -703,8 +710,9 @@ def caschecker(bot: Bot, update: Update, args: List[str]):
 
 #this sends direct request to combot server. Will return true if user is banned, false if
 #id invalid or user not banned
-@run_async
-def casquery(bot: Bot, update: Update, args: List[str]):
+def casquery(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     msg = update.effective_message  # type: Optional[Message]
     try:
         user_id = msg.text.split(' ')[1]
@@ -740,13 +748,14 @@ WELC_HELP_TXT = "Your group's welcome/goodbye messages can be personalised in mu
                 "If you're feeling fun, you can even set images/gifs/videos/voice messages as the welcome message by " \
                 "replying to the desired media, and calling /setwelcome.".format(dispatcher.bot.username)
 
-@run_async
 @user_admin
-def welcome_help(bot: Bot, update: Update):
+def welcome_help(update: Update, context: CallbackContext):
+    bot = context.bot
     update.effective_message.reply_text(WELC_HELP_TXT, parse_mode=ParseMode.MARKDOWN)
 
-@run_async
-def gbanChat(bot: Bot, update: Update, args: List[str]):
+def gbanChat(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     if args and len(args) == 1:
         chat_id = str(args[0])
         del args[0]
@@ -770,8 +779,9 @@ def gbanChat(bot: Bot, update: Update, args: List[str]):
     else:
         update.effective_message.reply_text("Give me a valid chat id!") 
 
-@run_async
-def ungbanChat(bot: Bot, update: Update, args: List[str]):
+def ungbanChat(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     if args and len(args) == 1:
         chat_id = str(args[0])
         del args[0]
@@ -791,9 +801,10 @@ def ungbanChat(bot: Bot, update: Update, args: List[str]):
     else:
         update.effective_message.reply_text("Give me a valid chat id!") 
 
-@run_async
 @user_admin
-def setDefense(bot: Bot, update: Update, args: List[str]):
+def setDefense(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     chat = update.effective_chat
     msg = update.effective_message
     if len(args)!=1:
@@ -812,9 +823,9 @@ def setDefense(bot: Bot, update: Update, args: List[str]):
         msg.reply_text("Invalid status to set!") #on or off ffs
         return 
 
-@run_async
 @user_admin
-def getDefense(bot: Bot, update: Update):
+def getDefense(update: Update, context: CallbackContext):
+    bot = context.bot
     chat = update.effective_chat
     msg = update.effective_message
     stat = sql.getDefenseStatus(chat.id)
@@ -872,31 +883,31 @@ Commands:
 
 __mod_name__ = "Welcomes/Goodbyes"
 
-NEW_MEM_HANDLER = MessageHandler(Filters.status_update.new_chat_members, new_member)
-LEFT_MEM_HANDLER = MessageHandler(Filters.status_update.left_chat_member, left_member)
-WELC_PREF_HANDLER = CommandHandler("welcome", welcome, pass_args=True, filters=Filters.group)
-GOODBYE_PREF_HANDLER = CommandHandler("goodbye", goodbye, pass_args=True, filters=Filters.group)
-SET_WELCOME = CommandHandler("setwelcome", set_welcome, filters=Filters.group)
-SET_GOODBYE = CommandHandler("setgoodbye", set_goodbye, filters=Filters.group)
-RESET_WELCOME = CommandHandler("resetwelcome", reset_welcome, filters=Filters.group)
-RESET_GOODBYE = CommandHandler("resetgoodbye", reset_goodbye, filters=Filters.group)
-CLEAN_WELCOME = CommandHandler("cleanwelcome", clean_welcome, pass_args=True, filters=Filters.group)
-SAFEMODE_HANDLER = CommandHandler("safemode", safemode, pass_args=True, filters=Filters.group)
-DEL_JOINED = CommandHandler("rmjoin", del_joined, pass_args=True, filters=Filters.group)
-WELCOME_HELP = CommandHandler("welcomehelp", welcome_help)
-BUTTON_VERIFY_HANDLER = CallbackQueryHandler(user_button, pattern=r"userverify_")
-SETCAS_HANDLER = CommandHandler("setcas", setcas, filters=Filters.group)
-GETCAS_HANDLER = CommandHandler("getcas", get_current_setting, filters=Filters.group)
-GETVER_HANDLER = DisableAbleCommandHandler("casver", get_version)
-CASCHECK_HANDLER = CommandHandler("cascheck", caschecker, pass_args=True)
-CASQUERY_HANDLER = CommandHandler("casquery", casquery, pass_args=True ,filters=CustomFilters.sudo_filter)
-SETBAN_HANDLER = CommandHandler("setban", setban, filters=Filters.group)
-GBANCHAT_HANDLER = CommandHandler("blchat", gbanChat, pass_args=True, filters=CustomFilters.sudo_filter)
-UNGBANCHAT_HANDLER = CommandHandler("unblchat", ungbanChat, pass_args=True, filters=CustomFilters.sudo_filter)
-DEFENSE_HANDLER = CommandHandler("setdefense", setDefense, pass_args=True)
-GETDEF_HANDLER = CommandHandler("defense", getDefense)
-GETTIMESET_HANDLER = CommandHandler("kicktime", getTimeSetting)
-SETTIMER_HANDLER = CommandHandler("setkicktime", setTimeSetting, pass_args=True)
+NEW_MEM_HANDLER = MessageHandler(Filters.status_update.new_chat_members, new_member, run_async=True)
+LEFT_MEM_HANDLER = MessageHandler(Filters.status_update.left_chat_member, left_member, run_async=True)
+WELC_PREF_HANDLER = CommandHandler("welcome", welcome, run_async=True, filters=Filters.group)
+GOODBYE_PREF_HANDLER = CommandHandler("goodbye", goodbye, run_async=True, filters=Filters.group)
+SET_WELCOME = CommandHandler("setwelcome", set_welcome, filters=Filters.group, run_async=True)
+SET_GOODBYE = CommandHandler("setgoodbye", set_goodbye, filters=Filters.group, run_async=True)
+RESET_WELCOME = CommandHandler("resetwelcome", reset_welcome, filters=Filters.group, run_async=True)
+RESET_GOODBYE = CommandHandler("resetgoodbye", reset_goodbye, filters=Filters.group, run_async=True)
+CLEAN_WELCOME = CommandHandler("cleanwelcome", clean_welcome, run_async=True, filters=Filters.group)
+SAFEMODE_HANDLER = CommandHandler("safemode", safemode, run_async=True, filters=Filters.group)
+DEL_JOINED = CommandHandler("rmjoin", del_joined, run_async=True, filters=Filters.group)
+WELCOME_HELP = CommandHandler("welcomehelp", welcome_help, run_async=True)
+BUTTON_VERIFY_HANDLER = CallbackQueryHandler(user_button, pattern=r"userverify_", run_async=True)
+SETCAS_HANDLER = CommandHandler("setcas", setcas, filters=Filters.group, run_async=True)
+GETCAS_HANDLER = CommandHandler("getcas", get_current_setting, filters=Filters.group, run_async=True)
+GETVER_HANDLER = DisableAbleCommandHandler("casver", get_version, run_async=True)
+CASCHECK_HANDLER = CommandHandler("cascheck", caschecker, run_async=True)
+CASQUERY_HANDLER = CommandHandler("casquery", casquery, run_async=True ,filters=CustomFilters.sudo_filter)
+SETBAN_HANDLER = CommandHandler("setban", setban, filters=Filters.group, run_async=True)
+GBANCHAT_HANDLER = CommandHandler("blchat", gbanChat, run_async=True, filters=CustomFilters.sudo_filter)
+UNGBANCHAT_HANDLER = CommandHandler("unblchat", ungbanChat, run_async=True, filters=CustomFilters.sudo_filter)
+DEFENSE_HANDLER = CommandHandler("setdefense", setDefense, run_async=True)
+GETDEF_HANDLER = CommandHandler("defense", getDefense, run_async=True)
+GETTIMESET_HANDLER = CommandHandler("kicktime", getTimeSetting, run_async=True)
+SETTIMER_HANDLER = CommandHandler("setkicktime", setTimeSetting, run_async=True)
 
 dispatcher.add_handler(NEW_MEM_HANDLER)
 dispatcher.add_handler(LEFT_MEM_HANDLER)

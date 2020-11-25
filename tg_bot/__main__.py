@@ -10,7 +10,7 @@ from telegram.ext import CommandHandler, Filters, MessageHandler, CallbackQueryH
 from telegram.ext.dispatcher import run_async, DispatcherHandlerStop, Dispatcher
 from telegram.utils.helpers import escape_markdown
 
-from tg_bot import dispatcher, updater, TOKEN, WEBHOOK, OWNER_ID, DONATION_LINK, CERT_PATH, PORT, URL, LOGGER, \
+from tg_bot import dispatcher, updater, CallbackContext, TOKEN, WEBHOOK, OWNER_ID, DONATION_LINK, CERT_PATH, PORT, URL, LOGGER, \
     ALLOW_EXCL
 # needed to dynamically load modules
 # NOTE: Module order is not guaranteed, specify that in the config file!
@@ -114,17 +114,9 @@ def send_help(chat_id, text, keyboard=None):
                                 parse_mode=ParseMode.MARKDOWN,
                                 reply_markup=keyboard)
 
-
-@run_async
-def test(bot: Bot, update: Update):
-    # pprint(eval(str(update)))
-    # update.effective_message.reply_text("Hola tester! _I_ *have* `markdown`", parse_mode=ParseMode.MARKDOWN)
-    update.effective_message.reply_text("This person edited a message")
-    print(update.effective_message)
-
-
-@run_async
-def start(bot: Bot, update: Update, args: List[str]):
+def start(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     if update.effective_chat.type == "private":
         if len(args) >= 1:
             if args[0].lower() == "help":
@@ -152,7 +144,9 @@ def start(bot: Bot, update: Update, args: List[str]):
 
 
 # for test purposes
-def error_callback(bot, update, error):
+def error_callback(update, context):
+    bot = context.bot
+    error = context.error
     try:
         raise error
     except Unauthorized:
@@ -180,8 +174,8 @@ def error_callback(bot, update, error):
         # handle all other telegram related errors
 
 
-@run_async
-def help_button(bot: Bot, update: Update):
+def help_button(update: Update, context: CallbackContext):
+    bot = context.bot
     query = update.callback_query
     mod_match = re.match(r"help_module\((.+?)\)", query.data)
     prev_match = re.match(r"help_prev\((.+?)\)", query.data)
@@ -191,33 +185,32 @@ def help_button(bot: Bot, update: Update):
         if mod_match:
             module = mod_match.group(1)
             text = HELPABLE[module].__help__
-            query.message.reply_text(text=text,
+            query.message.edit_text(text=text,
                                      parse_mode=ParseMode.MARKDOWN,
                                      reply_markup=InlineKeyboardMarkup(
                                          [[InlineKeyboardButton(text="Back", callback_data="help_back")]]))
 
         elif prev_match:
             curr_page = int(prev_match.group(1))
-            query.message.reply_text(HELP_STRINGS,
+            query.message.edit_text(HELP_STRINGS,
                                      parse_mode=ParseMode.MARKDOWN,
                                      reply_markup=InlineKeyboardMarkup(
                                          paginate_modules(curr_page - 1, HELPABLE, "help")))
 
         elif next_match:
             next_page = int(next_match.group(1))
-            query.message.reply_text(HELP_STRINGS,
+            query.message.edit_text(HELP_STRINGS,
                                      parse_mode=ParseMode.MARKDOWN,
                                      reply_markup=InlineKeyboardMarkup(
                                          paginate_modules(next_page + 1, HELPABLE, "help")))
 
         elif back_match:
-            query.message.reply_text(text=HELP_STRINGS,
+            query.message.edit_text(text=HELP_STRINGS,
                                      parse_mode=ParseMode.MARKDOWN,
                                      reply_markup=InlineKeyboardMarkup(paginate_modules(0, HELPABLE, "help")))
 
         # ensure no spinny white circle
         bot.answer_callback_query(query.id)
-        query.message.delete()
     except BadRequest as excp:
         if excp.message == "Message is not modified":
             pass
@@ -229,8 +222,8 @@ def help_button(bot: Bot, update: Update):
             LOGGER.exception("Exception in help buttons. %s", str(query.data))
 
 
-@run_async
-def get_help(bot: Bot, update: Update):
+def get_help(update: Update, context: CallbackContext):
+    bot = context.bot
     chat = update.effective_chat  # type: Optional[Chat]
     args = update.effective_message.text.split(None, 1)
 
@@ -281,7 +274,8 @@ def send_settings(chat_id, user_id, user=False):
 
 
 @run_async
-def settings_button(bot: Bot, update: Update):
+def settings_button(update: Update, context: CallbackContext):
+    bot = context.bot
     query = update.callback_query
     user = update.effective_user
     mod_match = re.match(r"stngs_module\((.+?),(.+?)\)", query.data)
@@ -297,7 +291,7 @@ def settings_button(bot: Bot, update: Update):
                                                                                      CHAT_SETTINGS[
                                                                                          module].__mod_name__) + \
                    CHAT_SETTINGS[module].__chat_settings__(chat_id, user.id)
-            query.message.reply_text(text=text,
+            query.message.edit_text(text=text,
                                      parse_mode=ParseMode.MARKDOWN,
                                      reply_markup=InlineKeyboardMarkup(
                                          [[InlineKeyboardButton(text="Back",
@@ -307,7 +301,7 @@ def settings_button(bot: Bot, update: Update):
             chat_id = prev_match.group(1)
             curr_page = int(prev_match.group(2))
             chat = bot.get_chat(chat_id)
-            query.message.reply_text("Hi there! There are quite a few settings for {} - go ahead and pick what "
+            query.message.edit_text("Hi there! There are quite a few settings for {} - go ahead and pick what "
                                      "you're interested in.".format(chat.title),
                                      reply_markup=InlineKeyboardMarkup(
                                          paginate_modules(curr_page - 1, CHAT_SETTINGS, "stngs",
@@ -317,7 +311,7 @@ def settings_button(bot: Bot, update: Update):
             chat_id = next_match.group(1)
             next_page = int(next_match.group(2))
             chat = bot.get_chat(chat_id)
-            query.message.reply_text("Hi there! There are quite a few settings for {} - go ahead and pick what "
+            query.message.edit_text("Hi there! There are quite a few settings for {} - go ahead and pick what "
                                      "you're interested in.".format(chat.title),
                                      reply_markup=InlineKeyboardMarkup(
                                          paginate_modules(next_page + 1, CHAT_SETTINGS, "stngs",
@@ -326,7 +320,7 @@ def settings_button(bot: Bot, update: Update):
         elif back_match:
             chat_id = back_match.group(1)
             chat = bot.get_chat(chat_id)
-            query.message.reply_text(text="Hi there! There are quite a few settings for {} - go ahead and pick what "
+            query.message.edit_text(text="Hi there! There are quite a few settings for {} - go ahead and pick what "
                                           "you're interested in.".format(escape_markdown(chat.title)),
                                      parse_mode=ParseMode.MARKDOWN,
                                      reply_markup=InlineKeyboardMarkup(paginate_modules(0, CHAT_SETTINGS, "stngs",
@@ -334,7 +328,6 @@ def settings_button(bot: Bot, update: Update):
 
         # ensure no spinny white circle
         bot.answer_callback_query(query.id)
-        query.message.delete()
     except BadRequest as excp:
         if excp.message == "Message is not modified":
             pass
@@ -347,7 +340,8 @@ def settings_button(bot: Bot, update: Update):
 
 
 @run_async
-def get_settings(bot: Bot, update: Update):
+def get_settings(update: Update, context: CallbackContext):
+    bot = context.bot
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     msg = update.effective_message  # type: Optional[Message]
@@ -370,7 +364,8 @@ def get_settings(bot: Bot, update: Update):
 
 
 @run_async
-def donate(bot: Bot, update: Update):
+def donate(update: Update, context: CallbackContext):
+    bot = context.bot
     user = update.effective_message.from_user
     chat = update.effective_chat  # type: Optional[Chat]
 
@@ -389,7 +384,8 @@ def donate(bot: Bot, update: Update):
             update.effective_message.reply_text("Contact me in PM first to get donation information.")
 
 @run_async
-def source(bot: Bot, update: Update):
+def source(update: Update, context: CallbackContext):
+    bot = context.bot
     user = update.effective_message.from_user
     chat = update.effective_chat  # type: Optional[Chat]
 
@@ -404,7 +400,8 @@ def source(bot: Bot, update: Update):
         except Unauthorized:
             update.effective_message.reply_text("Contact me in PM first to get source information.")
 			
-def migrate_chats(bot: Bot, update: Update):
+def migrate_chats(update: Update, context: CallbackContext):
+    bot = context.bot
     msg = update.effective_message  # type: Optional[Message]
     if msg.migrate_to_chat_id:
         old_chat = update.effective_chat.id
@@ -424,20 +421,18 @@ def migrate_chats(bot: Bot, update: Update):
 
 
 def main():
-    test_handler = CommandHandler("test", test)
-    start_handler = CommandHandler("start", start, pass_args=True)
+    start_handler = CommandHandler("start", start, run_async=True)
 
-    help_handler = CommandHandler("help", get_help)
-    help_callback_handler = CallbackQueryHandler(help_button, pattern=r"help_")
+    help_handler = CommandHandler("help", get_help, run_async=True)
+    help_callback_handler = CallbackQueryHandler(help_button, pattern=r"help_", run_async=True)
 
-    settings_handler = CommandHandler("settings", get_settings)
-    settings_callback_handler = CallbackQueryHandler(settings_button, pattern=r"stngs_")
+    settings_handler = CommandHandler("settings", get_settings, run_async=True)
+    settings_callback_handler = CallbackQueryHandler(settings_button, pattern=r"stngs_", run_async=True)
 
-    donate_handler = CommandHandler("donate", donate)
-    source_handler = CommandHandler("source", source)
+    donate_handler = CommandHandler("donate", donate, run_async=True)
+    source_handler = CommandHandler("source", source, run_async=True)
     migrate_handler = MessageHandler(Filters.status_update.migrate, migrate_chats)
 
-    # dispatcher.add_handler(test_handler)
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(help_handler)
     dispatcher.add_handler(source_handler)
@@ -474,7 +469,6 @@ def main():
 CHATS_CNT = {}
 CHATS_TIME = {}
 
-
 def process_update(self, update):
     # An error happened while polling
     if isinstance(update, TelegramError):
@@ -505,7 +499,9 @@ def process_update(self, update):
     for group in self.groups:
         try:
             for handler in (x for x in self.handlers[group] if x.check_update(update)):
-                handler.handle_update(update, self)
+                check = handler.check_update(update)
+                context = CallbackContext.from_update(update, self)
+                handler.handle_update(update, self, check, context)
                 break
 
         # Stop processing with any other handler.

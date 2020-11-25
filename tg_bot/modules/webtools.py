@@ -13,7 +13,7 @@ from telegram.ext import CommandHandler, run_async, Filters
 from telegram.utils.helpers import escape_markdown, mention_html
 from tg_bot.modules.helper_funcs.extraction import extract_text
 
-from tg_bot import dispatcher, OWNER_ID, SUDO_USERS, SUPPORT_USERS, WHITELIST_USERS
+from tg_bot import dispatcher, CallbackContext, OWNER_ID, SUDO_USERS, SUPPORT_USERS, WHITELIST_USERS
 from tg_bot.modules.helper_funcs.filters import CustomFilters
 
 #Kanged from PaperPlane Extended userbot
@@ -29,16 +29,16 @@ def speed_convert(size):
         zero += 1
     return f"{round(size, 2)} {units[zero]}"
 
-@run_async
-def get_bot_ip(bot: Bot, update: Update):
+def get_bot_ip(update: Update, context: CallbackContext):
+    bot = context.bot
     """ Sends the bot's IP address, so as to be able to ssh in if necessary.
         OWNER ONLY.
     """
     res = requests.get("http://ipinfo.io/ip")
     update.message.reply_text(res.text)
 
-@run_async
-def rtt(bot: Bot, update: Update):
+def rtt(update: Update, context: CallbackContext):
+    bot = context.bot
     out = ""
     under = False
     if os.name == 'nt':
@@ -68,7 +68,8 @@ def rtt(bot: Bot, update: Update):
     else:
         update.effective_message.reply_text(" Round-trip time: {}ms".format(ping_time))
 
-def ping(bot: Bot, update: Update):
+def ping(update: Update, context: CallbackContext):
+    bot = context.bot
     message = update.effective_message
     parsing = extract_text(message).split(' ')
     if(len(parsing) < 2):
@@ -117,8 +118,8 @@ def ping(bot: Bot, update: Update):
     
     
 
-@run_async
-def speedtst(bot: Bot, update: Update):
+def speedtst(update: Update, context: CallbackContext):
+    bot = context.bot
     test = speedtest.Speedtest()
     test.get_best_server()
     test.download()
@@ -134,10 +135,10 @@ def speedtst(bot: Bot, update: Update):
                    "ISP "
                    f"{result['client']['isp']}")
 
-IP_HANDLER = CommandHandler("ip", get_bot_ip, filters=Filters.chat(OWNER_ID))
-RTT_HANDLER = CommandHandler("ping", rtt, filters=CustomFilters.sudo_filter)
-PING_HANDLER = CommandHandler("cping", ping, filters=CustomFilters.sudo_filter)
-SPEED_HANDLER = CommandHandler("speedtest", speedtst, filters=CustomFilters.sudo_filter) 
+IP_HANDLER = CommandHandler("ip", get_bot_ip, filters=Filters.chat(OWNER_ID), run_async=True)
+RTT_HANDLER = CommandHandler("ping", rtt, filters=CustomFilters.sudo_filter, run_async=True)
+PING_HANDLER = CommandHandler("cping", ping, filters=CustomFilters.sudo_filter, run_async=True)
+SPEED_HANDLER = CommandHandler("speedtest", speedtst, filters=CustomFilters.sudo_filter, run_async=True)
 
 dispatcher.add_handler(IP_HANDLER)
 dispatcher.add_handler(RTT_HANDLER)

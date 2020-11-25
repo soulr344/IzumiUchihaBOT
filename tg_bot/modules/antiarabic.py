@@ -3,7 +3,7 @@ from typing import Optional, List
 from telegram import Message, Chat, Update, Bot, User, ParseMode
 from telegram.ext import CommandHandler, MessageHandler, run_async, Filters
 from telegram.utils.helpers import mention_html
-from tg_bot import dispatcher, LOGGER, SUDO_USERS
+from tg_bot import dispatcher, CallbackContext, LOGGER, SUDO_USERS
 from tg_bot.modules.helper_funcs.chat_status import user_not_admin, user_admin, can_delete, is_user_admin, bot_admin
 from tg_bot.modules.log_channel import loggable
 from tg_bot.modules.helper_funcs.extraction import extract_text
@@ -11,9 +11,10 @@ from tg_bot.modules.sql import antiarabic_sql as sql
 
 ANTIARABIC_GROUPS = 12
 
-@run_async
 @user_admin
-def antiarabic_setting(bot: Bot, update: Update, args: List[str]):
+def antiarabic_setting(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
     msg = update.effective_message  # type: Optional[Message]
     user = update.effective_user
@@ -35,8 +36,7 @@ def antiarabic_setting(bot: Bot, update: Update, args: List[str]):
 
 @bot_admin
 @user_not_admin
-@run_async
-def antiarabic(bot: Bot, update: Update):
+def antiarabic(update: Update, context: CallbackContext):
     chat = update.effective_chat  # type: Optional[Chat]
     msg = update.effective_message  # type: Optional[Message]
     to_match = extract_text(msg)
@@ -95,9 +95,9 @@ AntiArabicScript module is used to delete messages containing characters from on
  - /antiarabic: get status of AntiArabicScript module in chat
 """
 
-SETTING_HANDLER = CommandHandler("antiarabic", antiarabic_setting, pass_args=True)
+SETTING_HANDLER = CommandHandler("antiarabic", antiarabic_setting, run_async=True)
 ANTI_ARABIC = MessageHandler(
-    (Filters.text | Filters.command | Filters.sticker | Filters.photo) & Filters.group, antiarabic, edited_updates=True)
+    (Filters.text | Filters.command | Filters.sticker | Filters.photo) & Filters.group, antiarabic, run_async=True)
 
 
 dispatcher.add_handler(SETTING_HANDLER)

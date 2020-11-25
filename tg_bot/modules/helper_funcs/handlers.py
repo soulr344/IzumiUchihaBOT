@@ -1,16 +1,17 @@
 import telegram.ext as tg
 from telegram import Update
+from tg_bot import ALLOW_EXCL
 
 CMD_STARTERS = ('/', '!')
 
 
-class CustomCommandHandler(tg.CommandHandler):
+class CustomCommandHandler(tg.PrefixHandler):
     def __init__(self, command, callback, **kwargs):
         if "admin_ok" in kwargs:
             del kwargs["admin_ok"]
-        super().__init__(command, callback, **kwargs)
+        super().__init__(CMD_STARTERS if ALLOW_EXCL else CMD_STARTERS[0], command, callback, **kwargs)
 
-    def check_update(self, update):
+    def check_updatee(self, update):
         if (isinstance(update, Update)
                 and (update.message or update.edited_message and self.allow_edited)):
             message = update.message or update.edited_message
@@ -33,6 +34,6 @@ class CustomCommandHandler(tg.CommandHandler):
             return False
 
 
-class CustomRegexHandler(tg.RegexHandler):
+class CustomRegexHandler(tg.MessageHandler):
     def __init__(self, pattern, callback, friendly="", **kwargs):
-        super().__init__(pattern, callback, **kwargs)
+        super().__init__(tg.Filters.regex(pattern), callback, **kwargs)

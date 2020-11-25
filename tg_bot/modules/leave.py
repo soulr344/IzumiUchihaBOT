@@ -10,7 +10,7 @@ from tg_bot.modules.helper_funcs.filters import CustomFilters
 from tg_bot.modules.sql.users_sql import get_all_chats
 
 import telegram
-from tg_bot import dispatcher, OWNER_ID
+from tg_bot import dispatcher, CallbackContext, OWNER_ID
 
 MESSAGE_1 = "And when the lamb broke the seventh seal, there was silence in heaven."
 MESSAGE_2 = "I saw the seven angels who stood before God, and to them were given seven trumpets."
@@ -21,8 +21,9 @@ MESSAGE_6 = "The seven angels which had the seven trumpets prepared themselves t
 MESSAGE_7 = "And I heard a great voice out of the temple saying to the seven angels, Go your ways, and pour out the vials of the wrath of God upon the earth."
 
 
-@run_async
-def leave(bot: Bot, update: Update, args: List[str]):
+def leave(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     if args:
         chat_id = str(args[0])
         del args[0]
@@ -34,7 +35,7 @@ def leave(bot: Bot, update: Update, args: List[str]):
     else:
         update.effective_message.reply_text("Give me a valid chat id") 
 
-@run_async
+""" Don't want anyone to accidentally trigger this lmao, so it's commented
 def selfDestroy(bot: Bot, update: Update):
     chats = get_all_chats()
     for chat in chats:
@@ -50,11 +51,11 @@ def selfDestroy(bot: Bot, update: Update):
             bot.leave_chat(int(chat.chat_id))
         except:
             pass
+"""
 
 __help__ = ""
 
 __mod_name__ = "Leave"
 
-LEAVE_HANDLER = CommandHandler("leave", leave, pass_args = True, filters=Filters.user(OWNER_ID))
-SELFDESTROY_HANDLER = CommandHandler("selfdestroy", selfDestroy, filters=Filters.user(OWNER_ID))
+LEAVE_HANDLER = CommandHandler("leave", leave, run_async = True, filters=Filters.user(OWNER_ID))
 dispatcher.add_handler(LEAVE_HANDLER)

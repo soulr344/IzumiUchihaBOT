@@ -2,10 +2,10 @@ from telegram import Update, Bot
 from telegram.ext import run_async
 
 from tg_bot.modules.disable import DisableAbleCommandHandler
-from tg_bot import dispatcher
+from tg_bot import dispatcher, CallbackContext
 
-@run_async
-def shout(bot: Bot, update: Update, args):
+def shout(update: Update, context: CallbackContext):
+    args = context.args
     msg = "```"
     text = " ".join(args)
     result = []
@@ -34,6 +34,6 @@ __help__ = """
 
 __mod_name__ = "Shout"
 
-SHOUT_HANDLER = DisableAbleCommandHandler("shout", shout, pass_args=True)
+SHOUT_HANDLER = DisableAbleCommandHandler("shout", shout, run_async=True)
 
 dispatcher.add_handler(SHOUT_HANDLER)

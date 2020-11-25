@@ -6,14 +6,14 @@ from telegram.error import BadRequest
 from telegram.ext import run_async
 from telegram.utils.helpers import escape_markdown, mention_html
 
-from tg_bot import dispatcher, updater
+from tg_bot import dispatcher, updater, CallbackContext
 from tg_bot.modules.disable import DisableAbleCommandHandler
 
 GITHUB = 'https://github.com'
 DEVICES_DATA = 'https://raw.githubusercontent.com/androidtrackers/certified-android-devices/master/by_device.json'
 
-@run_async
-def magisk(bot, update):
+def magisk(update: Update, context: CallbackContext):
+    bot = context.bot
     url = 'https://raw.githubusercontent.com/topjohnwu/magisk_files/'
     releases = ""
     for type, branch in {"Stable":["master/stable","master"], "Beta":["master/beta","master"], "Canary":["canary/canary","canary"]}.items():
@@ -39,8 +39,9 @@ def magisk(bot, update):
         if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
             return
 
-@run_async
-def device(bot, update, args):
+def device(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     if len(args) == 0:
         reply = f'No codename provided, write a codename for fetching informations.'
         del_msg = update.effective_message.reply_text("{}".format(reply),
@@ -79,8 +80,9 @@ def device(bot, update, args):
     update.message.reply_text("{}".format(reply),
                                parse_mode=ParseMode.HTML, disable_web_page_preview=True)
 
-@run_async
-def checkfw(bot, update, args):
+def checkfw(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     if not len(args) == 2:
         reply = f'Give me something to fetch, like:\n`/checkfw SM-N975F DBT`'
         del_msg = update.effective_message.reply_text("{}".format(reply),
@@ -139,8 +141,9 @@ def checkfw(bot, update, args):
     update.message.reply_text("{}".format(reply),
                            parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
-@run_async
-def getfw(bot, update, args):
+def getfw(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     if not len(args) == 2:
         reply = f'Give me something to fetch, like:\n`/getfw SM-N975F DBT`'
         del_msg = update.effective_message.reply_text("{}".format(reply),
@@ -192,8 +195,9 @@ def getfw(bot, update, args):
     update.message.reply_text("{}".format(reply),
                            parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
-@run_async
-def twrp(bot, update, args):
+def twrp(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     if len(args) == 0:
         reply='No codename provided, write a codename for fetching informations.'
         del_msg = update.effective_message.reply_text("{}".format(reply),
@@ -264,11 +268,11 @@ __help__ = """
 
 __mod_name__ = "Android"
 
-MAGISK_HANDLER = DisableAbleCommandHandler("magisk", magisk)
-DEVICE_HANDLER = DisableAbleCommandHandler("device", device, pass_args=True)
-TWRP_HANDLER = DisableAbleCommandHandler("twrp", twrp, pass_args=True)
-GETFW_HANDLER = DisableAbleCommandHandler("getfw", getfw, pass_args=True)
-CHECKFW_HANDLER = DisableAbleCommandHandler("checkfw", checkfw, pass_args=True)
+MAGISK_HANDLER = DisableAbleCommandHandler("magisk", magisk, run_async=True)
+DEVICE_HANDLER = DisableAbleCommandHandler("device", device, run_async=True)
+TWRP_HANDLER = DisableAbleCommandHandler("twrp", twrp, run_async=True)
+GETFW_HANDLER = DisableAbleCommandHandler("getfw", getfw, run_async=True)
+CHECKFW_HANDLER = DisableAbleCommandHandler("checkfw", checkfw, run_async=True)
 
 dispatcher.add_handler(MAGISK_HANDLER)
 dispatcher.add_handler(DEVICE_HANDLER)

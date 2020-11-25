@@ -2,10 +2,10 @@ from typing import Union, List, Optional
 
 from future.utils import string_types
 from telegram import ParseMode, Update, Bot, Chat, User
-from telegram.ext import CommandHandler, RegexHandler, Filters
+from telegram.ext import CommandHandler, MessageHandler, Filters
 from telegram.utils.helpers import escape_markdown
 
-from tg_bot import dispatcher
+from tg_bot import dispatcher, CallbackContext
 from tg_bot.modules.helper_funcs.handlers import CMD_STARTERS
 from tg_bot.modules.helper_funcs.misc import is_module_loaded
 
@@ -38,24 +38,31 @@ if is_module_loaded(FILENAME):
         def check_update(self, update):
             chat = update.effective_chat  # type: Optional[Chat]
             user = update.effective_user  # type: Optional[User]
+            message = update.effective_message
             if super().check_update(update):
                 # Should be safe since check_update passed.
                 command = update.effective_message.text_html.split(None, 1)[0][1:].split('@')[0]
 
                 # disabled, admincmd, user admin
                 if sql.is_command_disabled(chat.id, command):
-                    return command in ADMIN_CMDS and is_user_admin(chat, user.id)
+                    if command in ADMIN_CMDS and is_user_admin(chat, user.id):
+                        pass
+                    else:
+                        return None
 
-                # not disabled
+                args = message.text.split()[1:]
+                filter_result = self.filters(update)
+                if filter_result:
+                    return args, filter_result
                 else:
-                    return True
+                    return False
 
-            return False
+            return None
 
 
-    class DisableAbleRegexHandler(RegexHandler):
+    class DisableAbleRegexHandler(MessageHandler):
         def __init__(self, pattern, callback, friendly="", **kwargs):
-            super().__init__(pattern, callback, **kwargs)
+            super().__init__(Filters.regex(pattern), callback, **kwargs)
             DISABLE_OTHER.append(friendly or pattern)
             self.friendly = friendly or pattern
 
@@ -64,9 +71,10 @@ if is_module_loaded(FILENAME):
             return super().check_update(update) and not sql.is_command_disabled(chat.id, self.friendly)
 
 
-    @run_async
     @user_admin
-    def disable(bot: Bot, update: Update, args: List[str]):
+    def disable(update: Update, context: CallbackContext):
+        bot = context.bot
+        args = context.args
         chat = update.effective_chat  # type: Optional[Chat]
         if len(args) >= 1:
             disable_cmd = args[0]
@@ -84,9 +92,10 @@ if is_module_loaded(FILENAME):
             update.effective_message.reply_text("What should I disable?")
 
 
-    @run_async
     @user_admin
-    def enable(bot: Bot, update: Update, args: List[str]):
+    def enable(update: Update, context: CallbackContext):
+        bot = context.bot
+        args = context.args
         chat = update.effective_chat  # type: Optional[Chat]
         if len(args) >= 1:
             enable_cmd = args[0]
@@ -103,9 +112,9 @@ if is_module_loaded(FILENAME):
             update.effective_message.reply_text("What should I enable?")
 
 
-    @run_async
     @user_admin
-    def list_cmds(bot: Bot, update: Update):
+    def list_cmds(update: Update, context: CallbackContext):
+        bot = context.bot
         if DISABLE_CMDS + DISABLE_OTHER:
             result = ""
             for cmd in set(DISABLE_CMDS + DISABLE_OTHER):
@@ -128,8 +137,8 @@ if is_module_loaded(FILENAME):
         return "The following commands are currently restricted:\n{}".format(result)
 
 
-    @run_async
-    def commands(bot: Bot, update: Update):
+    def commands(update: Update, context: CallbackContext):
+        bot = context.bot
         chat = update.effective_chat
         update.effective_message.reply_text(build_curr_disabled(chat.id), parse_mode=ParseMode.MARKDOWN)
 
@@ -163,10 +172,10 @@ It'll also allow you to autodelete them, stopping people from bluetexting.
  - /listcmds: list all possible toggleable commands
     """
 
-    DISABLE_HANDLER = CommandHandler("disable", disable, pass_args=True, filters=Filters.group)
-    ENABLE_HANDLER = CommandHandler("enable", enable, pass_args=True, filters=Filters.group)
-    COMMANDS_HANDLER = CommandHandler(["cmds", "disabled"], commands, filters=Filters.group)
-    TOGGLE_HANDLER = CommandHandler("listcmds", list_cmds, filters=Filters.group)
+    DISABLE_HANDLER = CommandHandler("disable", disable, filters=Filters.group, run_async=True)
+    ENABLE_HANDLER = CommandHandler("enable", enable, filters=Filters.group, run_async=True)
+    COMMANDS_HANDLER = CommandHandler(["cmds", "disabled"], commands, filters=Filters.group, run_async=True)
+    TOGGLE_HANDLER = CommandHandler("listcmds", list_cmds, filters=Filters.group, run_async=True)
 
     dispatcher.add_handler(DISABLE_HANDLER)
     dispatcher.add_handler(ENABLE_HANDLER)

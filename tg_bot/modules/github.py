@@ -7,7 +7,7 @@ from telegram import Message, Chat, Update, Bot, User, ParseMode, InlineKeyboard
 import tg_bot.modules.helper_funcs.git_api as api
 import tg_bot.modules.sql.github_sql as sql
 
-from tg_bot import dispatcher, OWNER_ID, LOGGER, SUDO_USERS, SUPPORT_USERS
+from tg_bot import dispatcher, CallbackContext, OWNER_ID, LOGGER, SUDO_USERS, SUPPORT_USERS
 from tg_bot.modules.helper_funcs.filters import CustomFilters
 from tg_bot.modules.helper_funcs.chat_status import user_admin
 from tg_bot.modules.disable import DisableAbleCommandHandler
@@ -50,8 +50,9 @@ def getRepo(bot, update, reponame):
     return None, None
 
 
-@run_async
-def getRelease(bot: Bot, update: Update, args: List[str]):
+def getRelease(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     msg = update.effective_message
     if len(args) == 0:
         msg.reply_text("Please use some arguments!")
@@ -68,8 +69,8 @@ def getRelease(bot: Bot, update: Update, args: List[str]):
     return
 
 
-@run_async
-def hashFetch(bot: Bot, update: Update): #kanged from notes
+def hashFetch(update: Update, context: CallbackContext):
+    bot = context.bot #kanged from notes
     message = update.effective_message.text
     msg = update.effective_message
     fst_word = message.split()[0]
@@ -83,8 +84,9 @@ def hashFetch(bot: Bot, update: Update): #kanged from notes
     return
 
 
-@run_async
-def cmdFetch(bot: Bot, update: Update, args: List[str]):
+def cmdFetch(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     msg = update.effective_message
     if(len(args) != 1):
         msg.reply_text("Invalid repo name")
@@ -98,8 +100,9 @@ def cmdFetch(bot: Bot, update: Update, args: List[str]):
     return
 
 
-@run_async
-def changelog(bot: Bot, update: Update, args: List[str]):
+def changelog(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     msg = update.effective_message
     if(len(args) != 1):
         msg.reply_text("Invalid repo name")
@@ -115,9 +118,10 @@ def changelog(bot: Bot, update: Update, args: List[str]):
     return
 
 
-@run_async
 @user_admin
-def saveRepo(bot: Bot, update: Update, args: List[str]):
+def saveRepo(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     chat_id = update.effective_chat.id
     msg = update.effective_message
     if(len(args) != 2 and (len(args) != 3 and not args[2].isdigit()) or not ("/" in args[1])):
@@ -131,9 +135,10 @@ def saveRepo(bot: Bot, update: Update, args: List[str]):
     return
 
 
-@run_async
 @user_admin
-def delRepo(bot: Bot, update: Update, args: List[str]):
+def delRepo(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     chat_id = update.effective_chat.id
     msg = update.effective_message
     if(len(args)!=1):
@@ -144,8 +149,8 @@ def delRepo(bot: Bot, update: Update, args: List[str]):
     return
  
 
-@run_async
-def listRepo(bot: Bot, update: Update):
+def listRepo(update: Update, context: CallbackContext):
+    bot = context.bot
     chat_id = update.effective_chat.id
     chat = update.effective_chat
     chat_name = chat.title or chat.first or chat.username
@@ -163,7 +168,8 @@ def listRepo(bot: Bot, update: Update):
     elif len(msg) != 0:
         update.effective_message.reply_text(msg.format(chat_name) + des, parse_mode=ParseMode.HTML)
         
-def getVer(bot: Bot, update: Update):
+def getVer(update: Update, context: CallbackContext):
+    bot = context.bot
     msg = update.effective_message
     ver = api.vercheck()
     msg.reply_text("GitHub API version: "+ver)
@@ -188,13 +194,13 @@ GitHub module. This module will help you to fetch GitHub releases.
 
 __mod_name__ = "GitHub"
 
-RELEASE_HANDLER = DisableAbleCommandHandler("git", getRelease, pass_args=True, admin_ok=True)
-FETCH_HANDLER = DisableAbleCommandHandler("fetch", cmdFetch, pass_args=True, admin_ok=True)
-SAVEREPO_HANDLER = CommandHandler("saverepo", saveRepo, pass_args=True)
-DELREPO_HANDLER = CommandHandler("delrepo", delRepo, pass_args=True)
-LISTREPO_HANDLER = DisableAbleCommandHandler("listrepo", listRepo, admin_ok=True)
-VERCHECKER_HANDLER = DisableAbleCommandHandler("gitver", getVer, admin_ok=True)
-CHANGELOG_HANDLER = DisableAbleCommandHandler("changelog", changelog, pass_args=True, admin_ok=True)
+RELEASE_HANDLER = DisableAbleCommandHandler("git", getRelease, run_async=True, admin_ok=True)
+FETCH_HANDLER = DisableAbleCommandHandler("fetch", cmdFetch, run_async=True, admin_ok=True)
+SAVEREPO_HANDLER = CommandHandler("saverepo", saveRepo, run_async=True)
+DELREPO_HANDLER = CommandHandler("delrepo", delRepo, run_async=True)
+LISTREPO_HANDLER = DisableAbleCommandHandler("listrepo", listRepo, admin_ok=True, run_async=True)
+VERCHECKER_HANDLER = DisableAbleCommandHandler("gitver", getVer, admin_ok=True, run_async=True)
+CHANGELOG_HANDLER = DisableAbleCommandHandler("changelog", changelog, run_async=True, admin_ok=True)
 
 HASHFETCH_HANDLER = RegexHandler(r"^&[^\s]+", hashFetch)
 

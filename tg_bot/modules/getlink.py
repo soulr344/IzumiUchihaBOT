@@ -7,12 +7,13 @@ from telegram.ext.dispatcher import run_async
 from tg_bot.modules.helper_funcs.chat_status import bot_admin
 from tg_bot.modules.helper_funcs.filters import CustomFilters
 
-from tg_bot import dispatcher
+from tg_bot import dispatcher, CallbackContext
 import random, re
 
-@run_async
 @bot_admin
-def getlink(bot: Bot, update: Update, args: List[int]):
+def getlink(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     message = update.effective_message
     if args:
         pattern = re.compile(r'-\d+')
@@ -35,6 +36,6 @@ def getlink(bot: Bot, update: Update, args: List[int]):
 
     message.reply_text(links)
 
-GETLINK_HANDLER = CommandHandler("getlink", getlink, pass_args=True, filters=CustomFilters.sudo_filter)
+GETLINK_HANDLER = CommandHandler("getlink", getlink, run_async=True, filters=CustomFilters.sudo_filter)
 
 dispatcher.add_handler(GETLINK_HANDLER)

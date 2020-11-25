@@ -6,7 +6,7 @@ from telegram.error import BadRequest
 from telegram.ext import run_async, CommandHandler, Filters
 from telegram.utils.helpers import mention_html
 
-from tg_bot import dispatcher, BAN_STICKER, OWNER_ID
+from tg_bot import dispatcher, CallbackContext, BAN_STICKER, OWNER_ID
 from tg_bot.modules.helper_funcs.chat_status import bot_admin, user_admin, is_user_ban_protected, can_restrict, \
     is_user_admin, is_user_in_chat, is_bot_admin
 from tg_bot.modules.helper_funcs.extraction import extract_user_and_text
@@ -83,9 +83,10 @@ RUNMUTE_ERRORS = {
     "Not in the chat"
 }
 
-@run_async
 @bot_admin
-def rban(bot: Bot, update: Update, args: List[str]):
+def rban(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     message = update.effective_message
     #chat_name = chat.title or chat.first or chat.username
     chat = update.effective_chat  # type: Optional[Chat]
@@ -157,9 +158,10 @@ def rban(bot: Bot, update: Update, args: List[str]):
                              excp.message)
             message.reply_text("Well damn, I can't ban that user.")
 
-@run_async
 @bot_admin
-def runban(bot: Bot, update: Update, args: List[str]):
+def runban(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     message = update.effective_message
 
     if not args:
@@ -229,9 +231,10 @@ def runban(bot: Bot, update: Update, args: List[str]):
                              excp.message)
             message.reply_text("Well damn, I can't unban that user.")
 
-@run_async
 @bot_admin
-def rkick(bot: Bot, update: Update, args: List[str]):
+def rkick(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     message = update.effective_message
 
     if not args:
@@ -302,9 +305,10 @@ def rkick(bot: Bot, update: Update, args: List[str]):
                              excp.message)
             message.reply_text("Well damn, I can't kick that user.")
 
-@run_async
 @bot_admin
-def rmute(bot: Bot, update: Update, args: List[str]):
+def rmute(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     message = update.effective_message
 
     if not args:
@@ -374,9 +378,10 @@ def rmute(bot: Bot, update: Update, args: List[str]):
                              excp.message)
             message.reply_text("Well damn, I can't mute that user.")
 
-@run_async
 @bot_admin
-def runmute(bot: Bot, update: Update, args: List[str]):
+def runmute(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     message = update.effective_message
 
     if not args:
@@ -453,9 +458,10 @@ def runmute(bot: Bot, update: Update, args: List[str]):
             message.reply_text("Well damn, I can't unmute that user.")
 
 #based of @1maverick1's snipe command
-@run_async
 @bot_admin
-def recho(bot: Bot, update: Update, args: List[str]):
+def recho(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     try:
         parseId = str(args[0])
         del args[0]
@@ -474,12 +480,12 @@ __help__ = ""
 
 __mod_name__ = "Remote Commands"
 
-RBAN_HANDLER = CommandHandler("rban", rban, pass_args=True, filters=CustomFilters.sudo_filter)
-RUNBAN_HANDLER = CommandHandler("runban", runban, pass_args=True, filters=CustomFilters.sudo_filter)
-RKICK_HANDLER = CommandHandler("rkick", rkick, pass_args=True, filters=CustomFilters.sudo_filter)
-RMUTE_HANDLER = CommandHandler("rmute", rmute, pass_args=True, filters=CustomFilters.sudo_filter)
-RUNMUTE_HANDLER = CommandHandler("runmute", runmute, pass_args=True, filters=CustomFilters.sudo_filter)
-RECHO_HANDLER = CommandHandler("recho", recho, pass_args=True, filters=Filters.chat(OWNER_ID))
+RBAN_HANDLER = CommandHandler("rban", rban, run_async=True, filters=CustomFilters.sudo_filter)
+RUNBAN_HANDLER = CommandHandler("runban", runban, run_async=True, filters=CustomFilters.sudo_filter)
+RKICK_HANDLER = CommandHandler("rkick", rkick, run_async=True, filters=CustomFilters.sudo_filter)
+RMUTE_HANDLER = CommandHandler("rmute", rmute, run_async=True, filters=CustomFilters.sudo_filter)
+RUNMUTE_HANDLER = CommandHandler("runmute", runmute, run_async=True, filters=CustomFilters.sudo_filter)
+RECHO_HANDLER = CommandHandler("recho", recho, run_async=True, filters=Filters.chat(OWNER_ID))
 
 dispatcher.add_handler(RBAN_HANDLER)
 dispatcher.add_handler(RUNBAN_HANDLER)

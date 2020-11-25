@@ -2,12 +2,12 @@ from telegram import Update, Bot
 from telegram.ext import run_async
 
 from tg_bot.modules.disable import DisableAbleCommandHandler
-from tg_bot import dispatcher
+from tg_bot import dispatcher, CallbackContext
 
 from requests import get
 
-@run_async
-def ud(bot: Bot, update: Update):
+def ud(update: Update, context: CallbackContext):
+    bot = context.bot
     try:
         message = update.effective_message
         text = message.text[len('/ud '):]
@@ -31,6 +31,6 @@ Definition: A once-popular system of telecommunications, in which the sender wou
 
 __mod_name__ = "Urban dictionary"
 
-ud_handle = DisableAbleCommandHandler("ud", ud)
+ud_handle = DisableAbleCommandHandler("ud", ud, run_async=True)
 
 dispatcher.add_handler(ud_handle)

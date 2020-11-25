@@ -7,19 +7,18 @@ from telegram.ext import CommandHandler, run_async, Filters
 from telegram.utils.helpers import escape_markdown
 
 import tg_bot.modules.sql.rules_sql as sql
-from tg_bot import dispatcher
+from tg_bot import dispatcher, CallbackContext
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.helper_funcs.chat_status import user_admin
 from tg_bot.modules.helper_funcs.string_handling import markdown_parser
 
 
-@run_async
-def get_rules(bot: Bot, update: Update):
+def get_rules(update: Update, context: CallbackContext):
+    bot = context.bot
     chat_id = update.effective_chat.id
     send_rules(update, chat_id)
 
 
-# Do not async - not from a handler
 def send_rules(update, chat_id, from_pm=False):
     bot = dispatcher.bot
     user = update.effective_user  # type: Optional[User]
@@ -52,9 +51,9 @@ def send_rules(update, chat_id, from_pm=False):
                                             "This probably doesn't mean it's lawless though...!")
 
 
-@run_async
 @user_admin
-def set_rules(bot: Bot, update: Update):
+def set_rules(update: Update, context: CallbackContext):
+    bot = context.bot
     chat_id = update.effective_chat.id
     msg = update.effective_message  # type: Optional[Message]
     raw_text = msg.text
@@ -68,9 +67,9 @@ def set_rules(bot: Bot, update: Update):
         update.effective_message.reply_text("Successfully set rules for this group.")
 
 
-@run_async
 @user_admin
-def clear_rules(bot: Bot, update: Update):
+def clear_rules(update: Update, context: CallbackContext):
+    bot = context.bot
     chat_id = update.effective_chat.id
     sql.set_rules(chat_id, "")
     update.effective_message.reply_text("Successfully cleared rules!")
@@ -110,9 +109,9 @@ Every chat works with different rules; this module will help make those rules cl
 
 __mod_name__ = "Rules"
 
-GET_RULES_HANDLER = DisableAbleCommandHandler("rules", get_rules, filters=Filters.group)
-SET_RULES_HANDLER = CommandHandler("setrules", set_rules, filters=Filters.group)
-RESET_RULES_HANDLER = CommandHandler("clearrules", clear_rules, filters=Filters.group)
+GET_RULES_HANDLER = DisableAbleCommandHandler("rules", get_rules, filters=Filters.group, run_async=True)
+SET_RULES_HANDLER = CommandHandler("setrules", set_rules, filters=Filters.group, run_async=True)
+RESET_RULES_HANDLER = CommandHandler("clearrules", clear_rules, filters=Filters.group, run_async=True)
 
 dispatcher.add_handler(GET_RULES_HANDLER)
 dispatcher.add_handler(SET_RULES_HANDLER)

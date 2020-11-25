@@ -4,7 +4,7 @@ from typing import List, Optional
 from telegram.error import BadRequest, TelegramError
 from telegram.ext import run_async, CommandHandler, MessageHandler, Filters
 from telegram.utils.helpers import mention_html
-from tg_bot import dispatcher, OWNER_ID, SUDO_USERS, SUPPORT_USERS
+from tg_bot import dispatcher, CallbackContext, OWNER_ID, SUDO_USERS, SUPPORT_USERS
 from tg_bot.modules.helper_funcs.chat_status import user_admin, is_user_admin
 from tg_bot.modules.helper_funcs.extraction import extract_user, extract_user_and_text
 from tg_bot.modules.helper_funcs.filters import CustomFilters
@@ -32,8 +32,9 @@ GKICK_ERRORS = {
     "User not found"
 }
 
-@run_async
-def gkick(bot: Bot, update: Update, args: List[str]):
+def gkick(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     message = update.effective_message
     user_id = extract_user(message, args)
     try:
@@ -105,8 +106,9 @@ def __user_info__(user_id):
             text = text.format("<b>No</b>")
     return text
 
-@run_async
-def gkickset(bot: Bot, update: Update, args: List[str]):
+def gkickset(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     message = update.effective_message
     user_id, value = extract_user_and_text(message, args)
     try:
@@ -134,7 +136,9 @@ def gkickset(bot: Bot, update: Update, args: List[str]):
     sql.gkick_setvalue(user_id, user_chat.username, int(value))
     return
 
-def gkickreset(bot: Bot, update: Update, args: List[str]):
+def gkickreset(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     message = update.effective_message
     user_id, value = extract_user_and_text(message, args)
     try:
@@ -163,10 +167,10 @@ def gkickreset(bot: Bot, update: Update, args: List[str]):
     return
 
 			
-GKICK_HANDLER = CommandHandler("gkick", gkick, pass_args=True,
+GKICK_HANDLER = CommandHandler("gkick", gkick, run_async=True,
                               filters=CustomFilters.sudo_filter | CustomFilters.support_filter)
-SET_HANDLER = CommandHandler("gkickset", gkickset, pass_args=True,filters=Filters.user(OWNER_ID))
-RESET_HANDLER = CommandHandler("gkickreset", gkickreset, pass_args=True,filters=Filters.user(OWNER_ID))
+SET_HANDLER = CommandHandler("gkickset", gkickset, run_async=True,filters=Filters.user(OWNER_ID))
+RESET_HANDLER = CommandHandler("gkickreset", gkickreset, run_async=True,filters=Filters.user(OWNER_ID))
 
 dispatcher.add_handler(GKICK_HANDLER)
 dispatcher.add_handler(SET_HANDLER)

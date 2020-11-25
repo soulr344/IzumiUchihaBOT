@@ -7,18 +7,19 @@ from telegram.ext import CommandHandler, Filters
 from telegram.ext.dispatcher import run_async
 from telegram.utils.helpers import mention_html
 
-from tg_bot import dispatcher, LOGGER, SUDO_USERS
+from tg_bot import dispatcher, CallbackContext, LOGGER, SUDO_USERS
 from tg_bot.modules.helper_funcs.chat_status import bot_admin, user_admin, is_user_admin, can_restrict
 from tg_bot.modules.helper_funcs.extraction import extract_user, extract_user_and_text
 from tg_bot.modules.helper_funcs.string_handling import extract_time
 from tg_bot.modules.log_channel import loggable
 
 
-@run_async
 @bot_admin
 @user_admin
 @loggable
-def mute(bot: Bot, update: Update, args: List[str]) -> str:
+def mute(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
+    args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
@@ -61,11 +62,12 @@ def mute(bot: Bot, update: Update, args: List[str]) -> str:
     return ""
 
 
-@run_async
 @bot_admin
 @user_admin
 @loggable
-def unmute(bot: Bot, update: Update, args: List[str]) -> str:
+def unmute(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
+    args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
@@ -114,12 +116,13 @@ def unmute(bot: Bot, update: Update, args: List[str]) -> str:
     return ""
 
 
-@run_async
 @bot_admin
 @can_restrict
 @user_admin
 @loggable
-def temp_mute(bot: Bot, update: Update, args: List[str]) -> str:
+def temp_mute(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
+    args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
@@ -216,9 +219,9 @@ An example of temporarily mute someone:
 
 __mod_name__ = "Muting"
 
-MUTE_HANDLER = CommandHandler("mute", mute, pass_args=True, filters=Filters.group)
-UNMUTE_HANDLER = CommandHandler("unmute", unmute, pass_args=True, filters=Filters.group)
-TEMPMUTE_HANDLER = CommandHandler(["tmute", "tempmute"], temp_mute, pass_args=True, filters=Filters.group)
+MUTE_HANDLER = CommandHandler("mute", mute, run_async=True, filters=Filters.group)
+UNMUTE_HANDLER = CommandHandler("unmute", unmute, run_async=True, filters=Filters.group)
+TEMPMUTE_HANDLER = CommandHandler(["tmute", "tempmute"], temp_mute, run_async=True, filters=Filters.group)
 
 dispatcher.add_handler(MUTE_HANDLER)
 dispatcher.add_handler(UNMUTE_HANDLER)

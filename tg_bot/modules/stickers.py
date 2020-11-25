@@ -4,13 +4,13 @@ from telegram import ParseMode
 from telegram.ext import CommandHandler, run_async
 from telegram.utils.helpers import escape_markdown
 
-from tg_bot import dispatcher
+from tg_bot import dispatcher, CallbackContext
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.helper_funcs.filters import CustomFilters
 
 
-@run_async
-def stickerid(bot: Bot, update: Update):
+def stickerid(update: Update, context: CallbackContext):
+    bot = context.bot
     msg = update.effective_message
     if msg.reply_to_message and msg.reply_to_message.sticker:
         update.effective_message.reply_text("Sticker ID:\n```" + 
@@ -20,8 +20,8 @@ def stickerid(bot: Bot, update: Update):
         update.effective_message.reply_text("Please reply to a sticker to get its ID.")
 
 
-@run_async
-def getsticker(bot: Bot, update: Update):
+def getsticker(update: Update, context: CallbackContext):
+    bot = context.bot
     msg = update.effective_message
     chat_id = update.effective_chat.id
     if msg.reply_to_message and msg.reply_to_message.sticker:
@@ -43,8 +43,8 @@ fetch ID of sticker.
 
 __mod_name__ = "Stickers"
 
-STICKERID_HANDLER = DisableAbleCommandHandler("stickerid", stickerid)
-GETSTICKER_HANDLER = DisableAbleCommandHandler("getsticker", getsticker, filters=CustomFilters.sudo_filter)
+STICKERID_HANDLER = DisableAbleCommandHandler("stickerid", stickerid, run_async=True)
+GETSTICKER_HANDLER = DisableAbleCommandHandler("getsticker", getsticker, filters=CustomFilters.sudo_filter, run_async=True)
 
 dispatcher.add_handler(STICKERID_HANDLER)
 dispatcher.add_handler(GETSTICKER_HANDLER)

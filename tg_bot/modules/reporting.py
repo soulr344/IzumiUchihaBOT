@@ -6,16 +6,17 @@ from telegram.error import BadRequest, Unauthorized
 from telegram.ext import CommandHandler, RegexHandler, run_async, Filters
 from telegram.utils.helpers import mention_html
 
-from tg_bot import dispatcher, LOGGER
+from tg_bot import dispatcher, CallbackContext, LOGGER
 from tg_bot.modules.helper_funcs.chat_status import user_not_admin, user_admin
 from tg_bot.modules.log_channel import loggable
 from tg_bot.modules.sql import reporting_sql as sql
 
 REPORT_GROUPS = 5
 
-@run_async
 @user_admin
-def report_setting(bot: Bot, update: Update, args: List[str]):
+def report_setting(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
     msg = update.effective_message  # type: Optional[Message]
 
@@ -47,10 +48,10 @@ def report_setting(bot: Bot, update: Update, args: List[str]):
                            parse_mode=ParseMode.MARKDOWN)
 
 
-@run_async
 @user_not_admin
 @loggable
-def report(bot: Bot, update: Update) -> str:
+def report(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
     message = update.effective_message  # type: Optional[Message]
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
@@ -115,9 +116,9 @@ Note that the report commands do not work when admins use them; or when used to 
 admins don't need to report, or be reported!
 """
 
-REPORT_HANDLER = CommandHandler("report", report, filters=Filters.group)
-SETTING_HANDLER = CommandHandler("reports", report_setting, pass_args=True)
-ADMIN_REPORT_HANDLER = RegexHandler("(?i)@admin(s)?", report)
+REPORT_HANDLER = CommandHandler("report", report, filters=Filters.group, run_async=True)
+SETTING_HANDLER = CommandHandler("reports", report_setting, run_async=True)
+ADMIN_REPORT_HANDLER = RegexHandler("(?i)@admin(s)?", report, run_async=True)
 
 dispatcher.add_handler(REPORT_HANDLER, group=REPORT_GROUPS)
 dispatcher.add_handler(ADMIN_REPORT_HANDLER, group=REPORT_GROUPS)
