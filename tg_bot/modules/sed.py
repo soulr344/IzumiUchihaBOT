@@ -52,8 +52,6 @@ def separate_sed(sed_string):
 def sed(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
     if user_id is not OWNER_ID and user_id not in SUDO_USERS and user_id not in SUPPORT_USERS:
-        del_msg = update.effective_message
-        del_msg.delete()
         return
     sed_result = separate_sed(update.effective_message.text)
     if sed_result and update.effective_message.reply_to_message:
