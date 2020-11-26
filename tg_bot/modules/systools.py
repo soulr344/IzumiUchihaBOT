@@ -43,9 +43,9 @@ def status(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
     reply = "*System Status:* `operational`\n\n"
     reply += "*Python version:* `"+python_version()+"`\n"
-    if user_id in SUDO_USERS or user_id in SUPPORT_USERS or user_id == OWNER_ID:
-        pingSpeed = pingme()
-        reply += "*Ping speed:* `"+str(pingSpeed)+"ms`\n"
+    #if user_id in SUDO_USERS or user_id in SUPPORT_USERS or user_id == OWNER_ID: removed ping to make heroku more compatible
+        #pingSpeed = pingme()
+        #reply += "*Ping speed:* `"+str(pingSpeed)+"ms`\n"
     reply += "*python-telegram-bot:* `"+str(subprocess.check_output("pip show python-telegram-bot | grep Version\:", shell=True).decode()).split()[1]+"`\n"
     reply += "*CAS API version:* `"+str(cas.vercheck())+"`\n"
     reply += "*GitHub API version:* `"+str(git.vercheck())+"`\n"
