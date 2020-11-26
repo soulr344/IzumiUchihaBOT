@@ -181,7 +181,7 @@ def new_member(update: Update, context: CallbackContext):
 
                 # If welcome message is media, send with appropriate function
                 if welc_type != sql.Types.TEXT and welc_type != sql.Types.BUTTON_TEXT:
-                    ENUM_FUNC_MAP[welc_type](chat.id, cust_media, caption=res, reply_to_message_id=msg.message_id, parse_mode=ParseMode.MARKDOWN)
+                    sent = ENUM_FUNC_MAP[welc_type](chat.id, cust_media, caption=res, reply_to_message_id=msg.message_id, parse_mode=ParseMode.MARKDOWN)
                     pass
                 else:
                     sent = send(update, res, keyboard,
@@ -206,6 +206,16 @@ def new_member(update: Update, context: CallbackContext):
                                              can_send_media_messages=False, 
                                              can_send_other_messages=False, 
                                              can_add_web_page_previews=False))
+                    if time_value:
+                        time.sleep(time_value)
+                        member = chat.get_member(int(new_mem.id))
+                        if not (member.can_send_messages or member.status == 'left'):
+                            print("kicking user..")
+                            bantime = int(time.time()) + 60
+                            chat.kick_member(new_mem.id, until_date=bantime)
+                            buttonMsg.delete()
+                            sent.delete()
+                            update.message.delete()
 
             delete_join(bot, update)
 
