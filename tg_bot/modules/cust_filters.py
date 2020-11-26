@@ -153,7 +153,7 @@ def reply_filter(update: Update, context: CallbackContext):
 
     chat_filters = sql.get_chat_triggers(chat.id)
     for keyword in chat_filters:
-        pattern = r"( |^|[^\w])" + re.escape(keyword) + r"( |$|[^\w])"
+        pattern = r"( |^|[^\w])" + re.escape(keyword).replace("\*", "(.*)").replace("\\(.*)", "*") + r"( |$|[^\w])"
         if re.search(pattern, to_match, flags=re.IGNORECASE):
             filt = sql.get_filter(chat.id, keyword)
             if filt.is_sticker:
@@ -215,6 +215,8 @@ __help__ = """
 Make your chat more lively with filters; The bot will reply to certain words!
 
 Filters are case insensitive; every time someone says your trigger words, {} will reply something else! can be used to create your own commands, if desired.
+
+Please check /regexhelp for how to setup proper triggers.
 
  - /filters: list all active filters in this chat.
 

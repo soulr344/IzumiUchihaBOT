@@ -112,6 +112,8 @@ def ban(update: Update, context: CallbackContext):
             chat.kick_member(user_id)
             bot.send_sticker(update.effective_chat.id, BAN_STICKER)  # ban sticker
             reply = "{} has been banned!".format(mention_html(member.user.id, member.user.first_name))
+            reply += "\nReason: <code>{}</code>".format(reason) if reason else ""
+
             message.reply_text(reply, parse_mode=ParseMode.HTML)
             return log
         except BadRequest as excp:
@@ -197,7 +199,8 @@ def temp_ban(update: Update, context: CallbackContext):
     try:
         chat.kick_member(user_id, until_date=bantime)
         bot.send_sticker(chat.id, BAN_STICKER)  # ban sticker
-        message.reply_text("Banned! User will be banned for {}.".format(time_val))
+        reply = "\nReason: <code>{}</code>".format(reason) if reason else ""
+        message.reply_text("Banned! User will be banned for {}.".format(time_val) + reply, parse_mode=ParseMode.HTML)
         return log
 
     except BadRequest as excp:
@@ -300,6 +303,7 @@ def kick(update: Update, context: CallbackContext):
         if res:
             bot.send_sticker(chat.id, BAN_STICKER)  # ban sticker
             reply = "{} has been kicked!".format(mention_html(member.user.id, member.user.first_name))
+            reply += "\nReason: <code>{}</code>".format(reason) if reason else ""
             message.reply_text(reply, parse_mode=ParseMode.HTML)
 
             log = "<b>{}:</b>" \
@@ -392,7 +396,7 @@ def unban(update: Update, context: CallbackContext):
         return ""
 
     chat.unban_member(user_id)
-    message.reply_text("Yep, this user can join!")
+    message.reply_text("Yep, {} can join!".format(mention_html(member.user.id, member.user.first_name)), parse_mode=ParseMode.HTML)
 
     log = "<b>{}:</b>" \
           "\n#UNBANNED" \

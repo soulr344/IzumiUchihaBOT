@@ -2,7 +2,7 @@ import html
 from typing import Optional, List
 
 import telegram.ext as tg
-from telegram import Message, Chat, Update, Bot, ParseMode, User, MessageEntity
+from telegram import Message, Chat, Update, Bot, ParseMode, User, MessageEntity, ChatPermissions
 from telegram import TelegramError
 from telegram.error import BadRequest
 from telegram.ext import MessageHandler, Filters
@@ -58,9 +58,15 @@ class CustomCommandHandler(tg.CommandHandler):
         super().__init__(command, callback, **kwargs)
 
     def check_update(self, update):
-        return super().check_update(update) and not (
+        if super().check_update(update) and not (
                 sql.is_restr_locked(update.effective_chat.id, 'messages') and not is_user_admin(update.effective_chat,
-                                                                                                update.effective_user.id))
+                                                                                                update.effective_user.id)):
+            args = update.effective_message.text.split()[1:]
+            filter_result = self.filters(update)
+            if filter_result:
+                return args, filter_result
+            else:
+                return False
 
 
 CommandHandler = CustomCommandHandler
@@ -75,10 +81,11 @@ def restr_members(bot, chat_id, members, messages=False, media=False, other=Fals
             pass
         try:
             bot.restrict_chat_member(chat_id, mem.user,
+                                     permissions=ChatPermissions(
                                      can_send_messages=messages,
                                      can_send_media_messages=media,
                                      can_send_other_messages=other,
-                                     can_add_web_page_previews=previews)
+                                     can_add_web_page_previews=previews))
         except TelegramError:
             pass
 
@@ -132,17 +139,17 @@ def lock(update: Update, context: CallbackContext) -> str:
                 if args[0] == "previews":
                     members = users_sql.get_chat_members(str(chat.id))
                     restr_members(bot, chat.id, members, messages=True, media=True, other=True)
-                    bot.restrict_chat_member(chat.id, int(777000),
+                    bot.restrict_chat_member(chat.id, int(777000), permissions=ChatPermissions(
                                      can_send_messages=True,
                                      can_send_media_messages=True,
                                      can_send_other_messages=True,
-                                     can_add_web_page_previews=True)
+                                     can_add_web_page_previews=True))
                     
-                    bot.restrict_chat_member(chat.id, int(1087968824),
+                    bot.restrict_chat_member(chat.id, int(1087968824), permissions=ChatPermissions(
                                      can_send_messages=True,
                                      can_send_media_messages=True,
                                      can_send_other_messages=True,
-                                     can_add_web_page_previews=True)
+                                     can_add_web_page_previews=True))
 
                 message.reply_text("Locked {} for all non-admins!".format(args[0]))
                 return "<b>{}:</b>" \
@@ -222,6 +229,7 @@ def unlock(update: Update, context: CallbackContext) -> str:
 
 @user_not_admin
 def del_lockables(update: Update, context: CallbackContext):
+    bot = context.bot
     chat = update.effective_chat  # type: Optional[Chat]
     message = update.effective_message  # type: Optional[Message]
     user = update.effective_user
@@ -229,7 +237,7 @@ def del_lockables(update: Update, context: CallbackContext):
         return #Group channel notifications are sent via this bot. This adds exception to this userid
 
     for lockable, filter in LOCK_TYPES.items():
-        if filter(message) and sql.is_locked(chat.id, lockable) and can_delete(chat, bot.id):
+        if filter(update) and sql.is_locked(chat.id, lockable) and can_delete(chat, bot.id):
             if lockable == "bots":
                 new_members = update.effective_message.new_chat_members
                 for new_mem in new_members:
@@ -261,7 +269,7 @@ def rest_handler(update: Update, context: CallbackContext):
         return #Group channel notifications are sent via this bot. This adds exception to this userid
 
     for restriction, filter in RESTRICTION_TYPES.items():
-        if filter(msg) and sql.is_restr_locked(chat.id, restriction) and can_delete(chat, bot.id):
+        if filter(update) and sql.is_restr_locked(chat.id, restriction) and can_delete(chat, bot.id):
             try:
                 msg.delete()
             except BadRequest as excp:

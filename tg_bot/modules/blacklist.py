@@ -58,6 +58,9 @@ def add_blacklist(update: Update, context: CallbackContext):
 
     if len(words) > 1:
         text = words[1]
+        if "**" in text:
+            msg.reply_text("Can't set blacklist, please don't use consecutive multiple \"*\".")
+            return
         to_blacklist = list(set(trigger.strip() for trigger in text.split("\n") if trigger.strip()))
         for trigger in to_blacklist:
             sql.add_to_blacklist(chat.id, trigger.lower())
@@ -138,7 +141,7 @@ def del_blacklist(update: Update, context: CallbackContext):
 
     chat_filters = sql.get_chat_blacklist(chat.id)
     for trigger in chat_filters:
-        pattern = r"( |^|[^\w])" + re.escape(trigger) + r"( |$|[^\w])"
+        pattern = r"( |^|[^\w])" + re.escape(trigger).replace("\*", "(.*)").replace("\\(.*)", "*") + r"( |$|[^\w])"
         if re.search(pattern, to_match, flags=re.IGNORECASE):
             try:
                 message.delete()
@@ -169,6 +172,8 @@ __mod_name__ = "Word Blacklists"
 __help__ = """
 Blacklists are used to stop certain triggers from being said in a group. Any time the trigger is mentioned, \
 the message will immediately be deleted. A good combo is sometimes to pair this up with warn filters!
+
+Please check /regexhelp for how to setup proper triggers.
 
 *NOTE:* blacklists do not affect group admins.
 

@@ -1,5 +1,5 @@
 import html
-from telegram import Message, Update, Bot, User, Chat, ParseMode
+from telegram import Message, Update, Bot, User, Chat, ParseMode, ChatPermissions
 from typing import List, Optional
 from telegram.error import BadRequest, TelegramError
 from telegram.ext import run_async, CommandHandler, MessageHandler, Filters
@@ -81,7 +81,7 @@ def gkick(update: Update, context: CallbackContext):
             member = bot.get_chat_member(chat.chat_id, user_id)
             if member.can_send_messages is False:
                 bot.unban_chat_member(chat.chat_id, user_id)  # Unban_member = kick (and not ban)
-                bot.restrict_chat_member(chat.chat_id, user_id, can_send_messages = False)
+                bot.restrict_chat_member(chat.chat_id, user_id, permissions=ChatPermissions(can_send_messages = False))
             else:
                 bot.unban_chat_member(chat.chat_id, user_id)
         except BadRequest as excp:

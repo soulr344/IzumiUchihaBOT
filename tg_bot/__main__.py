@@ -273,7 +273,6 @@ def send_settings(chat_id, user_id, user=False):
                                         parse_mode=ParseMode.MARKDOWN)
 
 
-@run_async
 def settings_button(update: Update, context: CallbackContext):
     bot = context.bot
     query = update.callback_query
@@ -339,7 +338,6 @@ def settings_button(update: Update, context: CallbackContext):
             LOGGER.exception("Exception in settings buttons. %s", str(query.data))
 
 
-@run_async
 def get_settings(update: Update, context: CallbackContext):
     bot = context.bot
     chat = update.effective_chat  # type: Optional[Chat]
@@ -363,7 +361,6 @@ def get_settings(update: Update, context: CallbackContext):
         send_settings(chat.id, user.id, True)
 
 
-@run_async
 def donate(update: Update, context: CallbackContext):
     bot = context.bot
     user = update.effective_message.from_user
@@ -383,7 +380,7 @@ def donate(update: Update, context: CallbackContext):
         except Unauthorized:
             update.effective_message.reply_text("Contact me in PM first to get donation information.")
 
-@run_async
+
 def source(update: Update, context: CallbackContext):
     bot = context.bot
     user = update.effective_message.from_user
@@ -399,7 +396,7 @@ def source(update: Update, context: CallbackContext):
             update.effective_message.reply_text("You'll find in PM more info about my sourcecode.")
         except Unauthorized:
             update.effective_message.reply_text("Contact me in PM first to get source information.")
-			
+
 def migrate_chats(update: Update, context: CallbackContext):
     bot = context.bot
     msg = update.effective_message  # type: Optional[Message]
@@ -419,6 +416,26 @@ def migrate_chats(update: Update, context: CallbackContext):
     LOGGER.info("Successfully migrated!")
     raise DispatcherHandlerStop
 
+def regexhelp(update: Update, context: CallbackContext):
+    rstring = """
+The only supported regex character for blacklist/filter/warnfilter triggers is `"*"`(asterisk)
+
+Check the following examples:
+`/addblacklist a*bc`
+
+This will trigger blacklist on cases like:
+• `abc`
+• `a*bc`
+• `a<some character>bc`
+• `a<some random text(no line breaks)>bc`
+
+`/addblacklist a\*bc`
+
+This will trigger blacklist on `a*bc` only.
+
+*Note:* This applies to blacklist/filter/warnfilter.
+"""
+    update.effective_message.reply_text(rstring, parse_mode=ParseMode.MARKDOWN)
 
 def main():
     start_handler = CommandHandler("start", start, run_async=True)
@@ -433,6 +450,8 @@ def main():
     source_handler = CommandHandler("source", source, run_async=True)
     migrate_handler = MessageHandler(Filters.status_update.migrate, migrate_chats)
 
+    rhelp_handler = CommandHandler("regexhelp", regexhelp, filters=Filters.private, run_async=True)
+
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(help_handler)
     dispatcher.add_handler(source_handler)
@@ -441,6 +460,7 @@ def main():
     dispatcher.add_handler(settings_callback_handler)
     dispatcher.add_handler(migrate_handler)
     dispatcher.add_handler(donate_handler)
+    dispatcher.add_handler(rhelp_handler)
 
     # dispatcher.add_error_handler(error_callback)
 

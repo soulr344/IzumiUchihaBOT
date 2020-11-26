@@ -333,7 +333,7 @@ def reply_filter(update: Update, context: CallbackContext) -> str:
         return ""
 
     for keyword in chat_warn_filters:
-        pattern = r"( |^|[^\w])" + re.escape(keyword) + r"( |$|[^\w])"
+        pattern = r"( |^|[^\w])" + re.escape(keyword).replace("\*", "(.*)").replace("\\(.*)", "*") + r"( |$|[^\w])"
         if re.search(pattern, to_match, flags=re.IGNORECASE):
             user = update.effective_user  # type: Optional[User]
             warn_filter = sql.get_warn_filter(chat.id, keyword)

@@ -42,8 +42,7 @@ def check_flood(update: Update, context: CallbackContext) -> str:
         chat.kick_member(user.id)
         reply = "Frankly, I like to leave the flooding to natural disasters. {} has been banned!".format(mention_html(user.id, user.first_name))
     try:
-        keyboard = []
-        msg.reply_text(reply, reply_markup=keyboard, parse_mode=ParseMode.HTML)
+        msg.reply_text(reply, parse_mode=ParseMode.HTML)
         msg.delete()
         return "<b>{}:</b>" \
                "\n#FLOOD_CTL" \
@@ -206,7 +205,7 @@ will result in banning or kicking the user.
 
 __mod_name__ = "Anti-Flood"
 
-FLOOD_BAN_HANDLER = MessageHandler(Filters.all & ~Filters.status_update & Filters.group, check_flood, run_async=True)
+FLOOD_BAN_HANDLER = MessageHandler(Filters.all & ~Filters.status_update & Filters.group & ~Filters.update.edited_message, check_flood, run_async=True)
 SET_FLOOD_HANDLER = CommandHandler("setflood", set_flood, filters=Filters.group, run_async=True)
 FLOOD_HANDLER = CommandHandler("flood", flood, filters=Filters.group, run_async=True)
 FLOOD_STRENGTH_HANDLER = CommandHandler("strongflood", set_flood_strength, filters=Filters.group, run_async=True)

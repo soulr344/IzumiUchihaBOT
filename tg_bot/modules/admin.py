@@ -1,7 +1,7 @@
 import html
 from typing import Optional, List
 
-from telegram import Message, Chat, Update, Bot, User
+from telegram import Message, Chat, Update, Bot, User, ChatPermissions
 from telegram import ParseMode
 from telegram.error import BadRequest
 from telegram.ext import CommandHandler, Filters
@@ -11,7 +11,7 @@ from telegram.utils.helpers import escape_markdown, mention_html
 from tg_bot import dispatcher, CallbackContext, SUDO_USERS
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.helper_funcs.chat_status import bot_admin, can_promote, user_admin, can_pin, is_user_admin
-from tg_bot.modules.helper_funcs.extraction import extract_user
+from tg_bot.modules.helper_funcs.extraction import extract_user_and_text, extract_user
 from tg_bot.modules.log_channel import loggable
 
 
@@ -27,7 +27,7 @@ def promote(update: Update, context: CallbackContext) -> str:
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
 
-    user_id = extract_user(message, args)
+    user_id, title = extract_user_and_text(message, args)
     admin = chat.get_member(int(user.id))
     if ( admin.status != 'creator' ) and (( not admin.can_promote_members ) and ( not int(user.id) in SUDO_USERS )):
         message.reply_text("You don't have sufficient permissions to promote users!")
@@ -54,12 +54,17 @@ def promote(update: Update, context: CallbackContext) -> str:
                           can_post_messages=bot_member.can_post_messages,
                           can_edit_messages=bot_member.can_edit_messages,
                           can_delete_messages=bot_member.can_delete_messages,
-                          # can_invite_users=bot_member.can_invite_users,
+                          can_invite_users=bot_member.can_invite_users,
                           can_restrict_members=bot_member.can_restrict_members,
-                          can_pin_messages=bot_member.can_pin_messages,
-                          can_promote_members=bot_member.can_promote_members)
+                          can_promote_members=bool(False if user_id not in SUDO_USERS else bot_member.can_restrict_members),
+                          can_pin_messages=bot_member.can_pin_messages)
 
-    message.reply_text("Successfully promoted!")
+    text = ""
+    if title:
+        bot.set_chat_administrator_custom_title(chat_id, user_id, title[:16])
+        text = " with title <code>{}</code>".format(title[:16])
+
+    message.reply_text("Successfully promoted {}".format(mention_html(user.id, user.first_name)) + text + "!", parse_mode=ParseMode.HTML)
     return "<b>{}:</b>" \
            "\n#PROMOTED" \
            "\n<b>Admin:</b> {}" \
@@ -102,6 +107,11 @@ def demote(update: Update, context: CallbackContext) -> str:
         return ""
 
     try:
+        bot.restrict_chat_member(chat.id, int(user_id), permissions=ChatPermissions(
+                          can_send_messages=True,
+                          can_send_media_messages=True,
+                          can_send_other_messages=True,
+                          can_add_web_page_previews=True)) #restrict incase you're demoting a bot
         bot.promoteChatMember(int(chat.id), int(user_id),
                           can_change_info=False,
                           can_post_messages=False,
@@ -112,7 +122,7 @@ def demote(update: Update, context: CallbackContext) -> str:
                           can_pin_messages=False,
                           can_promote_members=False)
 
-        message.reply_text("Successfully demoted!")
+        message.reply_text("Successfully demoted {}!".format(mention_html(user_id, user.first_name)), parse_mode=ParseMode.HTML)
         return "<b>{}:</b>" \
                "\n#DEMOTED" \
                "\n<b>Admin:</b> {}" \

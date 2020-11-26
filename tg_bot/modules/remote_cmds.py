@@ -1,7 +1,7 @@
 import html
 from typing import Optional, List
 
-from telegram import Message, Chat, Update, Bot, User, ParseMode, InlineKeyboardMarkup
+from telegram import Message, Chat, Update, Bot, User, ParseMode, InlineKeyboardMarkup, ChatPermissions
 from telegram.error import BadRequest
 from telegram.ext import run_async, CommandHandler, Filters
 from telegram.utils.helpers import mention_html
@@ -359,7 +359,7 @@ def rmute(update: Update, context: CallbackContext):
         return
 
     try:
-        bot.restrict_chat_member(chat.id, user_id, can_send_messages=False)
+        bot.restrict_chat_member(chat.id, user_id, permissions=ChatPermissions(can_send_messages=False))
         rmuting = "It is so quiet...\n{} has been remotely muted from {}! \n".format(mention_html(member.user.id, 
                                                                         member.user.first_name),
                                                                                (chat.title or chat.first or 
@@ -434,11 +434,11 @@ def runmute(update: Update, context: CallbackContext):
         return
 
     try:
-        bot.restrict_chat_member(chat.id, int(user_id),
+        bot.restrict_chat_member(chat.id, int(user_id), permissions=ChatPermissions(
                                      can_send_messages=True,
                                      can_send_media_messages=True,
                                      can_send_other_messages=True,
-                                     can_add_web_page_previews=True)
+                                     can_add_web_page_previews=True))
         runmuting = "Well, I will let {} speak on {}!".format(mention_html(member.user.id, 
                                                                         member.user.first_name),
                                                                                (chat.title or chat.first or 

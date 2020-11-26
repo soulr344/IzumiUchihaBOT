@@ -14,8 +14,7 @@ def stickerid(update: Update, context: CallbackContext):
     msg = update.effective_message
     if msg.reply_to_message and msg.reply_to_message.sticker:
         update.effective_message.reply_text("Sticker ID:\n```" + 
-                                            escape_markdown(msg.reply_to_message.sticker.file_id) + "```",
-                                            parse_mode=ParseMode.MARKDOWN)
+                                            msg.reply_to_message.sticker.file_id + "```", parse_mode=ParseMode.MARKDOWN)
     else:
         update.effective_message.reply_text("Please reply to a sticker to get its ID.")
 

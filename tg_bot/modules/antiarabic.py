@@ -37,6 +37,7 @@ def antiarabic_setting(update: Update, context: CallbackContext):
 @bot_admin
 @user_not_admin
 def antiarabic(update: Update, context: CallbackContext):
+    bot = context.bot
     chat = update.effective_chat  # type: Optional[Chat]
     msg = update.effective_message  # type: Optional[Message]
     to_match = extract_text(msg)
