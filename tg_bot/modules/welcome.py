@@ -1,10 +1,11 @@
 import html, time
 import re
+import asyncio
 from typing import Optional, List
 
 import tg_bot.modules.helper_funcs.cas_api as cas
 
-from telegram import Message, Chat, Update, Bot, User, CallbackQuery, ChatMember, ParseMode, InlineKeyboardMarkup, InlineKeyboardButton, MessageEntity
+from telegram import Message, Chat, Update, Bot, User, CallbackQuery, ChatMember, ParseMode, InlineKeyboardMarkup, InlineKeyboardButton, MessageEntity, ChatPermissions
 from telegram.error import BadRequest
 from telegram.ext import MessageHandler, Filters, CommandHandler, run_async, CallbackQueryHandler
 from telegram.utils.helpers import mention_markdown, mention_html, escape_markdown
@@ -25,10 +26,18 @@ from tg_bot.modules.log_channel import loggable
 
 VALID_WELCOME_FORMATTERS = ['first', 'last', 'fullname', 'username', 'id', 'count', 'chatname', 'mention']
 
+def send_sticker(*args, **kwargs):
+    if "caption" in kwargs:
+        del kwargs["caption"]
+    if "parse_mode" in kwargs:
+        del kwargs["parse_mode"]
+
+    return dispatcher.bot.send_sticker(*args, **kwargs)
+
 ENUM_FUNC_MAP = {
     sql.Types.TEXT.value: dispatcher.bot.send_message,
     sql.Types.BUTTON_TEXT.value: dispatcher.bot.send_message,
-    sql.Types.STICKER.value: dispatcher.bot.send_sticker,
+    sql.Types.STICKER.value: send_sticker,
     sql.Types.DOCUMENT.value: dispatcher.bot.send_document,
     sql.Types.PHOTO.value: dispatcher.bot.send_photo,
     sql.Types.AUDIO.value: dispatcher.bot.send_audio,
@@ -101,11 +110,11 @@ def new_member(update: Update, context: CallbackContext):
     if chatbanned:
         bot.leave_chat(int(chat.id))
     elif casPrefs and not autoban and cas.banchecker(user.id):
-        bot.restrict_chat_member(chat.id, user.id, 
+        bot.restrict_chat_member(chat.id, user.id, permissions=ChatPermissions(
                                          can_send_messages=False,
                                          can_send_media_messages=False, 
                                          can_send_other_messages=False, 
-                                         can_add_web_page_previews=False)
+                                         can_add_web_page_previews=False))
         msg.reply_text("Warning! This user is CAS Banned. I have muted them to avoid spam. Ban is advised.")
         isUserGbanned = gbansql.is_user_gbanned(user.id)
         if not isUserGbanned:
@@ -186,15 +195,18 @@ def new_member(update: Update, context: CallbackContext):
                 #Safe mode
                 newMember = chat.get_member(int(new_mem.id))
                 if welc_mutes == "on" and ((newMember.can_send_messages is None or newMember.can_send_messages)):
-                    buttonMsg = msg.reply_text("Click the button below to prove you're human",
+                    text = ""
+                    if time_value:
+                        text = " else you'll be kicked after {} seconds.".format(str(time_value))
+                    buttonMsg = msg.reply_text("Click the button below to prove you're human" + text,
                          reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(text="I'm not a bot!", 
                          callback_data="userverify_({})".format(new_mem.id))]]))
-                    bot.restrict_chat_member(chat.id, new_mem.id, 
+                    bot.restrict_chat_member(chat.id, new_mem.id, permissions=ChatPermissions(
                                              can_send_messages=False, 
                                              can_send_media_messages=False, 
                                              can_send_other_messages=False, 
-                                             can_add_web_page_previews=False)
-                        
+                                             can_add_web_page_previews=False))
+
             delete_join(bot, update)
 
         prev_welc = sql.get_clean_pref(chat.id)
@@ -376,7 +388,7 @@ def set_welcome(update: Update, context: CallbackContext) -> str:
         msg.reply_text("You didn't specify what to reply with!")
         return ""
 
-    sql.set_custom_welcome(chat.id, content, text, data_type, buttons)
+    sql.set_custom_welcome(chat.id, content, text or sql.DEFAULT_WELCOME, data_type, buttons)
     msg.reply_text("Successfully set custom welcome message!")
 
     return "<b>{}:</b>" \
@@ -412,7 +424,7 @@ def set_goodbye(update: Update, context: CallbackContext) -> str:
         msg.reply_text("You didn't specify what to reply with!")
         return ""
 
-    sql.set_custom_gdbye(chat.id, content, text, data_type, buttons)
+    sql.set_custom_gdbye(chat.id, content, text or sql.DEFAULT_GOODBYE, data_type, buttons)
     msg.reply_text("Successfully set custom goodbye message!")
     return "<b>{}:</b>" \
            "\n#SET_GOODBYE" \
@@ -544,8 +556,7 @@ def del_joined(update: Update, context: CallbackContext) -> str:
         update.effective_message.reply_text("I understand 'on/yes' or 'off/no' only!")
         return ""
 
-def delete_join(update: Update, context: CallbackContext):
-    bot = context.bot
+def delete_join(bot: Bot, update: Update):
     chat = update.effective_chat  # type: Optional[Chat]
     join = update.effective_message.new_chat_members
     if can_delete(chat, bot.id):
@@ -564,10 +575,10 @@ def user_button(update: Update, context: CallbackContext):
     
     if join_user == user.id:
         query.answer(text="Yup, you're very human, you have now the right to speak!")
-        bot.restrict_chat_member(chat.id, user.id, can_send_messages=True, 
+        bot.restrict_chat_member(chat.id, user.id, permissions=ChatPermissions(can_send_messages=True, 
                                                    can_send_media_messages=False, 
                                                    can_send_other_messages=False, 
-                                                   can_add_web_page_previews=False,
+                                                   can_add_web_page_previews=False),
                                                    until_date=(int(time.time() + 24 * 60 * 60)))
         bot.deleteMessage(chat.id, message.message_id)
     else:
@@ -634,7 +645,10 @@ def getTimeSetting(update: Update, context: CallbackContext):
     chat = update.effective_chat
     msg = update.effective_message
     timeSetting = sql.getKickTime(chat.id)
-    text = "This group will automatically kick people in " + str(timeSetting) + " seconds."
+    if timeSetting:
+        text = "This group will automatically kick people in " + str(timeSetting) + " seconds."
+    else:
+        text = "This group isn't set to automatically kick people if they don't press the button!"
     msg.reply_text(text)
     return
 
@@ -644,6 +658,10 @@ def setTimeSetting(update: Update, context: CallbackContext):
     args = context.args
     chat = update.effective_chat
     msg = update.effective_message
+    if args[0] == "false" or args[0] == "off":
+        msg.reply_text("Disabled auto kick!")
+        sql.setKickTime(str(chat.id), 0)
+        return
     if (not args) or len(args) != 1 or (not args[0].isdigit()):
         msg.reply_text("Give me a valid value to set! 30 to 900 secs")
         return
@@ -847,8 +865,8 @@ def __migrate__(old_chat_id, new_chat_id):
     sql.migrate_chat(old_chat_id, new_chat_id)
 
 def __chat_settings__(chat_id, user_id):
-    welcome_pref, _, _ = sql.get_welc_pref(chat_id)
-    goodbye_pref, _, _ = sql.get_gdbye_pref(chat_id)
+    welcome_pref, _, _, _ = sql.get_welc_pref(chat_id)
+    goodbye_pref, _, _, _ = sql.get_gdbye_pref(chat_id)
     return "This chat has it's welcome preference set to `{}`.\n" \
            "It's goodbye preference is `{}`.".format(welcome_pref, goodbye_pref)
 
