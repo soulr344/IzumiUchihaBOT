@@ -144,8 +144,7 @@ def rban(update: Update, context: CallbackContext):
                                                                                (chat.title or chat.first or 
                                                                                 chat.username))
         bot.send_sticker(update.effective_chat.id, BAN_STICKER)
-        keyboard = []
-        message.reply_text(rbanning, reply_markup=keyboard, parse_mode=ParseMode.HTML)
+        message.reply_text(rbanning, parse_mode=ParseMode.HTML)
     except BadRequest as excp:
         if excp.message == "Reply message not found":
             # Do not reply
@@ -217,8 +216,7 @@ def runban(update: Update, context: CallbackContext):
                                                                         member.user.first_name),
                                                                                (chat.title or chat.first or 
                                                                                 chat.username))
-        keyboard = []
-        message.reply_text(runbanning, reply_markup=keyboard, parse_mode=ParseMode.HTML)
+        message.reply_text(runbanning, parse_mode=ParseMode.HTML)
     except BadRequest as excp:
         if excp.message == "Reply message not found":
             # Do not reply
@@ -291,8 +289,7 @@ def rkick(update: Update, context: CallbackContext):
                                                                                          (chat.title or chat.first or 
                                                                                          chat.username))
         bot.send_sticker(update.effective_chat.id, BAN_STICKER)
-        keyboard = []
-        message.reply_text(rkicking, reply_markup=keyboard, parse_mode=ParseMode.HTML)
+        message.reply_text(rkicking, parse_mode=ParseMode.HTML)
     except BadRequest as excp:
         if excp.message == "Reply message not found":
             # Do not reply
@@ -364,8 +361,7 @@ def rmute(update: Update, context: CallbackContext):
                                                                         member.user.first_name),
                                                                                (chat.title or chat.first or 
                                                                                 chat.username))
-        keyboard = []
-        message.reply_text(rmuting, reply_markup=keyboard, parse_mode=ParseMode.HTML)
+        message.reply_text(rmuting, parse_mode=ParseMode.HTML)
     except BadRequest as excp:
         if excp.message == "Reply message not found":
             # Do not reply
@@ -443,8 +439,7 @@ def runmute(update: Update, context: CallbackContext):
                                                                         member.user.first_name),
                                                                                (chat.title or chat.first or 
                                                                                 chat.username))
-        keyboard = []
-        message.reply_text(runmuting, reply_markup=keyboard, parse_mode=ParseMode.HTML)
+        message.reply_text(runmuting, parse_mode=ParseMode.HTML)
     except BadRequest as excp:
         if excp.message == "Reply message not found":
             # Do not reply

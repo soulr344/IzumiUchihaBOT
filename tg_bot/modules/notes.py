@@ -112,7 +112,6 @@ def get(bot, update, notename, show_none=True, no_format=False):
 def cmd_get(update: Update, context: CallbackContext):
     bot = context.bot
     args = context.args
-    update.effective_message.reply_text(str(context))
     if len(args) >= 2 and args[1].lower() == "noformat":
         get(bot, update, args[0], show_none=True, no_format=True)
     elif len(args) >= 1:

@@ -55,7 +55,7 @@ def warn(user: User, chat: Chat, reason: str, message: Message, warner: User = N
             reply += "\n - {}".format(html.escape(warn_reason))
 
         message.bot.send_sticker(chat.id, BAN_STICKER)  # ban sticker
-        keyboard = []
+        keyboard = {}
         log_reason = "<b>{}:</b>" \
                      "\n#WARN_BAN" \
                      "\n<b>Admin:</b> {}" \
@@ -85,7 +85,10 @@ def warn(user: User, chat: Chat, reason: str, message: Message, warner: User = N
                                                                   mention_html(user.id, user.first_name),
                                                                   user.id, reason, num_warns, limit)
 
+    kwargs = {"parse_mode": ParseMode.HTML, "reply_markup": keyboard}
     try:
+        if not keyboard:
+            del kwargs["reply_markup"]
         message.reply_text(reply, reply_markup=keyboard, parse_mode=ParseMode.HTML)
     except BadRequest as excp:
         if excp.message == "Reply message not found":
