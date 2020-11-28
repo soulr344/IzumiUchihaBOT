@@ -17,6 +17,7 @@ from tg_bot.modules.helper_funcs.chat_status import can_delete, is_user_admin, u
 from tg_bot.modules.helper_funcs.filters import CustomFilters
 from tg_bot.modules.log_channel import loggable
 from tg_bot.modules.sql import users_sql
+from tg_bot.modules.helper_funcs.perms import check_perms
 
 LOCK_TYPES = {'sticker': Filters.sticker,
               'audio': Filters.audio,
@@ -111,16 +112,13 @@ def locktypes(update: Update, context: CallbackContext):
 @bot_can_delete
 @loggable
 def lock(update: Update, context: CallbackContext) -> str:
+    if not check_perms(update, 1):
+        return
     bot = context.bot
     args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
-
-    admin = chat.get_member(int(user.id))
-    if ( admin.status != 'creator' ) and ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
-        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
-        return ""
 
     if can_delete(chat, bot.id):
         if len(args) >= 1:
@@ -170,16 +168,13 @@ def lock(update: Update, context: CallbackContext) -> str:
 @user_admin
 @loggable
 def unlock(update: Update, context: CallbackContext) -> str:
+    if not check_perms(update, 1):
+        return
     bot = context.bot
     args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
-
-    admin = chat.get_member(int(user.id))
-    if ( admin.status != 'creator' ) and ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
-        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
-        return ""
 
     if is_user_admin(chat, message.from_user.id):
         if len(args) >= 1:

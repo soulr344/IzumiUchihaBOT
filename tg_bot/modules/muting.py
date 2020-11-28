@@ -7,27 +7,25 @@ from telegram.ext import CommandHandler, Filters
 from telegram.ext.dispatcher import run_async
 from telegram.utils.helpers import mention_html
 
-from tg_bot import dispatcher, CallbackContext, LOGGER, SUDO_USERS
+from tg_bot import dispatcher, CallbackContext, LOGGER
 from tg_bot.modules.helper_funcs.chat_status import bot_admin, user_admin, is_user_admin, can_restrict
 from tg_bot.modules.helper_funcs.extraction import extract_user, extract_user_and_text
 from tg_bot.modules.helper_funcs.string_handling import extract_time
 from tg_bot.modules.log_channel import loggable
+from tg_bot.modules.helper_funcs.perms import check_perms
 
 
 @bot_admin
 @user_admin
 @loggable
 def mute(update: Update, context: CallbackContext) -> str:
+    if not check_perms(update, 1):
+        return
     bot = context.bot
     args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
-
-    admin = chat.get_member(int(user.id))
-    if ( admin.status != 'creator' ) and ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
-        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
-        return ""
 
     user_id = extract_user(message, args)
     if not user_id:
@@ -66,18 +64,13 @@ def mute(update: Update, context: CallbackContext) -> str:
 @user_admin
 @loggable
 def unmute(update: Update, context: CallbackContext) -> str:
+    if not check_perms(update, 1):
+        return
     bot = context.bot
     args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
-
-
-    admin = chat.get_member(int(user.id))
-    if ( admin.status != 'creator' ) and ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
-        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
-        return ""
-
 
     user_id = extract_user(message, args)
     if not user_id:
@@ -121,6 +114,8 @@ def unmute(update: Update, context: CallbackContext) -> str:
 @user_admin
 @loggable
 def temp_mute(update: Update, context: CallbackContext) -> str:
+    if not check_perms(update, 1):
+        return
     bot = context.bot
     args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
@@ -128,11 +123,6 @@ def temp_mute(update: Update, context: CallbackContext) -> str:
     message = update.effective_message  # type: Optional[Message]
 
     user_id, reason = extract_user_and_text(message, args)
-
-    admin = chat.get_member(int(user.id))
-    if ( admin.status != 'creator' ) and ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
-        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
-        return ""
 
     if not user_id:
         message.reply_text("You don't seem to be referring to a user.")

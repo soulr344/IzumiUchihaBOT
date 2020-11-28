@@ -10,9 +10,9 @@ from tg_bot import dispatcher, CallbackContext
 from tg_bot.modules.helper_funcs.chat_status import is_user_admin, user_admin, can_restrict, can_delete
 from tg_bot.modules.log_channel import loggable
 from tg_bot.modules.sql import antiflood_sql as sql
+from tg_bot.modules.helper_funcs.perms import check_perms
 
 FLOOD_GROUP = 3
-
 
 @loggable
 def check_flood(update: Update, context: CallbackContext) -> str:
@@ -68,10 +68,8 @@ def set_flood(update: Update, context: CallbackContext) -> str:
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
 
-    admin = chat.get_member(int(user.id))
-    if ( admin.status != 'creator' ) and ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
-        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
-        return ""
+    if not check_perms(update, 1):
+        return
 
     if len(args) >= 1:
         val = args[0].lower()
@@ -129,16 +127,13 @@ def flood(update: Update, context: CallbackContext):
 @user_admin
 @loggable
 def set_flood_strength(update: Update, context: CallbackContext):
+    if not check_perms(update, 1):
+        return
     bot = context.bot
     args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     msg = update.effective_message  # type: Optional[Message]
-
-    admin = chat.get_member(int(user.id))
-    if ( admin.status != 'creator' ) and ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
-        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
-        return ""
 
     if args:
         if args[0].lower() in ("on", "yes"):

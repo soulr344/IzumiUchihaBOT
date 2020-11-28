@@ -12,14 +12,16 @@ from tg_bot import dispatcher, CallbackContext, SUDO_USERS
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.helper_funcs.chat_status import bot_admin, can_promote, user_admin, can_pin, is_user_admin
 from tg_bot.modules.helper_funcs.extraction import extract_user_and_text, extract_user
+from tg_bot.modules.helper_funcs.perms import check_perms
 from tg_bot.modules.log_channel import loggable
-
 
 @bot_admin
 @can_promote
 @user_admin
 @loggable
-def promote(update: Update, context: CallbackContext) -> str:
+def promote(update: Update, context: CallbackContext, check="restrict") -> str:
+    if not check_perms(update, 3):
+        return
     bot = context.bot
     args = context.args
     chat_id = update.effective_chat.id
@@ -28,10 +30,6 @@ def promote(update: Update, context: CallbackContext) -> str:
     user = update.effective_user  # type: Optional[User]
 
     user_id, title = extract_user_and_text(message, args)
-    admin = chat.get_member(int(user.id))
-    if ( admin.status != 'creator' ) and (( not admin.can_promote_members ) and ( not int(user.id) in SUDO_USERS )):
-        message.reply_text("You don't have sufficient permissions to promote users!")
-        return ""
 
     if not user_id or int(user_id) == 777000 or int(user_id) == 1087968824:
         message.reply_text("You don't seem to be referring to a user.")
@@ -64,7 +62,7 @@ def promote(update: Update, context: CallbackContext) -> str:
         bot.set_chat_administrator_custom_title(chat_id, user_id, title[:16])
         text = " with title <code>{}</code>".format(title[:16])
 
-    message.reply_text("Successfully promoted {}".format(mention_html(user.id, user.first_name)) + text + "!", parse_mode=ParseMode.HTML)
+    message.reply_text("Successfully promoted {}".format(mention_html(user_member.user.id, user_member.user.first_name)) + text + "!", parse_mode=ParseMode.HTML)
     return "<b>{}:</b>" \
            "\n#PROMOTED" \
            "\n<b>Admin:</b> {}" \
@@ -77,6 +75,8 @@ def promote(update: Update, context: CallbackContext) -> str:
 @user_admin
 @loggable
 def demote(update: Update, context: CallbackContext) -> str:
+    if not check_perms(update, 3):
+        return
     bot = context.bot
     args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
@@ -84,10 +84,6 @@ def demote(update: Update, context: CallbackContext) -> str:
     user = update.effective_user  # type: Optional[User]
 
     user_id = extract_user(message, args)
-    admin = chat.get_member(int(user.id))
-    if ( admin.status != 'creator' ) and ( not admin.can_promote_members ) and ( not int(user.id) in SUDO_USERS ):
-        message.reply_text("You don't have sufficient permissions to demote users!")
-        return ""
 
     if not user_id or int(user_id) == 777000 or int(user_id) == 1087968824:
         message.reply_text("You don't seem to be referring to a user.")
@@ -122,7 +118,7 @@ def demote(update: Update, context: CallbackContext) -> str:
                           can_pin_messages=False,
                           can_promote_members=False)
 
-        message.reply_text("Successfully demoted {}!".format(mention_html(user_id, user.first_name)), parse_mode=ParseMode.HTML)
+        message.reply_text("Successfully demoted {}!".format(mention_html(user_member.user.id, user_member.user.first_name)), parse_mode=ParseMode.HTML)
         return "<b>{}:</b>" \
                "\n#DEMOTED" \
                "\n<b>Admin:</b> {}" \
@@ -140,15 +136,12 @@ def demote(update: Update, context: CallbackContext) -> str:
 @user_admin
 @loggable
 def pin(update: Update, context: CallbackContext) -> str:
+    if not check_perms(update, 2):
+        return
     bot = context.bot
     args = context.args
     user = update.effective_user  # type: Optional[User]
     chat = update.effective_chat  # type: Optional[Chat]
-
-    admin = chat.get_member(int(user.id))
-    if ( admin.status != 'creator' ) and ( not admin.can_pin_messages ) and ( not int(user.id) in SUDO_USERS ):
-        update.effective_message.reply_text("You don't have sufficient permissions to pin messages!")
-        return ""
 
     is_group = chat.type != "private" and chat.type != "channel"
 
@@ -177,14 +170,11 @@ def pin(update: Update, context: CallbackContext) -> str:
 @user_admin
 @loggable
 def unpin(update: Update, context: CallbackContext) -> str:
+    if not check_perms(update, 2):
+        return
     bot = context.bot
     chat = update.effective_chat
     user = update.effective_user  # type: Optional[User]
-
-    admin = chat.get_member(int(user.id))
-    if ( admin.status != 'creator' ) and ( not admin.can_pin_messages ) and ( not int(user.id) in SUDO_USERS ):
-        update.effective_message.reply_text("You don't have sufficient permissions to unpin messages!")
-        return ""
 
     try:
         bot.unpinChatMessage(chat.id)

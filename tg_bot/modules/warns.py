@@ -9,16 +9,17 @@ from telegram.error import BadRequest
 from telegram.ext import CommandHandler, run_async, DispatcherHandlerStop, MessageHandler, Filters, CallbackQueryHandler
 from telegram.utils.helpers import mention_html
 
-from tg_bot import dispatcher, CallbackContext, BAN_STICKER
+from tg_bot import dispatcher, CallbackContext, BAN_STICKER, SUDO_USERS
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.helper_funcs.chat_status import is_user_admin, bot_admin, user_admin_no_reply, user_admin, \
-    can_restrict
+    can_restrict, user_not_admin
 from tg_bot.modules.helper_funcs.extraction import extract_text, extract_user_and_text, extract_user
 from tg_bot.modules.helper_funcs.filters import CustomFilters
 from tg_bot.modules.helper_funcs.misc import split_message
 from tg_bot.modules.helper_funcs.string_handling import split_quotes
 from tg_bot.modules.log_channel import loggable
 from tg_bot.modules.sql import warns_sql as sql
+from tg_bot.modules.helper_funcs.perms import check_perms
 
 WARN_HANDLER_GROUP = 9
 CURRENT_WARNING_FILTER_STRING = "<b>Current warning filters in this chat:</b>\n"
@@ -55,7 +56,7 @@ def warn(user: User, chat: Chat, reason: str, message: Message, warner: User = N
             reply += "\n - {}".format(html.escape(warn_reason))
 
         message.bot.send_sticker(chat.id, BAN_STICKER)  # ban sticker
-        keyboard = {}
+        keyboard = []
         log_reason = "<b>{}:</b>" \
                      "\n#WARN_BAN" \
                      "\n<b>Admin:</b> {}" \
@@ -85,10 +86,7 @@ def warn(user: User, chat: Chat, reason: str, message: Message, warner: User = N
                                                                   mention_html(user.id, user.first_name),
                                                                   user.id, reason, num_warns, limit)
 
-    kwargs = {"parse_mode": ParseMode.HTML, "reply_markup": keyboard}
     try:
-        if not keyboard:
-            del kwargs["reply_markup"]
         message.reply_text(reply, reply_markup=keyboard, parse_mode=ParseMode.HTML)
     except BadRequest as excp:
         if excp.message == "Reply message not found":
@@ -106,6 +104,12 @@ def button(update: Update, context: CallbackContext) -> str:
     bot = context.bot
     query = update.callback_query  # type: Optional[CallbackQuery]
     user = update.effective_user  # type: Optional[User]
+    chat = update.effective_chat
+    admin = chat.get_member(int(user.id))
+    if ( admin.status != 'creator' ) and ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
+        query.answer(text="You don't have sufficient permissions to remove warns!")
+        return ""
+
     match = re.match(r"rm_warn\((.+?)\)", query.data)
     if match:
         user_id = match.group(1)
@@ -135,6 +139,8 @@ def button(update: Update, context: CallbackContext) -> str:
 @can_restrict
 @loggable
 def warn_user(update: Update, context: CallbackContext) -> str:
+    if not check_perms(update, 1):
+        return
     bot = context.bot
     args = context.args
     message = update.effective_message  # type: Optional[Message]
@@ -157,6 +163,8 @@ def warn_user(update: Update, context: CallbackContext) -> str:
 @bot_admin
 @loggable
 def reset_warns(update: Update, context: CallbackContext) -> str:
+    if not check_perms(update, 1):
+        return
     bot = context.bot
     args = context.args
     message = update.effective_message  # type: Optional[Message]
@@ -184,6 +192,8 @@ def reset_warns(update: Update, context: CallbackContext) -> str:
 @bot_admin
 @loggable
 def remove_warns(update: Update, context: CallbackContext) -> str:
+    if not check_perms(update, 1):
+        return
     bot = context.bot
     args = context.args
     message = update.effective_message  # type: Optional[Message]
@@ -239,6 +249,8 @@ def warns(update: Update, context: CallbackContext):
 # Dispatcher handler stop - do not async
 @user_admin
 def add_warn_filter(update: Update, context: CallbackContext):
+    if not check_perms(update, 1):
+        return
     bot = context.bot
     chat = update.effective_chat  # type: Optional[Chat]
     msg = update.effective_message  # type: Optional[Message]
@@ -271,6 +283,8 @@ def add_warn_filter(update: Update, context: CallbackContext):
 
 @user_admin
 def remove_warn_filter(update: Update, context: CallbackContext):
+    if not check_perms(update, 1):
+        return
     bot = context.bot
     chat = update.effective_chat  # type: Optional[Chat]
     msg = update.effective_message  # type: Optional[Message]
@@ -323,7 +337,7 @@ def list_warn_filters(update: Update, context: CallbackContext):
     if not filter_list == CURRENT_WARNING_FILTER_STRING:
         update.effective_message.reply_text(filter_list, parse_mode=ParseMode.HTML)
 
-
+@user_not_admin
 @loggable
 def reply_filter(update: Update, context: CallbackContext) -> str:
     bot = context.bot
@@ -347,6 +361,8 @@ def reply_filter(update: Update, context: CallbackContext) -> str:
 @user_admin
 @loggable
 def set_warn_limit(update: Update, context: CallbackContext) -> str:
+    if not check_perms(update, 1):
+        return
     bot = context.bot
     args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
@@ -376,6 +392,8 @@ def set_warn_limit(update: Update, context: CallbackContext) -> str:
 
 @user_admin
 def set_warn_strength(update: Update, context: CallbackContext):
+    if not check_perms(update, 1):
+        return
     bot = context.bot
     args = context.args
     chat = update.effective_chat  # type: Optional[Chat]

@@ -7,7 +7,7 @@ from telegram.ext import run_async, CommandHandler, Filters
 from telegram.utils.helpers import mention_html
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, User, CallbackQuery
 
-from tg_bot import dispatcher, CallbackContext, BAN_STICKER, LOGGER, SUDO_USERS
+from tg_bot import dispatcher, CallbackContext, BAN_STICKER, LOGGER
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.helper_funcs.chat_status import bot_admin, user_admin, is_user_ban_protected, can_restrict, \
     is_user_admin, is_user_in_chat, is_bot_admin
@@ -15,6 +15,7 @@ from tg_bot.modules.helper_funcs.extraction import extract_user_and_text, extrac
 from tg_bot.modules.helper_funcs.string_handling import extract_time
 from tg_bot.modules.log_channel import loggable
 from tg_bot.modules.helper_funcs.filters import CustomFilters
+from tg_bot.modules.helper_funcs.perms import check_perms
 
 
 @bot_admin
@@ -22,16 +23,13 @@ from tg_bot.modules.helper_funcs.filters import CustomFilters
 @user_admin
 @loggable
 def ban(update: Update, context: CallbackContext):
+    if not check_perms(update, 1):
+        return
     bot = context.bot
     args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
-
-    admin = chat.get_member(int(user.id))
-    if ( admin.status != 'creator' ) and ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
-        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
-        return ""
 
     banType = 0
     userIds = extract_multiple_users(message, args)
@@ -133,6 +131,8 @@ def ban(update: Update, context: CallbackContext):
 @user_admin
 @loggable
 def temp_ban(update: Update, context: CallbackContext):
+    if not check_perms(update, 1):
+        return
     bot = context.bot
     args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
@@ -141,10 +141,6 @@ def temp_ban(update: Update, context: CallbackContext):
 
     user_id, reason = extract_user_and_text(message, args)
 
-    admin = chat.get_member(int(user.id))
-    if ( admin.status != 'creator' ) and ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
-        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
-        return ""
 
     if not user_id or int(user_id) == 777000 or int(user_id) == 1087968824:
         message.reply_text("You don't seem to be referring to a user.")
@@ -200,7 +196,7 @@ def temp_ban(update: Update, context: CallbackContext):
         chat.kick_member(user_id, until_date=bantime)
         bot.send_sticker(chat.id, BAN_STICKER)  # ban sticker
         reply = "\nReason: <code>{}</code>".format(reason) if reason else ""
-        message.reply_text("Banned! User will be banned for {}.".format(time_val) + reply, parse_mode=ParseMode.HTML)
+        message.reply_text("Banned! {} will be banned for {}.".format(mention_html(member.user.id, member.user.first_name), time_val) + reply, parse_mode=ParseMode.HTML)
         return log
 
     except BadRequest as excp:
@@ -222,16 +218,13 @@ def temp_ban(update: Update, context: CallbackContext):
 @user_admin
 @loggable
 def kick(update: Update, context: CallbackContext):
+    if not check_perms(update, 1):
+        return
     bot = context.bot
     args = context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
-
-    admin = chat.get_member(int(user.id))
-    if ( admin.status != 'creator' ) and ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
-        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
-        return ""
 
     banType = 0
     userIds = extract_multiple_users(message, args)
@@ -361,6 +354,8 @@ def kickme(update: Update, context: CallbackContext):
 @user_admin
 @loggable
 def unban(update: Update, context: CallbackContext):
+    if not check_perms(update, 1):
+        return
     bot = context.bot
     args = context.args
     message = update.effective_message  # type: Optional[Message]
@@ -369,10 +364,6 @@ def unban(update: Update, context: CallbackContext):
 
     user_id, reason = extract_user_and_text(message, args)
 
-    admin = chat.get_member(int(user.id))
-    if ( admin.status != 'creator' ) and ( not admin.can_restrict_members ) and ( not int(user.id) in SUDO_USERS ):
-        update.effective_message.reply_text("You don't have sufficient permissions to restrict users!")
-        return ""
 
     if not user_id or int(user_id) == 777000 or int(user_id) == 1087968824:
         message.reply_text("You don't seem to be referring to a user.")
