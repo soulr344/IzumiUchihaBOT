@@ -107,6 +107,9 @@ def new_member(update: Update, context: CallbackContext):
     chatbanned = sql.isBanned(str(chat.id))
     defense = sql.getDefenseStatus(str(chat.id))
     time_value = sql.getKickTime(str(chat.id))
+    isUserGbanned = gbansql.is_user_gbanned(user.id)
+    if isUserGbanned:
+        return
     if chatbanned:
         bot.leave_chat(int(chat.id))
     elif casPrefs and not autoban and cas.banchecker(user.id):
@@ -116,7 +119,6 @@ def new_member(update: Update, context: CallbackContext):
                                          can_send_other_messages=False, 
                                          can_add_web_page_previews=False))
         msg.reply_text("Warning! This user is CAS Banned. I have muted them to avoid spam. Ban is advised.")
-        isUserGbanned = gbansql.is_user_gbanned(user.id)
         if not isUserGbanned:
             report = "CAS Banned user detected: <code>{}</code>".format(user.id)
             send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report, html=True)
