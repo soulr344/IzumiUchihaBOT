@@ -8,9 +8,18 @@ from telegram.utils.helpers import escape_markdown, mention_html
 
 from tg_bot import dispatcher, updater, CallbackContext
 from tg_bot.modules.disable import DisableAbleCommandHandler
+from tg_bot.modules.github import getphh
 
 GITHUB = 'https://github.com'
 DEVICES_DATA = 'https://raw.githubusercontent.com/androidtrackers/certified-android-devices/master/by_device.json'
+
+def phh(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
+    index = int(args[0]) if len(args) > 0 and args[0].isdigit() else 0
+    text = getphh(index)
+    update.effective_message.reply_text(text, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
+    return
 
 def magisk(update: Update, context: CallbackContext):
     bot = context.bot
@@ -268,12 +277,14 @@ __help__ = """
 
 __mod_name__ = "Android"
 
+PHH_HANDLER = DisableAbleCommandHandler("phh", phh, run_async=True)
 MAGISK_HANDLER = DisableAbleCommandHandler("magisk", magisk, run_async=True)
 DEVICE_HANDLER = DisableAbleCommandHandler("device", device, run_async=True)
 TWRP_HANDLER = DisableAbleCommandHandler("twrp", twrp, run_async=True)
 GETFW_HANDLER = DisableAbleCommandHandler("getfw", getfw, run_async=True)
 CHECKFW_HANDLER = DisableAbleCommandHandler("checkfw", checkfw, run_async=True)
 
+dispatcher.add_handler(PHH_HANDLER)
 dispatcher.add_handler(MAGISK_HANDLER)
 dispatcher.add_handler(DEVICE_HANDLER)
 dispatcher.add_handler(TWRP_HANDLER)
