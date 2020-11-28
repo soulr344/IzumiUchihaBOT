@@ -284,16 +284,19 @@ def enforce_gban(update: Update, context: CallbackContext):
 
         if user and not is_user_admin(chat, user.id):
             check_and_ban(update, user.id)
+            return
 
         if msg.new_chat_members:
             new_members = update.effective_message.new_chat_members
             for mem in new_members:
                 check_and_ban(update, mem.id)
+            return
 
         if msg.reply_to_message:
             user = msg.reply_to_message.from_user  # type: Optional[User]
             if user and not is_user_admin(chat, user.id):
                 check_and_ban(update, user.id, should_message=False)
+                return
 
 
 @user_admin
