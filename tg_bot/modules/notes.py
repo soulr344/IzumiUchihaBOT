@@ -33,7 +33,7 @@ ENUM_FUNC_MAP = {
 # Do not async
 def get(bot, update, notename, show_none=True, no_format=False):
     chat_id = update.effective_chat.id
-    note = sql.get_note(chat_id, notename)
+    note = sql.get_note(chat_id, notename.lower())
     message = update.effective_message  # type: Optional[Message]
 
     if note:
@@ -148,7 +148,7 @@ def save(update: Update, context: CallbackContext):
     if len(text.strip()) == 0:
         text = escape_markdown(note_name)
 
-    sql.add_note_to_db(chat_id, note_name, text, data_type, buttons=buttons, file=content)
+    sql.add_note_to_db(chat_id, note_name.lower(), text, data_type, buttons=buttons, file=content)
 
     msg.reply_text(
         "Yas! Saved `{note_name}` for *{chat_name}*.\nGet it with `/get {note_name}`, or `#{note_name}`".format(note_name=note_name, chat_name=chat_name), parse_mode=ParseMode.MARKDOWN)
