@@ -144,9 +144,9 @@ def save(update: Update, context: CallbackContext):
     if data_type is None:
         msg.reply_text("Dude, there's no note")
         return
-    
+
     if len(text.strip()) == 0:
-        text = note_name
+        text = escape_markdown(note_name)
 
     sql.add_note_to_db(chat_id, note_name, text, data_type, buttons=buttons, file=content)
 
