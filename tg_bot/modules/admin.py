@@ -175,9 +175,13 @@ def unpin(update: Update, context: CallbackContext) -> str:
     bot = context.bot
     chat = update.effective_chat
     user = update.effective_user  # type: Optional[User]
+    args = {}
+
+    if update.effective_message.reply_to_message:
+        args["message_id"] = update.effective_message.reply_to_message.message_id
 
     try:
-        bot.unpinChatMessage(chat.id)
+        bot.unpinChatMessage(chat.id, **args)
     except BadRequest as excp:
         if excp.message == "Chat_not_modified":
             pass
@@ -188,6 +192,32 @@ def unpin(update: Update, context: CallbackContext) -> str:
            "\n#UNPINNED" \
            "\n<b>Admin:</b> {}".format(html.escape(chat.title),
                                        mention_html(user.id, user.first_name))
+
+@bot_admin
+@can_pin
+@user_admin
+@loggable
+def unpinall(update: Update, context: CallbackContext) -> str:
+    if not check_perms(update, 2):
+        return
+    bot = context.bot
+    chat = update.effective_chat
+    user = update.effective_user  # type: Optional[User]
+
+    try:
+        bot.unpinAllChatMessages(chat.id)
+        update.effective_message.reply_text("Successfully unpinned all messages!")
+    except BadRequest as excp:
+        if excp.message == "Chat_not_modified":
+            pass
+        else:
+            raise
+
+    return "<b>{}:</b>" \
+           "\n#UNPINNED" \
+           "\n<b>Admin:</b> {}".format(html.escape(chat.title),
+                                       mention_html(user.id, user.first_name))
+
 
 @bot_admin
 @user_admin
@@ -262,18 +292,20 @@ An example of promoting someone to admins:
 
 __mod_name__ = "Admin"
 
-PIN_HANDLER = CommandHandler("pin", pin, pass_args=True, filters=Filters.group, run_async=True)
-UNPIN_HANDLER = CommandHandler("unpin", unpin, filters=Filters.group, run_async=True)
+PIN_HANDLER = CommandHandler("pin", pin, pass_args=True, filters=Filters.chat_type.groups, run_async=True)
+UNPIN_HANDLER = CommandHandler("unpin", unpin, filters=Filters.chat_type.groups, run_async=True)
+UNPINALL_HANDLER = CommandHandler("unpinall", unpinall, filters=Filters.chat_type.groups, run_async=True)
 
-INVITE_HANDLER = CommandHandler(["invitelink", "link"], invite, filters=Filters.group, run_async=True)
+INVITE_HANDLER = CommandHandler(["invitelink", "link"], invite, filters=Filters.chat_type.groups, run_async=True)
 
-PROMOTE_HANDLER = CommandHandler("promote", promote, pass_args=True, filters=Filters.group, run_async=True)
-DEMOTE_HANDLER = CommandHandler("demote", demote, pass_args=True, filters=Filters.group, run_async=True)
+PROMOTE_HANDLER = CommandHandler("promote", promote, pass_args=True, filters=Filters.chat_type.groups, run_async=True)
+DEMOTE_HANDLER = CommandHandler("demote", demote, pass_args=True, filters=Filters.chat_type.groups, run_async=True)
 
-ADMINLIST_HANDLER = DisableAbleCommandHandler(["adminlist", "staff"], adminlist, filters=Filters.group, run_async=True)
+ADMINLIST_HANDLER = DisableAbleCommandHandler(["adminlist", "staff"], adminlist, filters=Filters.chat_type.groups, run_async=True)
 
 dispatcher.add_handler(PIN_HANDLER)
 dispatcher.add_handler(UNPIN_HANDLER)
+dispatcher.add_handler(UNPINALL_HANDLER)
 dispatcher.add_handler(INVITE_HANDLER)
 dispatcher.add_handler(PROMOTE_HANDLER)
 dispatcher.add_handler(DEMOTE_HANDLER)
