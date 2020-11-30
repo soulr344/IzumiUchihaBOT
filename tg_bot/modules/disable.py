@@ -172,10 +172,10 @@ It'll also allow you to autodelete them, stopping people from bluetexting.
  - /listcmds: list all possible toggleable commands
     """
 
-    DISABLE_HANDLER = CommandHandler("disable", disable, filters=Filters.group, run_async=True)
-    ENABLE_HANDLER = CommandHandler("enable", enable, filters=Filters.group, run_async=True)
-    COMMANDS_HANDLER = CommandHandler(["cmds", "disabled"], commands, filters=Filters.group, run_async=True)
-    TOGGLE_HANDLER = CommandHandler("listcmds", list_cmds, filters=Filters.group, run_async=True)
+    DISABLE_HANDLER = CommandHandler("disable", disable, filters=Filters.chat_type.groups, run_async=True)
+    ENABLE_HANDLER = CommandHandler("enable", enable, filters=Filters.chat_type.groups, run_async=True)
+    COMMANDS_HANDLER = CommandHandler(["cmds", "disabled"], commands, filters=Filters.chat_type.groups, run_async=True)
+    TOGGLE_HANDLER = CommandHandler("listcmds", list_cmds, filters=Filters.chat_type.groups, run_async=True)
 
     dispatcher.add_handler(DISABLE_HANDLER)
     dispatcher.add_handler(ENABLE_HANDLER)

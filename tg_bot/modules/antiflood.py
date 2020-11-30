@@ -200,10 +200,10 @@ will result in banning or kicking the user.
 
 __mod_name__ = "Anti-Flood"
 
-FLOOD_BAN_HANDLER = MessageHandler(Filters.all & ~Filters.status_update & Filters.group & ~Filters.update.edited_message, check_flood, run_async=True)
-SET_FLOOD_HANDLER = CommandHandler("setflood", set_flood, filters=Filters.group, run_async=True)
-FLOOD_HANDLER = CommandHandler("flood", flood, filters=Filters.group, run_async=True)
-FLOOD_STRENGTH_HANDLER = CommandHandler("strongflood", set_flood_strength, filters=Filters.group, run_async=True)
+FLOOD_BAN_HANDLER = MessageHandler(Filters.all & ~Filters.status_update & Filters.chat_type.groups & ~Filters.update.edited_message, check_flood, run_async=True)
+SET_FLOOD_HANDLER = CommandHandler("setflood", set_flood, filters=Filters.chat_type.groups, run_async=True)
+FLOOD_HANDLER = CommandHandler("flood", flood, filters=Filters.chat_type.groups, run_async=True)
+FLOOD_STRENGTH_HANDLER = CommandHandler("strongflood", set_flood_strength, filters=Filters.chat_type.groups, run_async=True)
 
 dispatcher.add_handler(FLOOD_BAN_HANDLER, FLOOD_GROUP)
 dispatcher.add_handler(SET_FLOOD_HANDLER)

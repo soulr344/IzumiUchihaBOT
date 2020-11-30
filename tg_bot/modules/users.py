@@ -123,7 +123,7 @@ __help__ = ""  # no help string
 __mod_name__ = "Users"
 
 BROADCAST_HANDLER = CommandHandler("broadcast", broadcast, filters=Filters.user(OWNER_ID), run_async=True)
-USER_HANDLER = MessageHandler(Filters.all & Filters.group, log_user, run_async=True)
+USER_HANDLER = MessageHandler(Filters.all & Filters.chat_type.groups, log_user, run_async=True)
 CHATLIST_HANDLER = CommandHandler("chatlist", chats, filters=CustomFilters.sudo_filter, run_async=True)
 
 dispatcher.add_handler(USER_HANDLER, USERS_GROUP)

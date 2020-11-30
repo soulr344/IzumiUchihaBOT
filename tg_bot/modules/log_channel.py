@@ -8,7 +8,7 @@ FILENAME = __name__.rsplit(".", 1)[-1]
 if is_module_loaded(FILENAME):
     from telegram import Bot, Update, ParseMode, Message, Chat
     from telegram.error import BadRequest, Unauthorized
-    from telegram.ext import CommandHandler, run_async
+    from telegram.ext import CommandHandler, run_async, Filters
     from telegram.utils.helpers import escape_markdown
 
     from tg_bot import dispatcher, CallbackContext, LOGGER
@@ -162,9 +162,9 @@ Setting the log channel is done by:
 
     __mod_name__ = "Log Channels"
 
-    LOG_HANDLER = CommandHandler("logchannel", logging, run_async=True)
-    SET_LOG_HANDLER = CommandHandler("setlog", setlog, run_async=True)
-    UNSET_LOG_HANDLER = CommandHandler("unsetlog", unsetlog, run_async=True)
+    LOG_HANDLER = CommandHandler("logchannel", logging, run_async=True, filters=Filters.chat_type.groups)
+    SET_LOG_HANDLER = CommandHandler("setlog", setlog, run_async=True, filters=Filters.chat_type.groups)
+    UNSET_LOG_HANDLER = CommandHandler("unsetlog", unsetlog, run_async=True, filters=Filters.chat_type.groups)
 
     dispatcher.add_handler(LOG_HANDLER)
     dispatcher.add_handler(SET_LOG_HANDLER)

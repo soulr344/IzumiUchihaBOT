@@ -5,7 +5,7 @@ import telegram
 from telegram import ParseMode, InlineKeyboardMarkup, Message, Chat
 from telegram import Update, Bot
 from telegram.error import BadRequest
-from telegram.ext import CommandHandler, MessageHandler, DispatcherHandlerStop, run_async
+from telegram.ext import CommandHandler, MessageHandler, DispatcherHandlerStop, run_async, Filters
 from telegram.utils.helpers import escape_markdown
 
 from tg_bot import dispatcher, CallbackContext, LOGGER
@@ -238,9 +238,9 @@ Now, anyone saying "hello" will be replied to with "Hello there! How are you?".
 
 __mod_name__ = "Filters"
 
-FILTER_HANDLER = CommandHandler("filter", filters)
-STOP_HANDLER = CommandHandler("stop", stop_filter)
-LIST_HANDLER = DisableAbleCommandHandler("filters", list_handlers, admin_ok=True, run_async=True)
+FILTER_HANDLER = CommandHandler("filter", filters, filters=Filters.chat_type.groups)
+STOP_HANDLER = CommandHandler("stop", stop_filter, filters=Filters.chat_type.groups)
+LIST_HANDLER = DisableAbleCommandHandler("filters", list_handlers, admin_ok=True, run_async=True, filters=Filters.chat_type.groups)
 CUST_FILTER_HANDLER = MessageHandler(CustomFilters.has_text, reply_filter, run_async=True)
 
 dispatcher.add_handler(FILTER_HANDLER)

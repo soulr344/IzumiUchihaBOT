@@ -98,7 +98,7 @@ AntiArabicScript module is used to delete messages containing characters from on
 
 SETTING_HANDLER = CommandHandler("antiarabic", antiarabic_setting, run_async=True)
 ANTI_ARABIC = MessageHandler(
-    (Filters.text | Filters.command | Filters.sticker | Filters.photo) & Filters.group, antiarabic, run_async=True)
+    (Filters.text | Filters.command | Filters.sticker | Filters.photo) & Filters.chat_type.groups, antiarabic, run_async=True)
 
 
 dispatcher.add_handler(SETTING_HANDLER)

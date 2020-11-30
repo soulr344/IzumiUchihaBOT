@@ -352,14 +352,14 @@ Locking bots will stop non-admins from adding bots to the chat.
 __mod_name__ = "Locks"
 
 LOCKTYPES_HANDLER = DisableAbleCommandHandler("locktypes", locktypes, run_async=True)
-LOCK_HANDLER = CommandHandler("lock", lock, filters=Filters.group)
-UNLOCK_HANDLER = CommandHandler("unlock", unlock, run_async=True, filters=Filters.group)
-LOCKED_HANDLER = CommandHandler("locks", list_locks, filters=Filters.group, run_async=True)
+LOCK_HANDLER = CommandHandler("lock", lock, filters=Filters.chat_type.groups)
+UNLOCK_HANDLER = CommandHandler("unlock", unlock, run_async=True, filters=Filters.chat_type.groups)
+LOCKED_HANDLER = CommandHandler("locks", list_locks, filters=Filters.chat_type.groups, run_async=True)
 
 dispatcher.add_handler(LOCK_HANDLER)
 dispatcher.add_handler(UNLOCK_HANDLER)
 dispatcher.add_handler(LOCKTYPES_HANDLER)
 dispatcher.add_handler(LOCKED_HANDLER)
 
-dispatcher.add_handler(MessageHandler(Filters.all & Filters.group, del_lockables, run_async=True), PERM_GROUP)
-dispatcher.add_handler(MessageHandler(Filters.all & Filters.group, rest_handler, run_async=True), REST_GROUP)
+dispatcher.add_handler(MessageHandler(Filters.all & Filters.chat_type.groups, del_lockables, run_async=True), PERM_GROUP)
+dispatcher.add_handler(MessageHandler(Filters.all & Filters.chat_type.groups, rest_handler, run_async=True), REST_GROUP)

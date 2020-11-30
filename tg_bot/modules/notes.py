@@ -5,7 +5,7 @@ from typing import Optional, List
 from telegram import MAX_MESSAGE_LENGTH, ParseMode, InlineKeyboardMarkup
 from telegram import Message, Update, Bot
 from telegram.error import BadRequest
-from telegram.ext import CommandHandler, RegexHandler
+from telegram.ext import CommandHandler, RegexHandler, Filters
 from telegram.ext.dispatcher import run_async
 from telegram.utils.helpers import escape_markdown
 
@@ -276,13 +276,13 @@ This will retrieve the note and send it without formatting it; getting you the r
 
 __mod_name__ = "Notes"
 
-GET_HANDLER = CommandHandler("get", cmd_get, run_async=True)
+GET_HANDLER = CommandHandler("get", cmd_get, run_async=True, filters=Filters.chat_type.groups)
 HASH_GET_HANDLER = RegexHandler(r"^#[^\s]+", hash_get, run_async=True)
 
-SAVE_HANDLER = CommandHandler("save", save, run_async=True)
-DELETE_HANDLER = CommandHandler("clear", clear, run_async=True)
+SAVE_HANDLER = CommandHandler("save", save, run_async=True, filters=Filters.chat_type.groups)
+DELETE_HANDLER = CommandHandler("clear", clear, run_async=True, filters=Filters.chat_type.groups)
 
-LIST_HANDLER = DisableAbleCommandHandler(["notes", "saved"], list_notes, admin_ok=True, run_async=True)
+LIST_HANDLER = DisableAbleCommandHandler(["notes", "saved"], list_notes, admin_ok=True, run_async=True, filters=Filters.chat_type.groups)
 
 dispatcher.add_handler(GET_HANDLER)
 dispatcher.add_handler(SAVE_HANDLER)

@@ -421,14 +421,14 @@ An example of temporarily banning someone:
 
 __mod_name__ = "Bans"
 
-BAN_HANDLER = CommandHandler("ban", ban, filters=Filters.group, run_async=True)
-TEMPBAN_HANDLER = CommandHandler(["tban", "tempban"], temp_ban, filters=Filters.group, run_async=True)
-KICK_HANDLER = CommandHandler("kick", kick, filters=Filters.group, run_async=True)
-UNBAN_HANDLER = CommandHandler("unban", unban, filters=Filters.group, run_async=True)
-KICKME_HANDLER = DisableAbleCommandHandler("kickme", kickme, filters=Filters.group, run_async=True)
-RIPME_HANDLER = DisableAbleCommandHandler("rip", kickme, filters=Filters.group, run_async=True)
-AFK_HANDLER = DisableAbleCommandHandler("afk", kickme, filters=Filters.group, run_async=True)
-BANME_HANDLER = DisableAbleCommandHandler("banme", banme, filters=Filters.group, run_async=True)
+BAN_HANDLER = CommandHandler("ban", ban, filters=Filters.chat_type.groups, run_async=True)
+TEMPBAN_HANDLER = CommandHandler(["tban", "tempban"], temp_ban, filters=Filters.chat_type.groups, run_async=True)
+KICK_HANDLER = CommandHandler("kick", kick, filters=Filters.chat_type.groups, run_async=True)
+UNBAN_HANDLER = CommandHandler("unban", unban, filters=Filters.chat_type.groups, run_async=True)
+KICKME_HANDLER = DisableAbleCommandHandler("kickme", kickme, filters=Filters.chat_type.groups, run_async=True)
+RIPME_HANDLER = DisableAbleCommandHandler("rip", kickme, filters=Filters.chat_type.groups, run_async=True)
+AFK_HANDLER = DisableAbleCommandHandler("afk", kickme, filters=Filters.chat_type.groups, run_async=True)
+BANME_HANDLER = DisableAbleCommandHandler("banme", banme, filters=Filters.chat_type.groups, run_async=True)
 
 dispatcher.add_handler(BAN_HANDLER)
 dispatcher.add_handler(TEMPBAN_HANDLER)

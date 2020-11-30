@@ -369,9 +369,9 @@ UNGBAN_HANDLER = CommandHandler("ungban", ungban, run_async=True,
 GBAN_LIST = CommandHandler("gbanlist", gbanlist,
                            filters=CustomFilters.sudo_filter | CustomFilters.support_filter)
 
-GBAN_STATUS = CommandHandler("gbanstat", gbanstat, run_async=True, filters=Filters.group)
+GBAN_STATUS = CommandHandler("gbanstat", gbanstat, run_async=True, filters=Filters.chat_type.groups)
 
-GBAN_ENFORCER = MessageHandler(Filters.all & Filters.group, enforce_gban, run_async=True)
+GBAN_ENFORCER = MessageHandler(Filters.all & Filters.chat_type.groups, enforce_gban, run_async=True)
 
 dispatcher.add_handler(GBAN_HANDLER)
 dispatcher.add_handler(UNGBAN_HANDLER)
