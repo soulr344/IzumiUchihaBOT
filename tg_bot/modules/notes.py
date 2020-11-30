@@ -33,7 +33,7 @@ ENUM_FUNC_MAP = {
 # Do not async
 def get(bot, update, notename, show_none=True, no_format=False):
     chat_id = update.effective_chat.id
-    note = sql.get_note(chat_id, notename.lower())
+    note = sql.get_note(chat_id, notename) # removed lower() for compatibility for fetching previously saved notes
     message = update.effective_message  # type: Optional[Message]
 
     if note:
