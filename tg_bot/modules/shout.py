@@ -4,6 +4,7 @@ from telegram.ext import run_async
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot import dispatcher, CallbackContext
 
+
 def shout(update: Update, context: CallbackContext):
     args = context.args
     msg = "```"
@@ -17,7 +18,8 @@ def shout(update: Update, context: CallbackContext):
     result = "".join(result)
     msg = "```\n" + result + "```"
     return update.effective_message.reply_text(msg, parse_mode="MARKDOWN")
-    
+
+
 __help__ = """
  A little piece of fun wording! Give a loud shout out in the chatroom.
  

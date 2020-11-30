@@ -16,6 +16,7 @@ from tg_bot.modules.helper_funcs.extraction import extract_text
 from tg_bot import dispatcher, CallbackContext, OWNER_ID, SUDO_USERS, SUPPORT_USERS, WHITELIST_USERS
 from tg_bot.modules.helper_funcs.filters import CustomFilters
 
+
 #Kanged from PaperPlane Extended userbot
 def speed_convert(size):
     """
@@ -29,6 +30,7 @@ def speed_convert(size):
         zero += 1
     return f"{round(size, 2)} {units[zero]}"
 
+
 def get_bot_ip(update: Update, context: CallbackContext):
     bot = context.bot
     """ Sends the bot's IP address, so as to be able to ssh in if necessary.
@@ -37,45 +39,52 @@ def get_bot_ip(update: Update, context: CallbackContext):
     res = requests.get("http://ipinfo.io/ip")
     update.message.reply_text(res.text)
 
+
 def rtt(update: Update, context: CallbackContext):
     bot = context.bot
     out = ""
     under = False
     if os.name == 'nt':
-        output = subprocess.check_output("ping -n 1 1.0.0.1 | findstr time*", shell=True).decode()
+        output = subprocess.check_output("ping -n 1 1.0.0.1 | findstr time*",
+                                         shell=True).decode()
         outS = output.splitlines()
         out = outS[0]
     else:
-        out = subprocess.check_output("ping -c 1 1.0.0.1 | grep time=", shell=True).decode()
+        out = subprocess.check_output("ping -c 1 1.0.0.1 | grep time=",
+                                      shell=True).decode()
     splitOut = out.split(' ')
     stringtocut = ""
     for line in splitOut:
-        if(line.startswith('time=') or line.startswith('time<')):
-            stringtocut=line
+        if (line.startswith('time=') or line.startswith('time<')):
+            stringtocut = line
             break
-    newstra=stringtocut.split('=')
+    newstra = stringtocut.split('=')
     if len(newstra) == 1:
         under = True
-        newstra=stringtocut.split('<')
-    newstr=""
+        newstra = stringtocut.split('<')
+    newstr = ""
     if os.name == 'nt':
-        newstr=newstra[1].split('ms')
+        newstr = newstra[1].split('ms')
     else:
-        newstr=newstra[1].split(' ') #redundant split, but to try and not break windows ping
+        newstr = newstra[1].split(
+            ' ')  #redundant split, but to try and not break windows ping
     ping_time = float(newstr[0])
     if os.name == 'nt' and under:
-        update.effective_message.reply_text(" Round-trip time is <{}ms".format(ping_time))
+        update.effective_message.reply_text(
+            " Round-trip time is <{}ms".format(ping_time))
     else:
-        update.effective_message.reply_text(" Round-trip time: {}ms".format(ping_time))
+        update.effective_message.reply_text(
+            " Round-trip time: {}ms".format(ping_time))
+
 
 def ping(update: Update, context: CallbackContext):
     bot = context.bot
     message = update.effective_message
     parsing = extract_text(message).split(' ')
-    if(len(parsing) < 2):
+    if (len(parsing) < 2):
         message.reply_text("Give me an address to ping!")
         return
-    elif(len(parsing)>2):
+    elif (len(parsing) > 2):
         message.reply_text("Too many arguments!")
         return
     dns = (parsing)[1]
@@ -83,7 +92,9 @@ def ping(update: Update, context: CallbackContext):
     under = False
     if os.name == 'nt':
         try:
-            output = subprocess.check_output("ping -n 1 " + dns + " | findstr time*", shell=True).decode()
+            output = subprocess.check_output("ping -n 1 " + dns +
+                                             " | findstr time*",
+                                             shell=True).decode()
         except:
             message.reply_text("There was a problem parsing the IP/Hostname")
             return
@@ -91,32 +102,35 @@ def ping(update: Update, context: CallbackContext):
         out = outS[0]
     else:
         try:
-            out = subprocess.check_output("ping -c 1 " + dns + " | grep time=", shell=True).decode()
+            out = subprocess.check_output("ping -c 1 " + dns + " | grep time=",
+                                          shell=True).decode()
         except:
             message.reply_text("There was a problem parsing the IP/Hostname")
             return
     splitOut = out.split(' ')
     stringtocut = ""
     for line in splitOut:
-        if(line.startswith('time=') or line.startswith('time<')):
-            stringtocut=line
+        if (line.startswith('time=') or line.startswith('time<')):
+            stringtocut = line
             break
-    newstra=stringtocut.split('=')
+    newstra = stringtocut.split('=')
     if len(newstra) == 1:
         under = True
-        newstra=stringtocut.split('<')
-    newstr=""
+        newstra = stringtocut.split('<')
+    newstr = ""
     if os.name == 'nt':
-        newstr=newstra[1].split('ms')
+        newstr = newstra[1].split('ms')
     else:
-        newstr=newstra[1].split(' ') #redundant split, but to try and not break windows ping
+        newstr = newstra[1].split(
+            ' ')  #redundant split, but to try and not break windows ping
     ping_time = float(newstr[0])
     if os.name == 'nt' and under:
-        update.effective_message.reply_text(" Ping speed of " +dns+" is <{}ms".format(ping_time))
+        update.effective_message.reply_text(" Ping speed of " + dns +
+                                            " is <{}ms".format(ping_time))
     else:
-        update.effective_message.reply_text(" Ping speed of " +dns+": {}ms".format(ping_time))
-    
-    
+        update.effective_message.reply_text(" Ping speed of " + dns +
+                                            ": {}ms".format(ping_time))
+
 
 def speedtst(update: Update, context: CallbackContext):
     bot = context.bot
@@ -126,19 +140,33 @@ def speedtst(update: Update, context: CallbackContext):
     test.upload()
     test.results.share()
     result = test.results.dict()
-    update.effective_message.reply_text("Download "
-                   f"{speed_convert(result['download'])} \n"
-                   "Upload "
-                   f"{speed_convert(result['upload'])} \n"
-                   "Ping "
-                   f"{result['ping']} \n"
-                   "ISP "
-                   f"{result['client']['isp']}")
+    update.effective_message.reply_text(
+        "Download "
+        f"{speed_convert(result['download'])} \n"
+        "Upload "
+        f"{speed_convert(result['upload'])} \n"
+        "Ping "
+        f"{result['ping']} \n"
+        "ISP "
+        f"{result['client']['isp']}")
 
-IP_HANDLER = CommandHandler("ip", get_bot_ip, filters=Filters.chat(OWNER_ID), run_async=True)
-RTT_HANDLER = CommandHandler("ping", rtt, filters=CustomFilters.sudo_filter, run_async=True)
-PING_HANDLER = CommandHandler("cping", ping, filters=CustomFilters.sudo_filter, run_async=True)
-SPEED_HANDLER = CommandHandler("speedtest", speedtst, filters=CustomFilters.sudo_filter, run_async=True)
+
+IP_HANDLER = CommandHandler("ip",
+                            get_bot_ip,
+                            filters=Filters.chat(OWNER_ID),
+                            run_async=True)
+RTT_HANDLER = CommandHandler("ping",
+                             rtt,
+                             filters=CustomFilters.sudo_filter,
+                             run_async=True)
+PING_HANDLER = CommandHandler("cping",
+                              ping,
+                              filters=CustomFilters.sudo_filter,
+                              run_async=True)
+SPEED_HANDLER = CommandHandler("speedtest",
+                               speedtst,
+                               filters=CustomFilters.sudo_filter,
+                               run_async=True)
 
 dispatcher.add_handler(IP_HANDLER)
 dispatcher.add_handler(RTT_HANDLER)

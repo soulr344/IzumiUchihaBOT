@@ -8,6 +8,7 @@ from tg_bot.modules.sql import SESSION, BASE
 DEFAULT_WELCOME = "Hey {first}, how are you?"
 DEFAULT_GOODBYE = "Nice knowing ya!"
 
+
 class Welcome(BASE):
     __tablename__ = "welcome_pref"
     chat_id = Column(String(14), primary_key=True)
@@ -31,7 +32,9 @@ class Welcome(BASE):
         self.should_goodbye = should_goodbye
 
     def __repr__(self):
-        return "<Chat {} should Welcome new users: {}>".format(self.chat_id, self.should_welcome)
+        return "<Chat {} should Welcome new users: {}>".format(
+            self.chat_id, self.should_welcome)
+
 
 class WelcomeButtons(BASE):
     __tablename__ = "welcome_urls"
@@ -47,6 +50,7 @@ class WelcomeButtons(BASE):
         self.url = url
         self.same_line = same_line
 
+
 class GoodbyeButtons(BASE):
     __tablename__ = "leave_urls"
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -61,50 +65,56 @@ class GoodbyeButtons(BASE):
         self.url = url
         self.same_line = same_line
 
+
 class WelcomeMute(BASE):
     __tablename__ = "welcome_mutes"
     chat_id = Column(String(14), primary_key=True)
     welcomemutes = Column(UnicodeText, default=False)
 
     def __init__(self, chat_id, welcomemutes):
-        self.chat_id = str(chat_id) # ensure string
+        self.chat_id = str(chat_id)  # ensure string
         self.welcomemutes = welcomemutes
+
 
 class CombotCASStatus(BASE):
     __tablename__ = "cas_stats"
     chat_id = Column(String(14), primary_key=True)
     status = Column(Boolean, default=True)
     autoban = Column(Boolean, default=False)
-    
+
     def __init__(self, chat_id, status, autoban):
-        self.chat_id = str(chat_id) #chat_id is int, make sure it's string
+        self.chat_id = str(chat_id)  #chat_id is int, make sure it's string
         self.status = status
         self.autoban = autoban
+
 
 class BannedChat(BASE):
     __tablename__ = "chat_blacklists"
     chat_id = Column(String(14), primary_key=True)
-    
+
     def __init__(self, chat_id):
-        self.chat_id = str(chat_id) #chat_id is int, make sure it is string
+        self.chat_id = str(chat_id)  #chat_id is int, make sure it is string
+
 
 class DefenseMode(BASE):
     __tablename__ = "defense_mode"
     chat_id = Column(String(14), primary_key=True)
     status = Column(Boolean, default=False)
-    
+
     def __init__(self, chat_id, status):
         self.chat_id = str(chat_id)
         self.status = status
+
 
 class AutoKickSafeMode(BASE):
     __tablename__ = "autokicks_safemode"
     chat_id = Column(String(14), primary_key=True)
     timeK = Column(Integer, default=90)
-    
+
     def __init__(self, chat_id, timeK):
         self.chat_id = str(chat_id)
         self.timeK = timeK
+
 
 Welcome.__table__.create(checkfirst=True)
 WelcomeButtons.__table__.create(checkfirst=True)
@@ -126,6 +136,7 @@ AUTOKICK_LOCK = threading.RLock()
 
 BLACKLIST = set()
 
+
 def welcome_mutes(chat_id):
     try:
         welcomemutes = SESSION.query(WelcomeMute).get(str(chat_id))
@@ -134,6 +145,7 @@ def welcome_mutes(chat_id):
         return False
     finally:
         SESSION.close()
+
 
 def set_welcome_mutes(chat_id, welcomemutes):
     with WM_LOCK:
@@ -144,6 +156,7 @@ def set_welcome_mutes(chat_id, welcomemutes):
         SESSION.add(welcome_m)
         SESSION.commit()
 
+
 def get_welc_pref(chat_id):
     welc = SESSION.query(Welcome).get(str(chat_id))
     SESSION.close()
@@ -153,6 +166,7 @@ def get_welc_pref(chat_id):
         # Welcome by default.
         return True, DEFAULT_WELCOME, "", Types.TEXT
 
+
 def get_gdbye_pref(chat_id):
     welc = SESSION.query(Welcome).get(str(chat_id))
     SESSION.close()
@@ -161,6 +175,7 @@ def get_gdbye_pref(chat_id):
     else:
         # Welcome by default.
         return True, DEFAULT_GOODBYE, "", Types.TEXT
+
 
 def set_clean_welcome(chat_id, clean_welcome):
     with INSERTION_LOCK:
@@ -173,6 +188,7 @@ def set_clean_welcome(chat_id, clean_welcome):
         SESSION.add(curr)
         SESSION.commit()
 
+
 def get_clean_pref(chat_id):
     welc = SESSION.query(Welcome).get(str(chat_id))
     SESSION.close()
@@ -181,6 +197,7 @@ def get_clean_pref(chat_id):
         return welc.clean_welcome
 
     return False
+
 
 def set_del_joined(chat_id, del_joined):
     with INSERTION_LOCK:
@@ -193,6 +210,7 @@ def set_del_joined(chat_id, del_joined):
         SESSION.add(curr)
         SESSION.commit()
 
+
 def get_del_pref(chat_id):
     welc = SESSION.query(Welcome).get(str(chat_id))
     SESSION.close()
@@ -201,6 +219,7 @@ def get_del_pref(chat_id):
         return welc.del_joined
 
     return False
+
 
 def set_welc_preference(chat_id, should_welcome):
     with INSERTION_LOCK:
@@ -213,6 +232,7 @@ def set_welc_preference(chat_id, should_welcome):
         SESSION.add(curr)
         SESSION.commit()
 
+
 def set_gdbye_preference(chat_id, should_goodbye):
     with INSERTION_LOCK:
         curr = SESSION.query(Welcome).get(str(chat_id))
@@ -224,7 +244,12 @@ def set_gdbye_preference(chat_id, should_goodbye):
         SESSION.add(curr)
         SESSION.commit()
 
-def set_custom_welcome(chat_id, welcome_media, custom_welcome, welcome_type, buttons=None):
+
+def set_custom_welcome(chat_id,
+                       welcome_media,
+                       custom_welcome,
+                       welcome_type,
+                       buttons=None):
     if buttons is None:
         buttons = []
 
@@ -246,7 +271,8 @@ def set_custom_welcome(chat_id, welcome_media, custom_welcome, welcome_type, but
         SESSION.add(welcome_settings)
 
         with WELC_BTN_LOCK:
-            prev_buttons = SESSION.query(WelcomeButtons).filter(WelcomeButtons.chat_id == str(chat_id)).all()
+            prev_buttons = SESSION.query(WelcomeButtons).filter(
+                WelcomeButtons.chat_id == str(chat_id)).all()
             for btn in prev_buttons:
                 SESSION.delete(btn)
 
@@ -255,6 +281,7 @@ def set_custom_welcome(chat_id, welcome_media, custom_welcome, welcome_type, but
                 SESSION.add(button)
 
         SESSION.commit()
+
 
 def get_custom_welcome(chat_id):
     welcome_settings = SESSION.query(Welcome).get(str(chat_id))
@@ -265,7 +292,12 @@ def get_custom_welcome(chat_id):
     SESSION.close()
     return ret
 
-def set_custom_gdbye(chat_id, goodbye_media, custom_goodbye, goodbye_type, buttons=None):
+
+def set_custom_gdbye(chat_id,
+                     goodbye_media,
+                     custom_goodbye,
+                     goodbye_type,
+                     buttons=None):
     if buttons is None:
         buttons = []
 
@@ -287,7 +319,8 @@ def set_custom_gdbye(chat_id, goodbye_media, custom_goodbye, goodbye_type, butto
         SESSION.add(welcome_settings)
 
         with LEAVE_BTN_LOCK:
-            prev_buttons = SESSION.query(GoodbyeButtons).filter(GoodbyeButtons.chat_id == str(chat_id)).all()
+            prev_buttons = SESSION.query(GoodbyeButtons).filter(
+                GoodbyeButtons.chat_id == str(chat_id)).all()
             for btn in prev_buttons:
                 SESSION.delete(btn)
 
@@ -296,6 +329,7 @@ def set_custom_gdbye(chat_id, goodbye_media, custom_goodbye, goodbye_type, butto
                 SESSION.add(button)
 
         SESSION.commit()
+
 
 def get_custom_gdbye(chat_id):
     welcome_settings = SESSION.query(Welcome).get(str(chat_id))
@@ -306,19 +340,24 @@ def get_custom_gdbye(chat_id):
     SESSION.close()
     return ret
 
+
 def get_welc_buttons(chat_id):
     try:
-        return SESSION.query(WelcomeButtons).filter(WelcomeButtons.chat_id == str(chat_id)).order_by(
-            WelcomeButtons.id).all()
+        return SESSION.query(WelcomeButtons).filter(
+            WelcomeButtons.chat_id == str(chat_id)).order_by(
+                WelcomeButtons.id).all()
     finally:
         SESSION.close()
 
+
 def get_gdbye_buttons(chat_id):
     try:
-        return SESSION.query(GoodbyeButtons).filter(GoodbyeButtons.chat_id == str(chat_id)).order_by(
-            GoodbyeButtons.id).all()
+        return SESSION.query(GoodbyeButtons).filter(
+            GoodbyeButtons.chat_id == str(chat_id)).order_by(
+                GoodbyeButtons.id).all()
     finally:
         SESSION.close()
+
 
 def get_cas_status(chat_id):
     try:
@@ -328,6 +367,7 @@ def get_cas_status(chat_id):
         return True
     finally:
         SESSION.close()
+
 
 def set_cas_status(chat_id, status):
     with CAS_LOCK:
@@ -340,6 +380,7 @@ def set_cas_status(chat_id, status):
         SESSION.add(newObj)
         SESSION.commit()
 
+
 def get_cas_autoban(chat_id):
     try:
         resultObj = SESSION.query(CombotCASStatus).get(str(chat_id))
@@ -348,7 +389,8 @@ def get_cas_autoban(chat_id):
         return False
     finally:
         SESSION.close()
-        
+
+
 def set_cas_autoban(chat_id, autoban):
     with CAS_LOCK:
         status = True
@@ -360,6 +402,7 @@ def set_cas_autoban(chat_id, autoban):
         SESSION.add(newObj)
         SESSION.commit()
 
+
 def migrate_chat(old_chat_id, new_chat_id):
     with INSERTION_LOCK:
         chat = SESSION.query(Welcome).get(str(old_chat_id))
@@ -367,23 +410,28 @@ def migrate_chat(old_chat_id, new_chat_id):
             chat.chat_id = str(new_chat_id)
 
         with WELC_BTN_LOCK:
-            chat_buttons = SESSION.query(WelcomeButtons).filter(WelcomeButtons.chat_id == str(old_chat_id)).all()
+            chat_buttons = SESSION.query(WelcomeButtons).filter(
+                WelcomeButtons.chat_id == str(old_chat_id)).all()
             for btn in chat_buttons:
                 btn.chat_id = str(new_chat_id)
 
         with LEAVE_BTN_LOCK:
-            chat_buttons = SESSION.query(GoodbyeButtons).filter(GoodbyeButtons.chat_id == str(old_chat_id)).all()
+            chat_buttons = SESSION.query(GoodbyeButtons).filter(
+                GoodbyeButtons.chat_id == str(old_chat_id)).all()
             for btn in chat_buttons:
                 btn.chat_id = str(new_chat_id)
 
         SESSION.commit()
 
-def __load_blacklisted_chats_list(): #load shit to memory to be faster, and reduce disk access 
+
+def __load_blacklisted_chats_list(
+):  #load shit to memory to be faster, and reduce disk access
     global BLACKLIST
     try:
         BLACKLIST = {x.chat_id for x in SESSION.query(BannedChat).all()}
     finally:
         SESSION.close()
+
 
 def blacklistChat(chat_id):
     with BANCHATLOCK:
@@ -393,7 +441,8 @@ def blacklistChat(chat_id):
             SESSION.merge(chat)
         SESSION.commit()
         __load_blacklisted_chats_list()
-    
+
+
 def unblacklistChat(chat_id):
     with BANCHATLOCK:
         chat = SESSION.query(BannedChat).get(chat_id)
@@ -402,17 +451,20 @@ def unblacklistChat(chat_id):
         SESSION.commit()
         __load_blacklisted_chats_list()
 
+
 def isBanned(chat_id):
     return chat_id in BLACKLIST
+
 
 def getDefenseStatus(chat_id):
     try:
         resultObj = SESSION.query(DefenseMode).get(str(chat_id))
         if resultObj:
             return resultObj.status
-        return False #default
+        return False  #default
     finally:
         SESSION.close()
+
 
 def setDefenseStatus(chat_id, status):
     with DEFENSE_LOCK:
@@ -423,14 +475,16 @@ def setDefenseStatus(chat_id, status):
         SESSION.add(newObj)
         SESSION.commit()
 
+
 def getKickTime(chat_id):
     try:
         resultObj = SESSION.query(AutoKickSafeMode).get(str(chat_id))
         if resultObj:
             return resultObj.timeK
-        return 90 #90 seconds
+        return 90  #90 seconds
     finally:
         SESSION.close()
+
 
 def setKickTime(chat_id, value):
     with AUTOKICK_LOCK:

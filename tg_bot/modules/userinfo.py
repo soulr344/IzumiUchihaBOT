@@ -26,13 +26,16 @@ def about_me(update: Update, context: CallbackContext):
     info = sql.get_user_me_info(user.id)
 
     if info:
-        update.effective_message.reply_text("*{}*:\n{}".format(user.first_name, escape_markdown(info)),
+        update.effective_message.reply_text("*{}*:\n{}".format(
+            user.first_name, escape_markdown(info)),
                                             parse_mode=ParseMode.MARKDOWN)
     elif message.reply_to_message:
         username = message.reply_to_message.from_user.first_name
-        update.effective_message.reply_text(username + " hasn't set an info message about themselves  yet!")
+        update.effective_message.reply_text(
+            username + " hasn't set an info message about themselves  yet!")
     else:
-        update.effective_message.reply_text("You haven't set an info message about yourself yet!")
+        update.effective_message.reply_text(
+            "You haven't set an info message about yourself yet!")
 
 
 def set_about_me(update: Update, context: CallbackContext):
@@ -40,14 +43,17 @@ def set_about_me(update: Update, context: CallbackContext):
     message = update.effective_message  # type: Optional[Message]
     user_id = message.from_user.id
     text = message.text
-    info = text.split(None, 1)  # use python's maxsplit to only remove the cmd, hence keeping newlines.
+    info = text.split(
+        None, 1
+    )  # use python's maxsplit to only remove the cmd, hence keeping newlines.
     if len(info) == 2:
         if len(info[1]) < MAX_MESSAGE_LENGTH // 4:
             sql.set_user_me_info(user_id, info[1])
             message.reply_text("Updated your info!")
         else:
             message.reply_text(
-                "Your info needs to be under {} characters! You have {}.".format(MAX_MESSAGE_LENGTH // 4, len(info[1])))
+                "Your info needs to be under {} characters! You have {}.".
+                format(MAX_MESSAGE_LENGTH // 4, len(info[1])))
 
 
 def about_bio(update: Update, context: CallbackContext):
@@ -64,13 +70,17 @@ def about_bio(update: Update, context: CallbackContext):
     info = sql.get_user_bio(user.id)
 
     if info:
-        update.effective_message.reply_text("*{}*:\n{}".format(user.first_name, escape_markdown(info)),
+        update.effective_message.reply_text("*{}*:\n{}".format(
+            user.first_name, escape_markdown(info)),
                                             parse_mode=ParseMode.MARKDOWN)
     elif message.reply_to_message:
         username = user.first_name
-        update.effective_message.reply_text("{} hasn't had a message set about themselves yet!".format(username))
+        update.effective_message.reply_text(
+            "{} hasn't had a message set about themselves yet!".format(
+                username))
     else:
-        update.effective_message.reply_text("You haven't had a bio set about yourself yet!")
+        update.effective_message.reply_text(
+            "You haven't had a bio set about yourself yet!")
 
 
 def set_about_bio(update: Update, context: CallbackContext):
@@ -81,22 +91,28 @@ def set_about_bio(update: Update, context: CallbackContext):
         repl_message = message.reply_to_message
         user_id = repl_message.from_user.id
         if user_id == message.from_user.id:
-            message.reply_text("Ha, you can't set your own bio! You're at the mercy of others here...")
+            message.reply_text(
+                "Ha, you can't set your own bio! You're at the mercy of others here..."
+            )
             return
         elif user_id == bot.id and sender.id not in SUDO_USERS:
-            message.reply_text("Erm... yeah, I only trust sudo users to set my bio.")
+            message.reply_text(
+                "Erm... yeah, I only trust sudo users to set my bio.")
             return
 
         text = message.text
-        bio = text.split(None, 1)  # use python's maxsplit to only remove the cmd, hence keeping newlines.
+        bio = text.split(
+            None, 1
+        )  # use python's maxsplit to only remove the cmd, hence keeping newlines.
         if len(bio) == 2:
             if len(bio[1]) < MAX_MESSAGE_LENGTH // 4:
                 sql.set_user_bio(user_id, bio[1])
-                message.reply_text("Updated {}'s bio!".format(repl_message.from_user.first_name))
+                message.reply_text("Updated {}'s bio!".format(
+                    repl_message.from_user.first_name))
             else:
                 message.reply_text(
-                    "A bio needs to be under {} characters! You tried to set {}.".format(
-                        MAX_MESSAGE_LENGTH // 4, len(bio[1])))
+                    "A bio needs to be under {} characters! You tried to set {}."
+                    .format(MAX_MESSAGE_LENGTH // 4, len(bio[1])))
     else:
         message.reply_text("Reply to someone's message to set their bio!")
 
@@ -105,11 +121,12 @@ def __user_info__(user_id):
     bio = html.escape(sql.get_user_bio(user_id) or "")
     me = html.escape(sql.get_user_me_info(user_id) or "")
     if bio and me:
-        return "<b>About user:</b>\n{me}\n<b>What others say:</b>\n{bio}".format(me=me, bio=bio)
+        return "<b>About user:</b>\n{me}\n<b>What others say:</b>\n{bio}".format(
+            me=me, bio=bio)
     elif bio:
         return "<b>What others say:</b>\n{bio}\n".format(me=me, bio=bio)
     elif me:
-        return "<b>About user:</b>\n{me}""".format(me=me, bio=bio)
+        return "<b>About user:</b>\n{me}" "".format(me=me, bio=bio)
     else:
         return ""
 
@@ -141,10 +158,14 @@ Reply to user's message: `/setbio He is such cool person`.
 
 __mod_name__ = "Bios and Abouts"
 
-SET_BIO_HANDLER = DisableAbleCommandHandler("setbio", set_about_bio, run_async=True)
+SET_BIO_HANDLER = DisableAbleCommandHandler("setbio",
+                                            set_about_bio,
+                                            run_async=True)
 GET_BIO_HANDLER = DisableAbleCommandHandler("bio", about_bio, run_async=True)
 
-SET_ABOUT_HANDLER = DisableAbleCommandHandler("setme", set_about_me, run_async=True)
+SET_ABOUT_HANDLER = DisableAbleCommandHandler("setme",
+                                              set_about_me,
+                                              run_async=True)
 GET_ABOUT_HANDLER = DisableAbleCommandHandler("me", about_me, run_async=True)
 
 dispatcher.add_handler(SET_BIO_HANDLER)

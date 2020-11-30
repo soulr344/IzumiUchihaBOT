@@ -13,10 +13,12 @@ def stickerid(update: Update, context: CallbackContext):
     bot = context.bot
     msg = update.effective_message
     if msg.reply_to_message and msg.reply_to_message.sticker:
-        update.effective_message.reply_text("Sticker ID:\n```" + 
-                                            msg.reply_to_message.sticker.file_id + "```", parse_mode=ParseMode.MARKDOWN)
+        update.effective_message.reply_text(
+            "Sticker ID:\n```" + msg.reply_to_message.sticker.file_id + "```",
+            parse_mode=ParseMode.MARKDOWN)
     else:
-        update.effective_message.reply_text("Please reply to a sticker to get its ID.")
+        update.effective_message.reply_text(
+            "Please reply to a sticker to get its ID.")
 
 
 def getsticker(update: Update, context: CallbackContext):
@@ -29,9 +31,11 @@ def getsticker(update: Update, context: CallbackContext):
         newFile.download('sticker.png')
         bot.sendDocument(chat_id, document=open('sticker.png', 'rb'))
         os.remove("sticker.png")
-        
+
     else:
-        update.effective_message.reply_text("Please reply to a sticker for me to upload its PNG.")
+        update.effective_message.reply_text(
+            "Please reply to a sticker for me to upload its PNG.")
+
 
 __help__ = """
 Fetching ID of stickers is made easy! With this stickers command you simply can \
@@ -42,8 +46,14 @@ fetch ID of sticker.
 
 __mod_name__ = "Stickers"
 
-STICKERID_HANDLER = DisableAbleCommandHandler("stickerid", stickerid, run_async=True)
-GETSTICKER_HANDLER = DisableAbleCommandHandler("getsticker", getsticker, filters=CustomFilters.sudo_filter, run_async=True)
+STICKERID_HANDLER = DisableAbleCommandHandler("stickerid",
+                                              stickerid,
+                                              run_async=True)
+GETSTICKER_HANDLER = DisableAbleCommandHandler(
+    "getsticker",
+    getsticker,
+    filters=CustomFilters.sudo_filter,
+    run_async=True)
 
 dispatcher.add_handler(STICKERID_HANDLER)
 dispatcher.add_handler(GETSTICKER_HANDLER)

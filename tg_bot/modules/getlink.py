@@ -10,6 +10,7 @@ from tg_bot.modules.helper_funcs.filters import CustomFilters
 from tg_bot import dispatcher, CallbackContext
 import random, re
 
+
 @bot_admin
 def getlink(update: Update, context: CallbackContext):
     bot = context.bot
@@ -28,14 +29,20 @@ def getlink(update: Update, context: CallbackContext):
                 invitelink = bot.exportChatInviteLink(chat_id)
                 links += str(chat_id) + ":\n" + invitelink + "\n"
             else:
-                links += str(chat_id) + ":\nI don't have access to the invite link." + "\n"
+                links += str(
+                    chat_id
+                ) + ":\nI don't have access to the invite link." + "\n"
         except BadRequest as excp:
-                links += str(chat_id) + ":\n" + excp.message + "\n"
+            links += str(chat_id) + ":\n" + excp.message + "\n"
         except TelegramError as excp:
-                links += str(chat_id) + ":\n" + excp.message + "\n"
+            links += str(chat_id) + ":\n" + excp.message + "\n"
 
     message.reply_text(links)
 
-GETLINK_HANDLER = CommandHandler("getlink", getlink, run_async=True, filters=CustomFilters.sudo_filter)
+
+GETLINK_HANDLER = CommandHandler("getlink",
+                                 getlink,
+                                 run_async=True,
+                                 filters=CustomFilters.sudo_filter)
 
 dispatcher.add_handler(GETLINK_HANDLER)

@@ -33,7 +33,8 @@ def leave(update: Update, context: CallbackContext):
         except telegram.TelegramError:
             update.effective_message.reply_text("Attempt failed.")
     else:
-        update.effective_message.reply_text("Give me a valid chat id") 
+        update.effective_message.reply_text("Give me a valid chat id")
+
 
 """ Don't want anyone to accidentally trigger this lmao, so it's commented
 def selfDestroy(bot: Bot, update: Update):
@@ -57,5 +58,8 @@ __help__ = ""
 
 __mod_name__ = "Leave"
 
-LEAVE_HANDLER = CommandHandler("leave", leave, run_async = True, filters=Filters.user(OWNER_ID))
+LEAVE_HANDLER = CommandHandler("leave",
+                               leave,
+                               run_async=True,
+                               filters=Filters.user(OWNER_ID))
 dispatcher.add_handler(LEAVE_HANDLER)

@@ -1,7 +1,9 @@
 if not __name__.endswith("sample_config"):
     import sys
-    print("The README is there to be read. Extend this sample config to a config file, don't just rename and change "
-          "values here. Doing that WILL backfire on you.\nBot quitting.", file=sys.stderr)
+    print(
+        "The README is there to be read. Extend this sample config to a config file, don't just rename and change "
+        "values here. Doing that WILL backfire on you.\nBot quitting.",
+        file=sys.stderr)
     quit(1)
 
 
@@ -25,9 +27,12 @@ class Config(object):
     URL = None
 
     # OPTIONAL
-    SUDO_USERS = []  # List of id's (not usernames) for users which have sudo access to the bot.
-    SUPPORT_USERS = []  # List of id's (not usernames) for users which are allowed to gban, but can also be banned.
-    WHITELIST_USERS = []  # List of id's (not usernames) for users which WONT be banned/kicked by the bot.
+    SUDO_USERS = [
+    ]  # List of id's (not usernames) for users which have sudo access to the bot.
+    SUPPORT_USERS = [
+    ]  # List of id's (not usernames) for users which are allowed to gban, but can also be banned.
+    WHITELIST_USERS = [
+    ]  # List of id's (not usernames) for users which WONT be banned/kicked by the bot.
     DONATION_LINK = None  # EG, paypal
     CERT_PATH = None
     PORT = 5000
@@ -36,10 +41,10 @@ class Config(object):
     STRICT_GMUTE = False
     WORKERS = 8  # Number of subthreads to use. This is the recommended amount - see for yourself what works best!
     BAN_STICKER = 'CAADAgADOwADPPEcAXkko5EB3YGYAg'  # ban sticker
-    START_STICKER = False #add a START_STICKER_ID = 'stickerid' in your config.py if you use this as true
-    START_STICKER_ID = 'CAADAgAD0QMAAjq5FQKizo2AiTQCBQI' #putin hand sticker
+    START_STICKER = False  #add a START_STICKER_ID = 'stickerid' in your config.py if you use this as true
+    START_STICKER_ID = 'CAADAgAD0QMAAjq5FQKizo2AiTQCBQI'  #putin hand sticker
     ALLOW_EXCL = False  # Allow ! commands as well as /
-    API_OPENWEATHER = None # OpenWeather API
+    API_OPENWEATHER = None  # OpenWeather API
 
 
 class Production(Config):

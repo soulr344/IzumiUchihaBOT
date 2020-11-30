@@ -13,55 +13,75 @@ from tg_bot.modules.github import getphh
 GITHUB = 'https://github.com'
 DEVICES_DATA = 'https://raw.githubusercontent.com/androidtrackers/certified-android-devices/master/by_device.json'
 
+
 def phh(update: Update, context: CallbackContext):
     bot = context.bot
     args = context.args
     index = int(args[0]) if len(args) > 0 and args[0].isdigit() else 0
     text = getphh(index)
-    update.effective_message.reply_text(text, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
+    update.effective_message.reply_text(text,
+                                        parse_mode=ParseMode.HTML,
+                                        disable_web_page_preview=True)
     return
+
 
 def magisk(update: Update, context: CallbackContext):
     bot = context.bot
     url = 'https://raw.githubusercontent.com/topjohnwu/magisk_files/'
     releases = ""
-    for type, branch in {"Stable":["master/stable","master"], "Beta":["master/beta","master"], "Canary":["canary/canary","canary"]}.items():
+    for type, branch in {
+            "Stable": ["master/stable", "master"],
+            "Beta": ["master/beta", "master"],
+            "Canary": ["canary/canary", "canary"]
+    }.items():
         data = get(url + branch[0] + '.json').json()
         if str(type) == "Canary":
-            data["magisk"]["link"] = "https://github.com/topjohnwu/magisk_files/raw/canary/" + data["magisk"]["link"]
-            data["app"]["link"] = "https://github.com/topjohnwu/magisk_files/raw/canary/" + data["app"]["link"]
-            data["uninstaller"]["link"] = "https://github.com/topjohnwu/magisk_files/raw/canary/" + data["uninstaller"]["link"]
+            data["magisk"][
+                "link"] = "https://github.com/topjohnwu/magisk_files/raw/canary/" + data[
+                    "magisk"]["link"]
+            data["app"][
+                "link"] = "https://github.com/topjohnwu/magisk_files/raw/canary/" + data[
+                    "app"]["link"]
+            data["uninstaller"][
+                "link"] = "https://github.com/topjohnwu/magisk_files/raw/canary/" + data[
+                    "uninstaller"]["link"]
         releases += f'*{type}*: \n' \
                     f'• [Changelog](https://github.com/topjohnwu/magisk_files/blob/{branch[1]}/notes.md)\n' \
                     f'• Zip - [{data["magisk"]["version"]}-{data["magisk"]["versionCode"]}]({data["magisk"]["link"]}) \n' \
                     f'• App - [{data["app"]["version"]}-{data["app"]["versionCode"]}]({data["app"]["link"]}) \n' \
                     f'• Uninstaller - [{data["magisk"]["version"]}-{data["magisk"]["versionCode"]}]({data["uninstaller"]["link"]})\n\n'
-                        
 
-    del_msg = update.message.reply_text("*Latest Magisk Releases:*\n{}".format(releases),
-                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    del_msg = update.message.reply_text(
+        "*Latest Magisk Releases:*\n{}".format(releases),
+        parse_mode=ParseMode.MARKDOWN,
+        disable_web_page_preview=True)
     time.sleep(300)
     try:
         del_msg.delete()
         update.effective_message.delete()
     except BadRequest as err:
-        if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
+        if (err.message == "Message to delete not found") or (
+                err.message == "Message can't be deleted"):
             return
+
 
 def device(update: Update, context: CallbackContext):
     bot = context.bot
     args = context.args
     if len(args) == 0:
         reply = f'No codename provided, write a codename for fetching informations.'
-        del_msg = update.effective_message.reply_text("{}".format(reply),
-                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        del_msg = update.effective_message.reply_text(
+            "{}".format(reply),
+            parse_mode=ParseMode.MARKDOWN,
+            disable_web_page_preview=True)
         time.sleep(5)
         try:
             del_msg.delete()
             update.effective_message.delete()
             return
         except BadRequest as err:
-            if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
+            if (err.message == "Message to delete not found") or (
+                    err.message == "Message can't be deleted"):
                 return
     device = " ".join(args)
     db = get(DEVICES_DATA).json()
@@ -74,57 +94,72 @@ def device(update: Update, context: CallbackContext):
         codename = newdevice
         reply += f'<b>{brand} {name}</b>\n' \
             f'Model: <code>{model}</code>\n' \
-            f'Codename: <code>{codename}</code>\n\n'  
+            f'Codename: <code>{codename}</code>\n\n'
     except KeyError as err:
         reply = f"Couldn't find info about {device}!\n"
-        del_msg = update.effective_message.reply_text("{}".format(reply),
-                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        del_msg = update.effective_message.reply_text(
+            "{}".format(reply),
+            parse_mode=ParseMode.MARKDOWN,
+            disable_web_page_preview=True)
         time.sleep(5)
         try:
             del_msg.delete()
             update.effective_message.delete()
         except BadRequest as err:
-            if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
+            if (err.message == "Message to delete not found") or (
+                    err.message == "Message can't be deleted"):
                 return
     update.message.reply_text("{}".format(reply),
-                               parse_mode=ParseMode.HTML, disable_web_page_preview=True)
+                              parse_mode=ParseMode.HTML,
+                              disable_web_page_preview=True)
+
 
 def checkfw(update: Update, context: CallbackContext):
     bot = context.bot
     args = context.args
     if not len(args) == 2:
         reply = f'Give me something to fetch, like:\n`/checkfw SM-N975F DBT`'
-        del_msg = update.effective_message.reply_text("{}".format(reply),
-                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        del_msg = update.effective_message.reply_text(
+            "{}".format(reply),
+            parse_mode=ParseMode.MARKDOWN,
+            disable_web_page_preview=True)
         time.sleep(5)
         try:
             del_msg.delete()
             update.effective_message.delete()
             return
         except BadRequest as err:
-            if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
+            if (err.message == "Message to delete not found") or (
+                    err.message == "Message can't be deleted"):
                 return
-    temp,csc = args
-    model = f'sm-'+temp if not temp.upper().startswith('SM-') else temp
-    fota = get(f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.xml')
-    test = get(f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.test.xml')
+    temp, csc = args
+    model = f'sm-' + temp if not temp.upper().startswith('SM-') else temp
+    fota = get(
+        f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.xml'
+    )
+    test = get(
+        f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.test.xml'
+    )
     if test.status_code != 200:
         reply = f"Couldn't check for {temp.upper()} and {csc.upper()}, please refine your search or try again later!"
-        del_msg = update.effective_message.reply_text("{}".format(reply),
-                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        del_msg = update.effective_message.reply_text(
+            "{}".format(reply),
+            parse_mode=ParseMode.MARKDOWN,
+            disable_web_page_preview=True)
         time.sleep(5)
         try:
             del_msg.delete()
             update.effective_message.delete()
         except BadRequest as err:
-            if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
+            if (err.message == "Message to delete not found") or (
+                    err.message == "Message can't be deleted"):
                 return
     page1 = BeautifulSoup(fota.content, 'lxml')
     page2 = BeautifulSoup(test.content, 'lxml')
     os1 = page1.find("latest").get("o")
     os2 = page2.find("latest").get("o")
     if page1.find("latest").text.strip():
-        pda1,csc1,phone1=page1.find("latest").text.strip().split('/')
+        pda1, csc1, phone1 = page1.find("latest").text.strip().split('/')
         reply = f'*Latest released firmware for {model.upper()} and {csc.upper()} is:*\n'
         reply += f'• PDA: `{pda1}`\n• CSC: `{csc1}`\n'
         if phone1:
@@ -136,7 +171,7 @@ def checkfw(update: Update, context: CallbackContext):
         reply = f'*No public release found for {model.upper()} and {csc.upper()}.*\n\n'
     reply += f'*Latest test firmware for {model.upper()} and {csc.upper()} is:*\n'
     if len(page2.find("latest").text.strip().split('/')) == 3:
-        pda2,csc2,phone2=page2.find("latest").text.strip().split('/')
+        pda2, csc2, phone2 = page2.find("latest").text.strip().split('/')
         reply += f'• PDA: `{pda2}`\n• CSC: `{csc2}`\n'
         if phone2:
             reply += f'• Phone: `{phone2}`\n'
@@ -144,51 +179,63 @@ def checkfw(update: Update, context: CallbackContext):
             reply += f'• Android: `{os2}`\n'
         reply += f'\n'
     else:
-        md5=page2.find("latest").text.strip()
+        md5 = page2.find("latest").text.strip()
         reply += f'• Hash: `{md5}`\n• Android: `{os2}`\n\n'
-    
+
     update.message.reply_text("{}".format(reply),
-                           parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+                              parse_mode=ParseMode.MARKDOWN,
+                              disable_web_page_preview=True)
+
 
 def getfw(update: Update, context: CallbackContext):
     bot = context.bot
     args = context.args
     if not len(args) == 2:
         reply = f'Give me something to fetch, like:\n`/getfw SM-N975F DBT`'
-        del_msg = update.effective_message.reply_text("{}".format(reply),
-                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        del_msg = update.effective_message.reply_text(
+            "{}".format(reply),
+            parse_mode=ParseMode.MARKDOWN,
+            disable_web_page_preview=True)
         time.sleep(5)
         try:
             del_msg.delete()
             update.effective_message.delete()
             return
         except BadRequest as err:
-            if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
+            if (err.message == "Message to delete not found") or (
+                    err.message == "Message can't be deleted"):
                 return
-    temp,csc = args
-    model = f'sm-'+temp if not temp.upper().startswith('SM-') else temp
-    test = get(f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.test.xml')
+    temp, csc = args
+    model = f'sm-' + temp if not temp.upper().startswith('SM-') else temp
+    test = get(
+        f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.test.xml'
+    )
     if test.status_code != 200:
         reply = f"Couldn't find any firmware downloads for {temp.upper()} and {csc.upper()}, please refine your search or try again later!"
-        del_msg = update.effective_message.reply_text("{}".format(reply),
-                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        del_msg = update.effective_message.reply_text(
+            "{}".format(reply),
+            parse_mode=ParseMode.MARKDOWN,
+            disable_web_page_preview=True)
         time.sleep(5)
         try:
             del_msg.delete()
             update.effective_message.delete()
         except BadRequest as err:
-            if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
+            if (err.message == "Message to delete not found") or (
+                    err.message == "Message can't be deleted"):
                 return
     url1 = f'https://samfrew.com/model/{model.upper()}/region/{csc.upper()}/'
     url2 = f'https://www.sammobile.com/samsung/firmware/{model.upper()}/{csc.upper()}/'
     url3 = f'https://sfirmware.com/samsung-{model.lower()}/#tab=firmwares'
     url4 = f'https://samfw.com/firmware/{model.upper()}/{csc.upper()}/'
-    fota = get(f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.xml')
+    fota = get(
+        f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.xml'
+    )
     page = BeautifulSoup(fota.content, 'lxml')
     os = page.find("latest").get("o")
     reply = ""
     if page.find("latest").text.strip():
-        pda,csc2,phone=page.find("latest").text.strip().split('/')
+        pda, csc2, phone = page.find("latest").text.strip().split('/')
         reply += f'*Latest firmware for {model.upper()} and {csc.upper()} is:*\n'
         reply += f'• PDA: `{pda}`\n• CSC: `{csc2}`\n'
         if phone:
@@ -202,41 +249,50 @@ def getfw(update: Update, context: CallbackContext):
     reply += f'• [sfirmware.com]({url3})\n'
     reply += f'• [samfw.com]({url4})\n'
     update.message.reply_text("{}".format(reply),
-                           parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+                              parse_mode=ParseMode.MARKDOWN,
+                              disable_web_page_preview=True)
+
 
 def twrp(update: Update, context: CallbackContext):
     bot = context.bot
     args = context.args
     if len(args) == 0:
-        reply='No codename provided, write a codename for fetching informations.'
-        del_msg = update.effective_message.reply_text("{}".format(reply),
-                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        reply = 'No codename provided, write a codename for fetching informations.'
+        del_msg = update.effective_message.reply_text(
+            "{}".format(reply),
+            parse_mode=ParseMode.MARKDOWN,
+            disable_web_page_preview=True)
         time.sleep(5)
         try:
             del_msg.delete()
             update.effective_message.delete()
             return
         except BadRequest as err:
-            if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
+            if (err.message == "Message to delete not found") or (
+                    err.message == "Message can't be deleted"):
                 return
 
     device = " ".join(args)
     url = get(f'https://eu.dl.twrp.me/{device}/')
     if url.status_code == 404:
         reply = f"Couldn't find twrp downloads for {device}!\n"
-        del_msg = update.effective_message.reply_text("{}".format(reply),
-                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        del_msg = update.effective_message.reply_text(
+            "{}".format(reply),
+            parse_mode=ParseMode.MARKDOWN,
+            disable_web_page_preview=True)
         time.sleep(5)
         try:
             del_msg.delete()
             update.effective_message.delete()
         except BadRequest as err:
-            if (err.message == "Message to delete not found" ) or (err.message == "Message can't be deleted" ):
+            if (err.message == "Message to delete not found") or (
+                    err.message == "Message can't be deleted"):
                 return
     else:
-        reply = f'*Latest Official TWRP for {device}*\n'            
+        reply = f'*Latest Official TWRP for {device}*\n'
         db = get(DEVICES_DATA).json()
-        newdevice = device.strip('lte') if device.startswith('beyond') else device
+        newdevice = device.strip('lte') if device.startswith(
+            'beyond') else device
         try:
             brand = db[newdevice][0]['brand']
             name = db[newdevice][0]['name']
@@ -256,7 +312,9 @@ def twrp(update: Update, context: CallbackContext):
             reply += f'[{dl_file}]({dl_link}) - {size}\n'
 
         update.message.reply_text("{}".format(reply),
-                               parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+                                  parse_mode=ParseMode.MARKDOWN,
+                                  disable_web_page_preview=True)
+
 
 __help__ = """
 *Android related commands:*

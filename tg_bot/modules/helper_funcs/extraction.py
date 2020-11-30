@@ -21,6 +21,7 @@ def id_from_reply(message):
 def extract_user(message: Message, args: List[str]) -> Optional[int]:
     return extract_user_and_text(message, args)[0]
 
+
 def extract_multiple_users(message: Message, args: List[str]):
     prev_message = message.reply_to_message
     split_text = message.text.split(None, 1)
@@ -38,7 +39,8 @@ def extract_multiple_users(message: Message, args: List[str]):
     return retList
 
 
-def extract_user_and_text(message: Message, args: List[str]) -> (Optional[int], Optional[str]):
+def extract_user_and_text(message: Message,
+                          args: List[str]) -> (Optional[int], Optional[str]):
     prev_message = message.reply_to_message
     split_text = message.text.split(None, 1)
 
@@ -56,7 +58,8 @@ def extract_user_and_text(message: Message, args: List[str]) -> (Optional[int], 
         ent = None
 
     # if entity offset matches (command end/text start) then all good
-    if entities and ent and ent.offset == len(message.text) - len(text_to_parse):
+    if entities and ent and ent.offset == len(
+            message.text) - len(text_to_parse):
         ent = entities[0]
         user_id = ent.user.id
         text = message.text[ent.offset + ent.length:]
@@ -65,8 +68,10 @@ def extract_user_and_text(message: Message, args: List[str]) -> (Optional[int], 
         user = args[0]
         user_id = get_user_id(user)
         if not user_id:
-            message.reply_text("I don't have that user in my db. You'll be able to interact with them if "
-                               "you reply to that person's message instead, or forward one of that user's messages.")
+            message.reply_text(
+                "I don't have that user in my db. You'll be able to interact with them if "
+                "you reply to that person's message instead, or forward one of that user's messages."
+            )
             return None, None
 
         else:
@@ -91,8 +96,9 @@ def extract_user_and_text(message: Message, args: List[str]) -> (Optional[int], 
         message.bot.get_chat(user_id)
     except BadRequest as excp:
         if excp.message in ("User_id_invalid", "Chat not found"):
-            message.reply_text("I don't seem to have interacted with this user before - please forward a message from "
-                               "them to give me control!")
+            message.reply_text(
+                "I don't seem to have interacted with this user before - please forward a message from "
+                "them to give me control!")
         else:
             LOGGER.exception("Exception %s on user %s", excp.message, user_id)
 
@@ -102,4 +108,5 @@ def extract_user_and_text(message: Message, args: List[str]) -> (Optional[int], 
 
 
 def extract_text(message) -> str:
-    return message.text or message.caption or (message.sticker.emoji if message.sticker else None)
+    return message.text or message.caption or (message.sticker.emoji
+                                               if message.sticker else None)

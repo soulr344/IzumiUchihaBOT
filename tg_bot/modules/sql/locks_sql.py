@@ -73,7 +73,6 @@ class Restrictions(BASE):
 Permissions.__table__.create(checkfirst=True)
 Restrictions.__table__.create(checkfirst=True)
 
-
 PERM_LOCK = threading.RLock()
 RESTR_LOCK = threading.RLock()
 
@@ -138,7 +137,7 @@ def update_lock(chat_id, lock_type, locked):
             curr_perm.emoji = locked
         elif lock_type == 'bigemoji':
             curr_perm.bigemoji = locked
-        
+
         SESSION.add(curr_perm)
         SESSION.commit()
 
@@ -205,6 +204,7 @@ def is_locked(chat_id, lock_type):
         return curr_perm.emoji
     elif lock_type == "bigemoji":
         return curr_perm.bigemoji
+
 
 def is_restr_locked(chat_id, lock_type):
     curr_restr = SESSION.query(Restrictions).get(str(chat_id))

@@ -17,9 +17,11 @@ class AntiArabicChatSettings(BASE):
     def __repr__(self):
         return "<Chat AntiArabic settings ({})>".format(self.chat_id)
 
+
 AntiArabicChatSettings.__table__.create(checkfirst=True)
 
 CHAT_LOCK = threading.RLock()
+
 
 def chat_antiarabic(chat_id: Union[str, int]) -> bool:
     try:

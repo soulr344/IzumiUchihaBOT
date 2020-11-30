@@ -292,24 +292,32 @@ EMOJI = (
 GMAPS_LOC = "https://maps.googleapis.com/maps/api/geocode/json"
 GMAPS_TIME = "https://maps.googleapis.com/maps/api/timezone/json"
 
-
 SMACK_STRING = """[smack my beach up!!](https://vimeo.com/31482159)"""
+
 
 def runs(update: Update, context: CallbackContext):
     bot = context.bot
     running = update.effective_message
     if running.reply_to_message:
-        update.effective_message.reply_to_message.reply_text(random.choice(RUN_STRINGS))
+        update.effective_message.reply_to_message.reply_text(
+            random.choice(RUN_STRINGS))
     else:
         update.effective_message.reply_text(random.choice(RUN_STRINGS))
+
 
 def smack(update: Update, context: CallbackContext):
     bot = context.bot
     msg = update.effective_message
     if msg.reply_to_message:
-        update.effective_message.reply_to_message.reply_text(SMACK_STRING, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        update.effective_message.reply_to_message.reply_text(
+            SMACK_STRING,
+            parse_mode=ParseMode.MARKDOWN,
+            disable_web_page_preview=True)
     else:
-        update.effective_message.reply_text(SMACK_STRING, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        update.effective_message.reply_text(SMACK_STRING,
+                                            parse_mode=ParseMode.MARKDOWN,
+                                            disable_web_page_preview=True)
+
 
 def slap(update: Update, context: CallbackContext):
     bot = context.bot
@@ -323,7 +331,8 @@ def slap(update: Update, context: CallbackContext):
     if msg.from_user.username:
         curr_user = "@" + escape_markdown(msg.from_user.username)
     else:
-        curr_user = "[{}](tg://user?id={})".format(msg.from_user.first_name, msg.from_user.id)
+        curr_user = "[{}](tg://user?id={})".format(msg.from_user.first_name,
+                                                   msg.from_user.id)
 
     user_id = extract_user(update.effective_message, args)
     if user_id == bot.id or user_id == 777000:
@@ -349,9 +358,15 @@ def slap(update: Update, context: CallbackContext):
     throw = random.choice(THROW)
     emoji = random.choice(EMOJI)
 
-    repl = temp.format(user1=user1, user2=user2, item=item, hits=hit, throws=throw, emoji=emoji)
+    repl = temp.format(user1=user1,
+                       user2=user2,
+                       item=item,
+                       hits=hit,
+                       throws=throw,
+                       emoji=emoji)
 
     reply_text(repl, parse_mode=ParseMode.MARKDOWN)
+
 
 def punch(update: Update, context: CallbackContext):
     bot = context.bot
@@ -365,7 +380,8 @@ def punch(update: Update, context: CallbackContext):
     if msg.from_user.username:
         curr_user = "@" + escape_markdown(msg.from_user.username)
     else:
-        curr_user = "[{}](tg://user?id={})".format(msg.from_user.first_name, msg.from_user.id)
+        curr_user = "[{}](tg://user?id={})".format(msg.from_user.first_name,
+                                                   msg.from_user.id)
 
     user_id = extract_user(update.effective_message, args)
     if user_id == bot.id or user_id == 777000:
@@ -388,9 +404,10 @@ def punch(update: Update, context: CallbackContext):
     temp = random.choice(PUNCH_TEMPLATES)
     punch = random.choice(PUNCH)
 
-    repl = temp.format(user1=user1, user2=user2, punches = punch)
+    repl = temp.format(user1=user1, user2=user2, punches=punch)
 
     reply_text(repl, parse_mode=ParseMode.MARKDOWN)
+
 
 def get_id(update: Update, context: CallbackContext):
     bot = context.bot
@@ -401,25 +418,27 @@ def get_id(update: Update, context: CallbackContext):
             user1 = update.effective_message.reply_to_message.from_user
             user2 = update.effective_message.reply_to_message.forward_from
             update.effective_message.reply_text(
-                "The original sender, {}, has an ID of `{}`.\nThe forwarder, {}, has an ID of `{}`.".format(
-                    escape_markdown(user2.first_name),
-                    user2.id,
-                    escape_markdown(user1.first_name),
-                    user1.id),
+                "The original sender, {}, has an ID of `{}`.\nThe forwarder, {}, has an ID of `{}`."
+                .format(escape_markdown(user2.first_name), user2.id,
+                        escape_markdown(user1.first_name), user1.id),
                 parse_mode=ParseMode.MARKDOWN)
         else:
             user = bot.get_chat(user_id)
-            update.effective_message.reply_text("{}'s id is `{}`.".format(escape_markdown(user.first_name), user.id),
+            update.effective_message.reply_text("{}'s id is `{}`.".format(
+                escape_markdown(user.first_name), user.id),
                                                 parse_mode=ParseMode.MARKDOWN)
     else:
         chat = update.effective_chat  # type: Optional[Chat]
         if chat.type == "private":
-            update.effective_message.reply_text("Your id is `{}`.".format(chat.id),
+            update.effective_message.reply_text("Your id is `{}`.".format(
+                chat.id),
                                                 parse_mode=ParseMode.MARKDOWN)
 
         else:
-            update.effective_message.reply_text("This group's id is `{}`.".format(chat.id),
-                                                parse_mode=ParseMode.MARKDOWN)
+            update.effective_message.reply_text(
+                "This group's id is `{}`.".format(chat.id),
+                parse_mode=ParseMode.MARKDOWN)
+
 
 def info(update: Update, context: CallbackContext):
     bot = context.bot
@@ -429,21 +448,27 @@ def info(update: Update, context: CallbackContext):
 
     if user_id and int(user_id) != 777000 and int(user_id) != 1087968824:
         user = bot.get_chat(user_id)
-    
+
     elif user_id and int(user_id) == 777000:
-        msg.reply_text("This is Telegram. Unless you manually entered this reserved account's ID, it is likely a old broadcast from a linked channel.")
+        msg.reply_text(
+            "This is Telegram. Unless you manually entered this reserved account's ID, it is likely a old broadcast from a linked channel."
+        )
         return
-        
+
     elif user_id and int(user_id) == 1087968824:
-        msg.reply_text("This is Group Anonymous Bot. Unless you manually entered this reserved account's ID, it is likely a broadcast from a linked channel or anonymously sent message.")
+        msg.reply_text(
+            "This is Group Anonymous Bot. Unless you manually entered this reserved account's ID, it is likely a broadcast from a linked channel or anonymously sent message."
+        )
         return
-      
+
     elif not msg.reply_to_message and not args:
         user = msg.from_user
 
-    elif not msg.reply_to_message and (not args or (
-            len(args) >= 1 and not args[0].startswith("@") and not args[0].isdigit() and not msg.parse_entities(
-        [MessageEntity.TEXT_MENTION]))):
+    elif not msg.reply_to_message and (
+            not args or
+        (len(args) >= 1 and not args[0].startswith("@")
+         and not args[0].isdigit()
+         and not msg.parse_entities([MessageEntity.TEXT_MENTION]))):
         msg.reply_text("I can't extract a user from this.")
         return
     else:
@@ -483,12 +508,14 @@ def info(update: Update, context: CallbackContext):
 
     update.effective_message.reply_text(text, parse_mode=ParseMode.HTML)
 
+
 def get_time(update: Update, context: CallbackContext):
     bot = context.bot
     args = context.args
     location = " ".join(args)
     if location.lower() == bot.first_name.lower():
-        update.effective_message.reply_text("Its always banhammer time for me!")
+        update.effective_message.reply_text(
+            "Its always banhammer time for me!")
         bot.send_sticker(update.effective_chat.id, BAN_STICKER)
         return
 
@@ -518,12 +545,18 @@ def get_time(update: Update, context: CallbackContext):
                 location = country
 
             timenow = int(datetime.utcnow().timestamp())
-            res = requests.get(GMAPS_TIME, params=dict(location="{},{}".format(lat, long), timestamp=timenow))
+            res = requests.get(GMAPS_TIME,
+                               params=dict(location="{},{}".format(lat, long),
+                                           timestamp=timenow))
             if res.status_code == 200:
                 offset = json.loads(res.text)['dstOffset']
                 timestamp = json.loads(res.text)['rawOffset']
-                time_there = datetime.fromtimestamp(timenow + timestamp + offset).strftime("%H:%M:%S on %A %d %B")
-                update.message.reply_text("It's {} in {}".format(time_there, location))
+                time_there = datetime.fromtimestamp(timenow + timestamp +
+                                                    offset).strftime(
+                                                        "%H:%M:%S on %A %d %B")
+                update.message.reply_text("It's {} in {}".format(
+                    time_there, location))
+
 
 def echo(update: Update, context: CallbackContext):
     bot = context.bot
@@ -534,7 +567,8 @@ def echo(update: Update, context: CallbackContext):
     else:
         message.reply_text(args[1], quote=False)
     message.delete()
-         
+
+
 def gdpr(update: Update, context: CallbackContext):
     bot = context.bot
     args = context.args
@@ -542,35 +576,41 @@ def gdpr(update: Update, context: CallbackContext):
         update.effective_message.reply_text("Deleting identifiable data...")
         for mod in GDPR:
             mod.__gdpr__(update.effective_user.id)
-        update.effective_message.reply_text("Your personal data has been deleted.\n\nNote that this will not unban "
-                                            "you from any chats, as that is telegram data, not this bot's data. "
-                                            "Flooding, warns, and gbans are also preserved, as of "
-                                            "[this](https://ico.org.uk/for-organisations/guide-to-the-general-data-protection-regulation-gdpr/individual-rights/right-to-erasure/), "
-                                            "which clearly states that the right to erasure does not apply "
-                                            "\"for the performance of a task carried out in the public interest\", as is "
-                                            "the case for the aforementioned pieces of data.",
-                                            parse_mode=ParseMode.MARKDOWN)
+        update.effective_message.reply_text(
+            "Your personal data has been deleted.\n\nNote that this will not unban "
+            "you from any chats, as that is telegram data, not this bot's data. "
+            "Flooding, warns, and gbans are also preserved, as of "
+            "[this](https://ico.org.uk/for-organisations/guide-to-the-general-data-protection-regulation-gdpr/individual-rights/right-to-erasure/), "
+            "which clearly states that the right to erasure does not apply "
+            "\"for the performance of a task carried out in the public interest\", as is "
+            "the case for the aforementioned pieces of data.",
+            parse_mode=ParseMode.MARKDOWN)
     else:
         if len(args) == 0:
-            update.effective_message.reply_text("Deleting identifiable data...")
+            update.effective_message.reply_text(
+                "Deleting identifiable data...")
             for mod in GDPR:
-                 mod.__gdpr__(update.effective_user.id)
-            update.effective_message.reply_text("Your personal data has been deleted.\n\nNote that this will not unban "
-                                            "you from any chats, as that is telegram data, not this bot's data. "
-                                            "Flooding, warns, and gbans are also preserved, as of "
-                                            "[this](https://ico.org.uk/for-organisations/guide-to-the-general-data-protection-regulation-gdpr/individual-rights/right-to-erasure/), "
-                                            "which clearly states that the right to erasure does not apply "
-                                            "\"for the performance of a task carried out in the public interest\", as is "
-                                            "the case for the aforementioned pieces of data.",
-                                            parse_mode=ParseMode.MARKDOWN)
+                mod.__gdpr__(update.effective_user.id)
+            update.effective_message.reply_text(
+                "Your personal data has been deleted.\n\nNote that this will not unban "
+                "you from any chats, as that is telegram data, not this bot's data. "
+                "Flooding, warns, and gbans are also preserved, as of "
+                "[this](https://ico.org.uk/for-organisations/guide-to-the-general-data-protection-regulation-gdpr/individual-rights/right-to-erasure/), "
+                "which clearly states that the right to erasure does not apply "
+                "\"for the performance of a task carried out in the public interest\", as is "
+                "the case for the aforementioned pieces of data.",
+                parse_mode=ParseMode.MARKDOWN)
         else:
             user_id = extract_user(update.effective_message, args)
             try:
                 for mod in GDPR:
                     mod.__gdpr__(user_id)
-                update.effective_message.reply_text("User data has been deleted", parse_mode = ParseMode.MARKDOWN)
+                update.effective_message.reply_text(
+                    "User data has been deleted",
+                    parse_mode=ParseMode.MARKDOWN)
             except:
-                update.effective_message.reply_text("User is not in my DB!", parse_mode = ParseMode.MARKDOWN)
+                update.effective_message.reply_text(
+                    "User is not in my DB!", parse_mode=ParseMode.MARKDOWN)
 
 
 MARKDOWN_HELP = """
@@ -596,18 +636,21 @@ Keep in mind that your message <b>MUST</b> contain some text other than just a b
 
 def markdown_help(update: Update, context: CallbackContext):
     bot = context.bot
-    update.effective_message.reply_text(MARKDOWN_HELP, parse_mode=ParseMode.HTML)
-    update.effective_message.reply_text("Try forwarding the following message to me, and you'll see!")
-    update.effective_message.reply_text("/save test This is a markdown test. _italics_, *bold*, `code`, "
-                                        "[URL](example.com) [button](buttonurl:github.com) "
-                                        "[button2](buttonurl://google.com:same)")
+    update.effective_message.reply_text(MARKDOWN_HELP,
+                                        parse_mode=ParseMode.HTML)
+    update.effective_message.reply_text(
+        "Try forwarding the following message to me, and you'll see!")
+    update.effective_message.reply_text(
+        "/save test This is a markdown test. _italics_, *bold*, `code`, "
+        "[URL](example.com) [button](buttonurl:github.com) "
+        "[button2](buttonurl://google.com:same)")
 
 
 def stats(update: Update, context: CallbackContext):
     bot = context.bot
-    update.effective_message.reply_text("*Current stats:*\n" + "\n".join([mod.__stats__() for mod in STATS]),
-                                                parse_mode=ParseMode.MARKDOWN)
-
+    update.effective_message.reply_text(
+        "*Current stats:*\n" + "\n".join([mod.__stats__() for mod in STATS]),
+        parse_mode=ParseMode.MARKDOWN)
 
 
 def gps(update: Update, context: CallbackContext):
@@ -615,20 +658,24 @@ def gps(update: Update, context: CallbackContext):
     args = context.args
     message = update.effective_message
     if len(args) == 0:
-        update.effective_message.reply_text("That was a funny joke, but no really, put in a location")
+        update.effective_message.reply_text(
+            "That was a funny joke, but no really, put in a location")
     try:
         geolocator = Nominatim(user_agent="hades")
         location = " ".join(args)
-        geoloc = geolocator.geocode(location)  
+        geoloc = geolocator.geocode(location)
         chat_id = update.effective_chat.id
         lon = geoloc.longitude
         lat = geoloc.latitude
-        the_loc = Location(lon, lat) 
-        gm = "https://www.google.com/maps/search/{},{}".format(lat,lon)
+        the_loc = Location(lon, lat)
+        gm = "https://www.google.com/maps/search/{},{}".format(lat, lon)
         bot.send_location(chat_id, location=the_loc)
-        update.message.reply_text("Open with: [Google Maps]({})".format(gm), parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        update.message.reply_text("Open with: [Google Maps]({})".format(gm),
+                                  parse_mode=ParseMode.MARKDOWN,
+                                  disable_web_page_preview=True)
     except AttributeError:
         update.message.reply_text("I can't find that")
+
 
 # /ip is for private use
 __help__ = """
@@ -654,11 +701,23 @@ SLAP_HANDLER = DisableAbleCommandHandler("slap", slap, run_async=True)
 PUNCH_HANDLER = DisableAbleCommandHandler("punch", punch, run_async=True)
 SPANK_HANDLER = DisableAbleCommandHandler("spank", slap, run_async=True)
 INFO_HANDLER = DisableAbleCommandHandler("info", info, run_async=True)
-ECHO_HANDLER = CommandHandler("echo", echo, filters=Filters.user(OWNER_ID), run_async=True)
-MD_HELP_HANDLER = CommandHandler("markdownhelp", markdown_help, filters=Filters.private, run_async=True)
+ECHO_HANDLER = CommandHandler("echo",
+                              echo,
+                              filters=Filters.user(OWNER_ID),
+                              run_async=True)
+MD_HELP_HANDLER = CommandHandler("markdownhelp",
+                                 markdown_help,
+                                 filters=Filters.private,
+                                 run_async=True)
 
-STATS_HANDLER = CommandHandler("stats", stats, filters=CustomFilters.sudo_filter, run_async=True)
-GDPR_HANDLER = CommandHandler("gdpr", gdpr, filters=Filters.private, run_async=True)
+STATS_HANDLER = CommandHandler("stats",
+                               stats,
+                               filters=CustomFilters.sudo_filter,
+                               run_async=True)
+GDPR_HANDLER = CommandHandler("gdpr",
+                              gdpr,
+                              filters=Filters.private,
+                              run_async=True)
 GPS_HANDLER = DisableAbleCommandHandler("gps", gps, run_async=True)
 
 dispatcher.add_handler(ID_HANDLER)

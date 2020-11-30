@@ -34,13 +34,16 @@ def list_handlers(update: Update, context: CallbackContext):
     for keyword in all_handlers:
         entry = " • `{}`\n".format((keyword))
         if len(entry) + len(filter_list) > telegram.MAX_MESSAGE_LENGTH:
-            update.effective_message.reply_text(filter_list, parse_mode=telegram.ParseMode.MARKDOWN)
+            update.effective_message.reply_text(
+                filter_list, parse_mode=telegram.ParseMode.MARKDOWN)
             filter_list = entry
         else:
             filter_list += entry
 
     if not filter_list == BASIC_FILTER_STRING:
-        update.effective_message.reply_text(filter_list.format(chat_name), parse_mode=telegram.ParseMode.MARKDOWN)
+        update.effective_message.reply_text(
+            filter_list.format(chat_name),
+            parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 # NOT ASYNC BECAUSE DISPATCHER HANDLER RAISED
@@ -49,7 +52,9 @@ def filters(update: Update, context: CallbackContext):
     bot = context.bot
     chat = update.effective_chat  # type: Optional[Chat]
     msg = update.effective_message  # type: Optional[Message]
-    args = msg.text.split(None, 1)  # use python's maxsplit to separate Cmd, keyword, and reply_text
+    args = msg.text.split(
+        None,
+        1)  # use python's maxsplit to separate Cmd, keyword, and reply_text
 
     if len(args) < 2:
         return
@@ -70,11 +75,15 @@ def filters(update: Update, context: CallbackContext):
 
     # determine what the contents of the filter are - text, image, sticker, etc
     if len(extracted) >= 2:
-        offset = len(extracted[1]) - len(msg.text)  # set correct offset relative to command + notename
-        content, buttons = button_markdown_parser(extracted[1], entities=msg.parse_entities(), offset=offset)
+        offset = len(extracted[1]) - len(
+            msg.text)  # set correct offset relative to command + notename
+        content, buttons = button_markdown_parser(
+            extracted[1], entities=msg.parse_entities(), offset=offset)
         content = content.strip()
         if not content:
-            msg.reply_text("There is no note message - You can't JUST have buttons, you need a message to go with it!")
+            msg.reply_text(
+                "There is no note message - You can't JUST have buttons, you need a message to go with it!"
+            )
             return
 
     elif msg.reply_to_message and msg.reply_to_message.sticker:
@@ -86,7 +95,8 @@ def filters(update: Update, context: CallbackContext):
         is_document = True
 
     elif msg.reply_to_message and msg.reply_to_message.photo:
-        content = msg.reply_to_message.photo[-1].file_id  # last elem = best quality
+        content = msg.reply_to_message.photo[
+            -1].file_id  # last elem = best quality
         is_image = True
 
     elif msg.reply_to_message and msg.reply_to_message.audio:
@@ -111,10 +121,12 @@ def filters(update: Update, context: CallbackContext):
         if handler.filters == (keyword, chat.id):
             dispatcher.remove_handler(handler, HANDLER_GROUP)
 
-    sql.add_filter(chat.id, keyword, content, is_sticker, is_document, is_image, is_audio, is_voice, is_video,
-                   buttons)
-                   
-    update.effective_message.reply_text("Filter has been saved for '`{}`'.".format(keyword), parse_mode=ParseMode.MARKDOWN)
+    sql.add_filter(chat.id, keyword, content, is_sticker, is_document,
+                   is_image, is_audio, is_voice, is_video, buttons)
+
+    update.effective_message.reply_text(
+        "Filter has been saved for '`{}`'.".format(keyword),
+        parse_mode=ParseMode.MARKDOWN)
     raise DispatcherHandlerStop
 
 
@@ -137,10 +149,14 @@ def stop_filter(update: Update, context: CallbackContext):
     for keyword in chat_filters:
         if keyword == args[1]:
             sql.remove_filter(chat.id, args[1])
-            update.effective_message.reply_text("Removed '`{}`', I will no longer reply to that!".format(keyword), parse_mode=ParseMode.MARKDOWN)
+            update.effective_message.reply_text(
+                "Removed '`{}`', I will no longer reply to that!".format(
+                    keyword),
+                parse_mode=ParseMode.MARKDOWN)
             raise DispatcherHandlerStop
 
-    update.effective_message.reply_text("That's not a current filter - run /filters for all active filters.")
+    update.effective_message.reply_text(
+        "That's not a current filter - run /filters for all active filters.")
 
 
 def reply_filter(update: Update, context: CallbackContext):
@@ -153,7 +169,8 @@ def reply_filter(update: Update, context: CallbackContext):
 
     chat_filters = sql.get_chat_triggers(chat.id)
     for keyword in chat_filters:
-        pattern = r"( |^|[^\w])" + re.escape(keyword).replace("\*", "(.*)").replace("\\(.*)", "*") + r"( |$|[^\w])"
+        pattern = r"( |^|[^\w])" + re.escape(keyword).replace(
+            "\*", "(.*)").replace("\\(.*)", "*") + r"( |$|[^\w])"
         if re.search(pattern, to_match, flags=re.IGNORECASE):
             filt = sql.get_filter(chat.id, keyword)
             if filt.is_sticker:
@@ -174,23 +191,31 @@ def reply_filter(update: Update, context: CallbackContext):
                 keyboard = InlineKeyboardMarkup(keyb)
 
                 try:
-                    message.reply_text(filt.reply, parse_mode=ParseMode.MARKDOWN,
+                    message.reply_text(filt.reply,
+                                       parse_mode=ParseMode.MARKDOWN,
                                        disable_web_page_preview=True,
                                        reply_markup=keyboard)
                 except BadRequest as excp:
                     if excp.message == "Unsupported url protocol":
-                        message.reply_text("You seem to be trying to use an unsupported url protocol. Telegram "
-                                           "doesn't support buttons for some protocols, such as tg://. Please try "
-                                           "again, or ask in @bot_workshop for help.")
+                        message.reply_text(
+                            "You seem to be trying to use an unsupported url protocol. Telegram "
+                            "doesn't support buttons for some protocols, such as tg://. Please try "
+                            "again, or ask in @bot_workshop for help.")
                     elif excp.message == "Reply message not found":
-                        bot.send_message(chat.id, filt.reply, parse_mode=ParseMode.MARKDOWN,
+                        bot.send_message(chat.id,
+                                         filt.reply,
+                                         parse_mode=ParseMode.MARKDOWN,
                                          disable_web_page_preview=True,
                                          reply_markup=keyboard)
                     else:
-                        message.reply_text("This note could not be sent, as it is incorrectly formatted. Ask in "
-                                           "@bot_workshop if you can't figure out why!")
-                        LOGGER.warning("Message %s could not be parsed", str(filt.reply))
-                        LOGGER.exception("Could not parse filter %s in chat %s", str(filt.keyword), str(chat.id))
+                        message.reply_text(
+                            "This note could not be sent, as it is incorrectly formatted. Ask in "
+                            "@bot_workshop if you can't figure out why!")
+                        LOGGER.warning("Message %s could not be parsed",
+                                       str(filt.reply))
+                        LOGGER.exception(
+                            "Could not parse filter %s in chat %s",
+                            str(filt.keyword), str(chat.id))
 
             else:
                 # LEGACY - all new filters will have has_markdown set to True.
@@ -199,7 +224,8 @@ def reply_filter(update: Update, context: CallbackContext):
 
 
 def __stats__():
-    return "{} filters, across {} chats.".format(sql.num_filters(), sql.num_chats())
+    return "{} filters, across {} chats.".format(sql.num_filters(),
+                                                 sql.num_chats())
 
 
 def __migrate__(old_chat_id, new_chat_id):
@@ -238,10 +264,20 @@ Now, anyone saying "hello" will be replied to with "Hello there! How are you?".
 
 __mod_name__ = "Filters"
 
-FILTER_HANDLER = CommandHandler("filter", filters, filters=Filters.chat_type.groups)
-STOP_HANDLER = CommandHandler("stop", stop_filter, filters=Filters.chat_type.groups)
-LIST_HANDLER = DisableAbleCommandHandler("filters", list_handlers, admin_ok=True, run_async=True, filters=Filters.chat_type.groups)
-CUST_FILTER_HANDLER = MessageHandler(CustomFilters.has_text, reply_filter, run_async=True)
+FILTER_HANDLER = CommandHandler("filter",
+                                filters,
+                                filters=Filters.chat_type.groups)
+STOP_HANDLER = CommandHandler("stop",
+                              stop_filter,
+                              filters=Filters.chat_type.groups)
+LIST_HANDLER = DisableAbleCommandHandler("filters",
+                                         list_handlers,
+                                         admin_ok=True,
+                                         run_async=True,
+                                         filters=Filters.chat_type.groups)
+CUST_FILTER_HANDLER = MessageHandler(CustomFilters.has_text,
+                                     reply_filter,
+                                     run_async=True)
 
 dispatcher.add_handler(FILTER_HANDLER)
 dispatcher.add_handler(STOP_HANDLER)

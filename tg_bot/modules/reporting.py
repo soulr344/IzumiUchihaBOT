@@ -13,6 +13,7 @@ from tg_bot.modules.sql import reporting_sql as sql
 
 REPORT_GROUPS = 5
 
+
 @user_admin
 def report_setting(update: Update, context: CallbackContext):
     bot = context.bot
@@ -24,27 +25,35 @@ def report_setting(update: Update, context: CallbackContext):
         if len(args) >= 1:
             if args[0] in ("yes", "on"):
                 sql.set_user_setting(chat.id, True)
-                msg.reply_text("Turned on reporting! You'll be notified whenever anyone reports something.")
+                msg.reply_text(
+                    "Turned on reporting! You'll be notified whenever anyone reports something."
+                )
 
             elif args[0] in ("no", "off"):
                 sql.set_user_setting(chat.id, False)
-                msg.reply_text("Turned off reporting! You wont get any reports.")
+                msg.reply_text(
+                    "Turned off reporting! You wont get any reports.")
         else:
-            msg.reply_text("Your current report preference is: `{}`".format(sql.user_should_report(chat.id)),
+            msg.reply_text("Your current report preference is: `{}`".format(
+                sql.user_should_report(chat.id)),
                            parse_mode=ParseMode.MARKDOWN)
 
     else:
         if len(args) >= 1:
             if args[0] in ("yes", "on"):
                 sql.set_chat_setting(chat.id, True)
-                msg.reply_text("Turned on reporting! Admins who have turned on reports will be notified when /report "
-                               "or @admin are called.")
+                msg.reply_text(
+                    "Turned on reporting! Admins who have turned on reports will be notified when /report "
+                    "or @admin are called.")
 
             elif args[0] in ("no", "off"):
                 sql.set_chat_setting(chat.id, False)
-                msg.reply_text("Turned off reporting! No admins will be notified on /report or @admin.")
+                msg.reply_text(
+                    "Turned off reporting! No admins will be notified on /report or @admin."
+                )
         else:
-            msg.reply_text("This chat's current setting is: `{}`".format(sql.chat_should_report(chat.id)),
+            msg.reply_text("This chat's current setting is: `{}`".format(
+                sql.chat_should_report(chat.id)),
                            parse_mode=ParseMode.MARKDOWN)
 
 
@@ -55,8 +64,8 @@ def report(update: Update, context: CallbackContext) -> str:
     message = update.effective_message  # type: Optional[Message]
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
-    ping_list = "";
-    
+    ping_list = ""
+
     if chat and message.reply_to_message and sql.chat_should_report(chat.id):
         reported_user = message.reply_to_message.from_user  # type: Optional[User]
         if reported_user.id == bot.id:
@@ -70,8 +79,11 @@ def report(update: Update, context: CallbackContext) -> str:
                 continue
 
             ping_list += f"​[​](tg://user?id={admin.user.id})"
-                
-        message.reply_text(f"Successfully reported [{reported_user.first_name}](tg://user?id={reported_user.id}) to admins! " + ping_list, parse_mode = ParseMode.MARKDOWN )
+
+        message.reply_text(
+            f"Successfully reported [{reported_user.first_name}](tg://user?id={reported_user.id}) to admins! "
+            + ping_list,
+            parse_mode=ParseMode.MARKDOWN)
 
     return ""
 
@@ -116,7 +128,10 @@ Note that the report commands do not work when admins use them; or when used to 
 admins don't need to report, or be reported!
 """
 
-REPORT_HANDLER = CommandHandler("report", report, filters=Filters.chat_type.groups, run_async=True)
+REPORT_HANDLER = CommandHandler("report",
+                                report,
+                                filters=Filters.chat_type.groups,
+                                run_async=True)
 SETTING_HANDLER = CommandHandler("reports", report_setting, run_async=True)
 ADMIN_REPORT_HANDLER = RegexHandler("(?i)@admin(s)?", report, run_async=True)
 
