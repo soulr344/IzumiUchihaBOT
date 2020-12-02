@@ -23,7 +23,7 @@ def check_perms(update: Update, type: str):
         "status"] != "creator" and user.id not in SUDO_USERS else True
 
     if not admin_perms:
-        message.reply_text(MESSAGES[type])
+        update.effective_message.reply_text(MESSAGES[type])
         return False
 
     return True
