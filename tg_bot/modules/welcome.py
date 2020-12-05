@@ -699,7 +699,9 @@ def user_button(update: Update, context: CallbackContext):
 
     _user = chat.get_member(int(user.id))
 
-    if join_user == user.id or (_user.status == 'creator') or _user.can_restrict_members or (int(user.id) in SUDO_USERS):
+    if join_user == user.id or (
+            _user.status == 'creator') or _user.can_restrict_members or (int(
+                user.id) in SUDO_USERS):
         query.answer(
             text="Yup, you're very human, you have now the right to speak!")
         bot.restrict_chat_member(chat.id,

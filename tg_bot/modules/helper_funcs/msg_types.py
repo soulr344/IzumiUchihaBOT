@@ -90,16 +90,14 @@ def get_welcome_type(msg: Message):
     content = None
     text = ""
     raw_text = msg.text or msg.caption
-    args = raw_text.split(
-        None, 1
-    )  # use python's maxsplit to separate cmd and args
+    args = raw_text.split(None,
+                          1)  # use python's maxsplit to separate cmd and args
 
     buttons = []
     # determine what the contents of the filter are - text, image, sticker, etc
     if len(args) >= 2:
         offset = len(args[1]) - len(
-            raw_text
-        )  # set correct offset relative to command + notename
+            raw_text)  # set correct offset relative to command + notename
         text, buttons = button_markdown_parser(
             args[1],
             entities=msg.parse_entities() or msg.parse_caption_entities(),

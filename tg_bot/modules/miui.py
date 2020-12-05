@@ -6,8 +6,8 @@ from telegram import Update, ParseMode, InlineKeyboardMarkup, InlineKeyboardButt
 from tg_bot import dispatcher, updater, CallbackContext
 from tg_bot.modules.disable import DisableAbleCommandHandler
 
-
 URL = "https://raw.githubusercontent.com/XiaomiFirmwareUpdater/miui-updates-tracker/master/data/latest.yml"
+
 
 def delete(msg, delmsg, timer):
     sleep(timer)
@@ -16,6 +16,7 @@ def delete(msg, delmsg, timer):
         delmsg.delete()
     except:
         return
+
 
 def miui(update: Update, context: CallbackContext):
     args = context.args
@@ -29,7 +30,7 @@ def miui(update: Update, context: CallbackContext):
         return
 
     yaml_data = load(get(URL).content, Loader=Loader)
-    data = [ i for i in yaml_data if codename in i['codename'] ]
+    data = [i for i in yaml_data if codename in i['codename']]
 
     if len(data) < 1:
         delmsg = msg.reply_text("Provide a valid codename bruh!")
@@ -55,6 +56,7 @@ def miui(update: Update, context: CallbackContext):
                             reply_markup=InlineKeyboardMarkup(markup),
                             parse_mode=ParseMode.MARKDOWN)
     delete(msg, delmsg, 60)
+
 
 __help__ = """
 *MiUI related commands:*
