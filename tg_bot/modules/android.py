@@ -123,10 +123,7 @@ def checkfw(update: Update, context: CallbackContext):
     fota = get(
         f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.xml'
     )
-    test = get(
-        f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.test.xml'
-    )
-    if test.status_code != 200:
+    if fota.status_code != 200:
         reply = f"Couldn't check for {temp.upper()} and {csc.upper()}, please refine your search or try again later!"
         del_msg = update.effective_message.reply_text(
             "{}".format(reply),
@@ -140,34 +137,19 @@ def checkfw(update: Update, context: CallbackContext):
             if (err.message == "Message to delete not found") or (
                     err.message == "Message can't be deleted"):
                 return
-    page1 = BeautifulSoup(fota.content, 'lxml')
-    page2 = BeautifulSoup(test.content, 'lxml')
-    os1 = page1.find("latest").get("o")
-    os2 = page2.find("latest").get("o")
-    if page1.find("latest").text.strip():
-        pda1, csc1, phone1 = page1.find("latest").text.strip().split('/')
+    page = BeautifulSoup(fota.content, 'lxml')
+    os = page.find("latest").get("o")
+    if page.find("latest").text.strip():
         reply = f'*Latest released firmware for {model.upper()} and {csc.upper()} is:*\n'
-        reply += f'• PDA: `{pda1}`\n• CSC: `{csc1}`\n'
-        if phone1:
-            reply += f'• Phone: `{phone1}`\n'
-        if os1:
-            reply += f'• Android: `{os1}`\n'
-        reply += f'\n'
+        pda, csc, phone = page.find("latest").text.strip().split('/')
+        reply += f'• PDA: `{pda}`\n• CSC: `{csc}`\n'
+        if phone:
+            reply += f'• Phone: `{phone}`\n'
+        if os:
+            reply += f'• Android: `{os}`\n'
+        reply += f''
     else:
         reply = f'*No public release found for {model.upper()} and {csc.upper()}.*\n\n'
-    reply += f'*Latest test firmware for {model.upper()} and {csc.upper()} is:*\n'
-    if len(page2.find("latest").text.strip().split('/')) == 3:
-        pda2, csc2, phone2 = page2.find("latest").text.strip().split('/')
-        reply += f'• PDA: `{pda2}`\n• CSC: `{csc2}`\n'
-        if phone2:
-            reply += f'• Phone: `{phone2}`\n'
-        if os2:
-            reply += f'• Android: `{os2}`\n'
-        reply += f'\n'
-    else:
-        md5 = page2.find("latest").text.strip()
-        reply += f'• Hash: `{md5}`\n• Android: `{os2}`\n\n'
-
     update.message.reply_text("{}".format(reply),
                               parse_mode=ParseMode.MARKDOWN,
                               disable_web_page_preview=True)
