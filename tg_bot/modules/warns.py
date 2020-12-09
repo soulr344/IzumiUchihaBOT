@@ -64,7 +64,7 @@ def warn(user: User,
             reply += "\n - {}".format(html.escape(warn_reason))
 
         message.bot.send_sticker(chat.id, BAN_STICKER)  # ban sticker
-        keyboard = []
+        keyboard = {}
         log_reason = "<b>{}:</b>" \
                      "\n#WARN_BAN" \
                      "\n<b>Admin:</b> {}" \
