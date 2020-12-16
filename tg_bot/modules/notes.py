@@ -1,4 +1,5 @@
 import re
+from time import sleep
 from io import BytesIO
 from typing import Optional, List
 
@@ -37,6 +38,8 @@ def get(bot, update, notename, show_none=True, no_format=False):
         chat_id, notename
     )  # removed lower() for compatibility for fetching previously saved notes
     message = update.effective_message  # type: Optional[Message]
+    timer = sql.get_clearnotes(chat_id)
+    delmsg = ""
 
     if note:
         # If we're replying to a message, reply to that message (unless it's an error)
@@ -48,7 +51,7 @@ def get(bot, update, notename, show_none=True, no_format=False):
         if note.is_reply:
             if MESSAGE_DUMP:
                 try:
-                    bot.forward_message(chat_id=chat_id,
+                    delmsg = bot.forward_message(chat_id=chat_id,
                                         from_chat_id=MESSAGE_DUMP,
                                         message_id=note.value)
                 except BadRequest as excp:
@@ -61,7 +64,7 @@ def get(bot, update, notename, show_none=True, no_format=False):
                         raise
             else:
                 try:
-                    bot.forward_message(chat_id=chat_id,
+                    delmsg = bot.forward_message(chat_id=chat_id,
                                         from_chat_id=chat_id,
                                         message_id=note.value)
                 except BadRequest as excp:
@@ -89,14 +92,14 @@ def get(bot, update, notename, show_none=True, no_format=False):
 
             try:
                 if note.msgtype in (sql.Types.BUTTON_TEXT, sql.Types.TEXT):
-                    bot.send_message(chat_id,
+                    delmsg = bot.send_message(chat_id,
                                      text,
                                      reply_to_message_id=reply_id,
                                      parse_mode=parseMode,
                                      disable_web_page_preview=True,
                                      reply_markup=keyboard)
                 else:
-                    ENUM_FUNC_MAP[note.msgtype](chat_id,
+                    delmsg = ENUM_FUNC_MAP[note.msgtype](chat_id,
                                                 note.file,
                                                 caption=text,
                                                 reply_to_message_id=reply_id,
@@ -122,6 +125,13 @@ def get(bot, update, notename, show_none=True, no_format=False):
                     LOGGER.exception("Could not parse message #%s in chat %s",
                                      notename, str(chat_id))
                     LOGGER.warning("Message was: %s", str(note.value))
+        if timer != 0:
+            sleep(int(timer))
+            try:
+                delmsg.delete()
+                message.delete()
+            except:
+                pass
         return
     elif show_none:
         message.reply_text("This note doesn't exist")
@@ -221,12 +231,14 @@ def clear(update: Update, context: CallbackContext):
 def list_notes(update: Update, context: CallbackContext):
     bot = context.bot
     chat_id = update.effective_chat.id
+    timer = sql.get_clearnotes(chat_id)
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     note_list = sql.get_all_chat_notes(chat_id)
     chat_name = chat.title or chat.first or chat.username
     msg = "*List of notes in {}:*\n"
     des = "You can get notes by using `/get notename`, or `#notename`.\n"
+    delmsg = ""
     for note in note_list:
         note_name = (" • `{}`\n".format(note.name))
         if len(msg) + len(note_name) > MAX_MESSAGE_LENGTH:
@@ -236,12 +248,38 @@ def list_notes(update: Update, context: CallbackContext):
         msg += note_name
 
     if msg == "*List of notes in {}:*\n":
-        update.effective_message.reply_text("No notes in this chat!")
+        delmsg = update.effective_message.reply_text("No notes in this chat!")
 
     elif len(msg) != 0:
-        update.effective_message.reply_text(msg.format(chat_name) + des,
+        delmsg = update.effective_message.reply_text(msg.format(chat_name) + des,
                                             parse_mode=ParseMode.MARKDOWN)
+    if timer != 0:
+        sleep(int(timer))
+        try:
+            delmsg.delete()
+            update.effective_message.delete()
+        except:
+            pass
 
+def clearnotes(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
+    chat_id = update.effective_chat.id
+    message = update.effective_message
+    if len(args) > 0 and args[0].isdigit():
+        timer = int(args[0])
+        if timer > 900 or ( timer < 60 and timer != 0 ):
+            message.reply_text("Cannot set clearnotes value higher than 900 and lower than 60.")
+            return
+        sql.set_clearnotes(chat_id, timer=timer)
+        if timer != 0:
+            message.reply_text(f"Success! Set timer to {args[0]}s and clearnotes to on!")
+        else:
+            message.reply_text("Disabled clearnotes!")
+    else:
+        timer = sql.get_clearnotes(chat_id)
+        clear = True if timer > 0 else False
+        message.reply_text(f"Clearnotes is currently set to {clear}" + (((" with timer set to " + str(timer) + "s")) if clear else "!"))
 
 def __import_data__(chat_id, data):
     failures = []
@@ -337,8 +375,14 @@ LIST_HANDLER = DisableAbleCommandHandler(["notes", "saved"],
                                          run_async=True,
                                          filters=Filters.chat_type.groups)
 
+CLEARNOTES_HANDLER = CommandHandler("clearnotes",
+                             clearnotes,
+                             run_async=True,
+                             filters=Filters.chat_type.groups)
+
 dispatcher.add_handler(GET_HANDLER)
 dispatcher.add_handler(SAVE_HANDLER)
 dispatcher.add_handler(LIST_HANDLER)
 dispatcher.add_handler(DELETE_HANDLER)
 dispatcher.add_handler(HASH_GET_HANDLER)
+dispatcher.add_handler(CLEARNOTES_HANDLER)

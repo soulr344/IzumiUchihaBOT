@@ -45,12 +45,22 @@ class Buttons(BASE):
         self.same_line = same_line
 
 
+class ClearNotes(BASE):
+    __tablename__ = "clear_notes"
+    chat_id = Column(String(14), primary_key=True)
+    timer = Column(Integer, default=0)
+
+    def __init__(self, chat_id, timer):
+        self.chat_id = str(chat_id)
+        self.timer = int(timer)
+
 Notes.__table__.create(checkfirst=True)
 Buttons.__table__.create(checkfirst=True)
+ClearNotes.__table__.create(checkfirst=True)
 
 NOTES_INSERTION_LOCK = threading.RLock()
 BUTTONS_INSERTION_LOCK = threading.RLock()
-
+CLEARNOTES_INSERTION_LOCK = threading.RLock()
 
 def add_note_to_db(chat_id,
                    note_name,
@@ -161,4 +171,22 @@ def migrate_chat(old_chat_id, new_chat_id):
             for btn in chat_buttons:
                 btn.chat_id = str(new_chat_id)
 
+        SESSION.commit()
+
+def get_clearnotes(chat_id):
+    try:
+        clear = SESSION.query(ClearNotes).get(str(chat_id))
+        if clear:
+            return clear.timer
+        return 0
+    finally:
+        SESSION.close()
+
+def set_clearnotes(chat_id, clearnotes=False, timer=120):
+    with CLEARNOTES_INSERTION_LOCK:
+        exists = SESSION.query(ClearNotes).get(str(chat_id))
+        if exists:
+            SESSION.delete(exists)
+        clearnotes = ClearNotes(str(chat_id), int(timer))
+        SESSION.add(clearnotes)
         SESSION.commit()
