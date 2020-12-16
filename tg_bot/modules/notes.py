@@ -318,7 +318,9 @@ def __migrate__(old_chat_id, new_chat_id):
 
 def __chat_settings__(chat_id, user_id):
     notes = sql.get_all_chat_notes(chat_id)
-    return "There are `{}` notes in this chat.".format(len(notes))
+    timer = sql.get_clearnotes(chat_id)
+    clear = True if timer > 0 else False
+    return ("There are `{}` notes in this chat.\nClear welcome is set to {}".format(len(notes), clear) + (" with timer set to {}".format(timer) if clear else "."))
 
 
 __help__ = """
@@ -339,6 +341,10 @@ A button can be added to a note by using standard markdown link syntax - the lin
 `buttonurl:` section, as such: `[somelink](buttonurl:example.com)`. Check /markdownhelp for more info.
  - /save <notename>: save the replied message as a note with name notename
  - /clear <notename>: clear note with this name
+ - /clearnotes: replies with the current settings for clearing notes in the chat
+ - /clearnotes <time>: automatically deletes messages used for retrieving notes after <time> seconds. \
+This automatically deletes `/notes`, `#notename` and `/get notename` message and bot replies for those messages. \
+Setting time as 0 will disable it.
  
  An example of how to save a note would be via:
 `/save data This is some data!`
