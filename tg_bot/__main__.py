@@ -19,17 +19,17 @@ from tg_bot.modules.helper_funcs.chat_status import is_user_admin
 from tg_bot.modules.helper_funcs.misc import paginate_modules
 
 PM_START_TEXT = """
-Yo {}, I'm *{}*! I'm a group manager bot. You can find the list of available commands with /help.
+Yo {}, I'm *{}*!
 
-Feel free to join @IzumiUchihaNews for announcements regarding features added in bot, etc.
+I'm a group manager bot  that can help you manage your groups with tons of extra features.
 
-You can also contribute to my bot maintainers with /donate.
+Join our [News Channel](https://t.me/IzumiUchihaNews) ( @IzumiUchihaNews ) for announcements regarding bot updates, new features and possible bug fixes!
 
-Wanna add me into your group? Click here => [ Add me ](https://t.me/{}?startgroup=true)
+Lastly, tap on the help button for any help/assistance with the bot!
 """
 
 SOURCE_STRING = """
-I'm built in python3, using the python-telegram-bot library, and am fully opensource - you can find what makes me tick [here](https://github.com/soulr344/tgbot) (originally based on [this](https://github.com/corsicanu/tgbot))
+I'm built in python3, using the python-telegram-bot library, and am fully opensource - you can find what makes me tick [here](https://github.com/soulr344/IzumiUchihaBOT) (originally based on [this](https://github.com/corsicanu/tgbot))
 """
 
 HELP_STRINGS = """
@@ -40,7 +40,6 @@ the things I can help you with.
  - /start: start the bot
  - /help: PM's you this message.
  - /help <module name>: PM's you info about that module.
- - /donate: info about how to donate
  - /source: info about my sourcecode
  - /settings:
    - in PM: will send you your settings for all supported modules.
@@ -50,8 +49,6 @@ Other available commands:
 """.format("" if not ALLOW_EXCL else
            "\nAll commands can either be used with / or !.\n")
 
-DONATE_STRING = """
-You can send a donation to my current maintainers, @corsicanu and @nunopenim, via PayPal at paypal.me/corsicanu and/or paypal.me/nunopenim."""
 
 IMPORTED = {}
 MIGRATEABLE = []
@@ -141,9 +138,16 @@ def start(update: Update, context: CallbackContext):
         else:
             first_name = update.effective_user.first_name
             update.effective_message.reply_text(PM_START_TEXT.format(
-                escape_markdown(first_name), escape_markdown(bot.first_name),
-                escape_markdown(bot.username)),
+                escape_markdown(first_name), escape_markdown(bot.first_name)),
                                                 parse_mode=ParseMode.MARKDOWN,
+                                                reply_markup=InlineKeyboardMarkup([[
+                                                        InlineKeyboardButton(text="Add me to your group !",
+                                                                              url="t.me/{}?startgroup=true".format(
+                                                                              bot.username))
+                                                        ], [
+                                                        InlineKeyboardButton(text="Need some help ?",
+                                                                              url="t.me/{}?start=help".format(
+                                                                              bot.username))]]),
                                                 disable_web_page_preview=True)
     else:
         update.effective_message.reply_text("Yo, whadup?")
