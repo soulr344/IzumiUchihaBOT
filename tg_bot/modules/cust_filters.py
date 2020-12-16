@@ -275,7 +275,7 @@ LIST_HANDLER = DisableAbleCommandHandler("filters",
                                          admin_ok=True,
                                          run_async=True,
                                          filters=Filters.chat_type.groups)
-CUST_FILTER_HANDLER = MessageHandler(CustomFilters.has_text,
+CUST_FILTER_HANDLER = MessageHandler(CustomFilters.has_text & ~Filters.update.edited_message,
                                      reply_filter,
                                      run_async=True)
 
