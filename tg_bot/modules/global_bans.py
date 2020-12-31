@@ -79,6 +79,11 @@ def gban(update: Update, context: CallbackContext):
         message.reply_text("That's not a user!")
         return
 
+    try:
+        update.effective_chat.kick_member(user_id)
+    except:
+        pass
+
     if sql.is_user_gbanned(user_id):
         if not reason:
             message.reply_text(
