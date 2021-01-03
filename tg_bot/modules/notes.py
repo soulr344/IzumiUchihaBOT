@@ -261,6 +261,7 @@ def list_notes(update: Update, context: CallbackContext):
         except:
             pass
 
+@user_admin
 def clearnotes(update: Update, context: CallbackContext):
     bot = context.bot
     args = context.args
