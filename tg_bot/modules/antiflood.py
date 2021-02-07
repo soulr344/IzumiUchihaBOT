@@ -68,8 +68,7 @@ def check_flood(update: Update, context: CallbackContext) -> str:
 @can_restrict
 @loggable
 def set_flood(update: Update, context: CallbackContext) -> str:
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
@@ -144,8 +143,7 @@ def flood(update: Update, context: CallbackContext):
 def set_flood_strength(update: Update, context: CallbackContext):
     if not check_perms(update, 1):
         return
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     msg = update.effective_message  # type: Optional[Message]

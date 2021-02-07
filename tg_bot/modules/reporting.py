@@ -16,8 +16,7 @@ REPORT_GROUPS = 5
 
 @user_admin
 def report_setting(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     chat = update.effective_chat  # type: Optional[Chat]
     msg = update.effective_message  # type: Optional[Message]
 

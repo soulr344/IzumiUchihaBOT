@@ -13,8 +13,7 @@ import random, re
 
 @bot_admin
 def getlink(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     message = update.effective_message
     if args:
         pattern = re.compile(r'-\d+')

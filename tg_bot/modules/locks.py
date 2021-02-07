@@ -151,8 +151,7 @@ def locktypes(update: Update, context: CallbackContext):
 def lock(update: Update, context: CallbackContext) -> str:
     if not check_perms(update, 1):
         return
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
@@ -223,8 +222,7 @@ def lock(update: Update, context: CallbackContext) -> str:
 def unlock(update: Update, context: CallbackContext) -> str:
     if not check_perms(update, 1):
         return
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]

@@ -22,8 +22,7 @@ MESSAGE_7 = "And I heard a great voice out of the temple saying to the seven ang
 
 
 def leave(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     if args:
         chat_id = str(args[0])
         del args[0]

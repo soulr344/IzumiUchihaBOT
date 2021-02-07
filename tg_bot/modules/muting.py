@@ -21,8 +21,7 @@ from tg_bot.modules.helper_funcs.perms import check_perms
 def mute(update: Update, context: CallbackContext) -> str:
     if not check_perms(update, 1):
         return
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
@@ -71,8 +70,7 @@ def mute(update: Update, context: CallbackContext) -> str:
 def unmute(update: Update, context: CallbackContext) -> str:
     if not check_perms(update, 1):
         return
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
@@ -127,8 +125,7 @@ def unmute(update: Update, context: CallbackContext) -> str:
 def temp_mute(update: Update, context: CallbackContext) -> str:
     if not check_perms(update, 1):
         return
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]

@@ -66,8 +66,7 @@ RUNMUTE_ERRORS = {
 
 @bot_admin
 def rban(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     message = update.effective_message
     #chat_name = chat.title or chat.first or chat.username
     chat = update.effective_chat  # type: Optional[Chat]
@@ -144,8 +143,7 @@ def rban(update: Update, context: CallbackContext):
 
 @bot_admin
 def runban(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     message = update.effective_message
 
     if not args:
@@ -224,8 +222,7 @@ def runban(update: Update, context: CallbackContext):
 
 @bot_admin
 def rkick(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     message = update.effective_message
 
     if not args:
@@ -302,8 +299,7 @@ def rkick(update: Update, context: CallbackContext):
 
 @bot_admin
 def rmute(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     message = update.effective_message
 
     if not args:
@@ -382,8 +378,7 @@ def rmute(update: Update, context: CallbackContext):
 
 @bot_admin
 def runmute(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     message = update.effective_message
 
     if not args:
@@ -470,8 +465,7 @@ def runmute(update: Update, context: CallbackContext):
 #based of @1maverick1's snipe command
 @bot_admin
 def recho(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     try:
         parseId = str(args[0])
         del args[0]

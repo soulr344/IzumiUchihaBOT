@@ -320,8 +320,7 @@ def smack(update: Update, context: CallbackContext):
 
 
 def slap(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     msg = update.effective_message  # type: Optional[Message]
 
     # reply to correct message
@@ -369,8 +368,7 @@ def slap(update: Update, context: CallbackContext):
 
 
 def punch(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     msg = update.effective_message  # type: Optional[Message]
 
     # reply to correct message
@@ -410,8 +408,7 @@ def punch(update: Update, context: CallbackContext):
 
 
 def get_id(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     user_id = extract_user(update.effective_message, args)
     if user_id:
         if update.effective_message.reply_to_message and update.effective_message.reply_to_message.forward_from:
@@ -441,8 +438,7 @@ def get_id(update: Update, context: CallbackContext):
 
 
 def info(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     msg = update.effective_message  # type: Optional[Message]
     user_id = extract_user(update.effective_message, args)
 
@@ -510,8 +506,7 @@ def info(update: Update, context: CallbackContext):
 
 
 def get_time(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     location = " ".join(args)
     if location.lower() == bot.first_name.lower():
         update.effective_message.reply_text(
@@ -570,8 +565,7 @@ def echo(update: Update, context: CallbackContext):
 
 
 def gdpr(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     if update.effective_user.id not in SUDO_USERS:
         update.effective_message.reply_text("Deleting identifiable data...")
         for mod in GDPR:
@@ -654,8 +648,7 @@ def stats(update: Update, context: CallbackContext):
 
 
 def gps(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     message = update.effective_message
     if len(args) == 0:
         update.effective_message.reply_text(

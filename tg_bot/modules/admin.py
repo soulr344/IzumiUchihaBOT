@@ -23,8 +23,7 @@ from tg_bot.modules.log_channel import loggable
 def promote(update: Update, context: CallbackContext, check="restrict") -> str:
     if not check_perms(update, 3):
         return
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     chat_id = update.effective_chat.id
     message = update.effective_message  # type: Optional[Message]
     chat = update.effective_chat  # type: Optional[Chat]
@@ -87,8 +86,7 @@ def promote(update: Update, context: CallbackContext, check="restrict") -> str:
 def demote(update: Update, context: CallbackContext) -> str:
     if not check_perms(update, 3):
         return
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     chat = update.effective_chat  # type: Optional[Chat]
     message = update.effective_message  # type: Optional[Message]
     user = update.effective_user  # type: Optional[User]
@@ -158,8 +156,7 @@ def demote(update: Update, context: CallbackContext) -> str:
 def pin(update: Update, context: CallbackContext) -> str:
     if not check_perms(update, 2):
         return
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     user = update.effective_user  # type: Optional[User]
     chat = update.effective_chat  # type: Optional[Chat]
 

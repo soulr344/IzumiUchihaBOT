@@ -20,8 +20,7 @@ BASE_BLACKLIST_STRING = "The following blacklist filters are currently active in
 
 
 def blacklist(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     msg = update.effective_message  # type: Optional[Message]
     chat = update.effective_chat  # type: Optional[Chat]
     chat_name = chat.title or chat.first or chat.username

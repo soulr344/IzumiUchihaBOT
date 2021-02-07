@@ -74,8 +74,7 @@ if is_module_loaded(FILENAME):
 
     @user_admin
     def disable(update: Update, context: CallbackContext):
-        bot = context.bot
-        args = context.args
+        bot, args = context.bot, context.args
         chat = update.effective_chat  # type: Optional[Chat]
         if len(args) >= 1:
             disable_cmd = args[0]
@@ -96,8 +95,7 @@ if is_module_loaded(FILENAME):
 
     @user_admin
     def enable(update: Update, context: CallbackContext):
-        bot = context.bot
-        args = context.args
+        bot, args = context.bot, context.args
         chat = update.effective_chat  # type: Optional[Chat]
         if len(args) >= 1:
             enable_cmd = args[0]

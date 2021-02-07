@@ -15,8 +15,7 @@ DEVICES_DATA = 'https://raw.githubusercontent.com/androidtrackers/certified-andr
 
 
 def phh(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     index = int(args[0]) if len(args) > 0 and args[0].isdigit() else 0
     text = getphh(index)
     update.effective_message.reply_text(text,
@@ -66,8 +65,7 @@ def magisk(update: Update, context: CallbackContext):
 
 
 def device(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     if len(args) == 0:
         reply = f'No codename provided, write a codename for fetching informations.'
         del_msg = update.effective_message.reply_text(
@@ -115,8 +113,7 @@ def device(update: Update, context: CallbackContext):
 
 
 def checkfw(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     if not len(args) == 2:
         reply = f'Give me something to fetch, like:\n`/checkfw SM-N975F DBT`'
         del_msg = update.effective_message.reply_text(
@@ -188,8 +185,7 @@ def checkfw(update: Update, context: CallbackContext):
 
 
 def getfw(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     if not len(args) == 2:
         reply = f'Give me something to fetch, like:\n`/getfw SM-N975F DBT`'
         del_msg = update.effective_message.reply_text(
@@ -254,8 +250,7 @@ def getfw(update: Update, context: CallbackContext):
 
 
 def twrp(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     if len(args) == 0:
         reply = 'No codename provided, write a codename for fetching informations.'
         del_msg = update.effective_message.reply_text(

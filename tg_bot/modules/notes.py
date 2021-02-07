@@ -138,8 +138,7 @@ def get(bot, update, notename, show_none=True, no_format=False):
 
 
 def cmd_get(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     if len(args) >= 2 and args[1].lower() == "noformat":
         get(bot, update, args[0], show_none=True, no_format=True)
     elif len(args) >= 1:
@@ -207,8 +206,7 @@ def save(update: Update, context: CallbackContext):
 
 @user_admin
 def clear(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     chat_id = update.effective_chat.id
     msg = update.effective_message
     chat = update.effective_chat
@@ -263,8 +261,7 @@ def list_notes(update: Update, context: CallbackContext):
 
 @user_admin
 def clearnotes(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     chat_id = update.effective_chat.id
     message = update.effective_message
     if len(args) > 0 and args[0].isdigit():

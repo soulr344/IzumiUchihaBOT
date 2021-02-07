@@ -25,8 +25,7 @@ from tg_bot.modules.helper_funcs.perms import check_perms
 def ban(update: Update, context: CallbackContext):
     if not check_perms(update, 1):
         return
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
@@ -148,8 +147,7 @@ def ban(update: Update, context: CallbackContext):
 def temp_ban(update: Update, context: CallbackContext):
     if not check_perms(update, 1):
         return
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
@@ -240,8 +238,7 @@ def temp_ban(update: Update, context: CallbackContext):
 def kick(update: Update, context: CallbackContext):
     if not check_perms(update, 1):
         return
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
@@ -389,8 +386,7 @@ def kickme(update: Update, context: CallbackContext):
 def unban(update: Update, context: CallbackContext):
     if not check_perms(update, 1):
         return
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     message = update.effective_message  # type: Optional[Message]
     user = update.effective_user  # type: Optional[User]
     chat = update.effective_chat  # type: Optional[Chat]

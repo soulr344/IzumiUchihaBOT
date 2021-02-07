@@ -13,8 +13,7 @@ from tg_bot.modules.helper_funcs.extraction import extract_user
 
 
 def about_me(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     message = update.effective_message  # type: Optional[Message]
     user_id = extract_user(message, args)
 
@@ -57,8 +56,7 @@ def set_about_me(update: Update, context: CallbackContext):
 
 
 def about_bio(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     message = update.effective_message  # type: Optional[Message]
 
     user_id = extract_user(message, args)

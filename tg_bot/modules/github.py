@@ -77,8 +77,7 @@ def getRepo(bot, update, reponame):
 
 
 def getRelease(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     msg = update.effective_message
     if len(args) == 0:
         msg.reply_text("Please use some arguments!")
@@ -119,8 +118,7 @@ def hashFetch(update: Update, context: CallbackContext):
 
 
 def cmdFetch(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     msg = update.effective_message
     if (len(args) != 1):
         msg.reply_text("Invalid repo name")
@@ -140,8 +138,7 @@ def cmdFetch(update: Update, context: CallbackContext):
 
 
 def changelog(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     msg = update.effective_message
     if (len(args) != 1):
         msg.reply_text("Invalid repo name")
@@ -159,8 +156,7 @@ def changelog(update: Update, context: CallbackContext):
 
 @user_admin
 def saveRepo(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     chat_id = update.effective_chat.id
     msg = update.effective_message
     if (len(args) != 2 and (len(args) != 3 and not args[2].isdigit())
@@ -178,8 +174,7 @@ def saveRepo(update: Update, context: CallbackContext):
 
 @user_admin
 def delRepo(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     chat_id = update.effective_chat.id
     msg = update.effective_message
     if (len(args) != 1):

@@ -159,8 +159,7 @@ def button(update: Update, context: CallbackContext) -> str:
 def warn_user(update: Update, context: CallbackContext) -> str:
     if not check_perms(update, 1):
         return
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     message = update.effective_message  # type: Optional[Message]
     chat = update.effective_chat  # type: Optional[Chat]
     warner = update.effective_user  # type: Optional[User]
@@ -185,8 +184,7 @@ def warn_user(update: Update, context: CallbackContext) -> str:
 def reset_warns(update: Update, context: CallbackContext) -> str:
     if not check_perms(update, 1):
         return
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     message = update.effective_message  # type: Optional[Message]
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
@@ -215,8 +213,7 @@ def reset_warns(update: Update, context: CallbackContext) -> str:
 def remove_warns(update: Update, context: CallbackContext) -> str:
     if not check_perms(update, 1):
         return
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     message = update.effective_message  # type: Optional[Message]
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
@@ -241,8 +238,7 @@ def remove_warns(update: Update, context: CallbackContext) -> str:
 
 
 def warns(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     message = update.effective_message  # type: Optional[Message]
     chat = update.effective_chat  # type: Optional[Chat]
     user_id = extract_user(message, args) or update.effective_user.id
@@ -399,8 +395,7 @@ def reply_filter(update: Update, context: CallbackContext) -> str:
 def set_warn_limit(update: Update, context: CallbackContext) -> str:
     if not check_perms(update, 1):
         return
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     msg = update.effective_message  # type: Optional[Message]
@@ -430,8 +425,7 @@ def set_warn_limit(update: Update, context: CallbackContext) -> str:
 def set_warn_strength(update: Update, context: CallbackContext):
     if not check_perms(update, 1):
         return
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     msg = update.effective_message  # type: Optional[Message]

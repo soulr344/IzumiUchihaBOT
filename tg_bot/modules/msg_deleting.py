@@ -18,8 +18,7 @@ from tg_bot.modules.helper_funcs.perms import check_perms
 def purge(update: Update, context: CallbackContext) -> str:
     if not check_perms(update, 0):
         return
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     msg = update.effective_message  # type: Optional[Message]
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]

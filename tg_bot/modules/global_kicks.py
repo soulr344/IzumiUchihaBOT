@@ -27,8 +27,7 @@ GKICK_ERRORS = {
 
 
 def gkick(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     message = update.effective_message
     user_id = extract_user(message, args)
     try:
@@ -115,8 +114,7 @@ def __user_info__(user_id):
 
 
 def gkickset(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     message = update.effective_message
     user_id, value = extract_user_and_text(message, args)
     try:
@@ -146,8 +144,7 @@ def gkickset(update: Update, context: CallbackContext):
 
 
 def gkickreset(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     message = update.effective_message
     user_id, value = extract_user_and_text(message, args)
     try:

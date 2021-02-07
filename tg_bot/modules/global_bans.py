@@ -46,8 +46,7 @@ UNGBAN_ERRORS = {
 
 
 def gban(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     message = update.effective_message  # type: Optional[Message]
     user = update.effective_user  # type: Optional[User]
     user_id, reason = extract_user_and_text(message, args)
@@ -187,8 +186,7 @@ def gban(update: Update, context: CallbackContext):
 
 
 def ungban(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     message = update.effective_message  # type: Optional[Message]
 
     user_id = extract_user(message, args)
@@ -319,8 +317,7 @@ def enforce_gban(update: Update, context: CallbackContext):
 
 @user_admin
 def gbanstat(update: Update, context: CallbackContext):
-    bot = context.bot
-    args = context.args
+    bot, args = context.bot, context.args
     if len(args) > 0:
         if args[0].lower() in ["on", "yes"]:
             sql.enable_gbans(update.effective_chat.id)
