@@ -39,35 +39,33 @@ def antiarabic_setting(update: Update, context: CallbackContext):
                            parse_mode=ParseMode.MARKDOWN)
 
 
-@bot_admin
 @user_not_admin
 def antiarabic(update: Update, context: CallbackContext):
     bot = context.bot
     chat = update.effective_chat  # type: Optional[Chat]
-    msg = update.effective_message  # type: Optional[Message]
-    to_match = extract_text(msg)
-    user = update.effective_user  # type: Optional[User]
-    has_arabic = False
+    if can_delete(chat, bot.id):
+        msg = update.effective_message  # type: Optional[Message]
+        to_match = extract_text(msg)
+        user = update.effective_user  # type: Optional[User]
 
-    if not sql.chat_antiarabic(chat.id):
-        return ""
+        if not sql.chat_antiarabic(chat.id):
+            return ""
 
-    if not user.id or int(user.id) == 777000 or int(user.id) == 1087968824:
-        return ""
+        if not user.id or int(user.id) == 777000 or int(user.id) == 1087968824:
+            return ""
 
-    if not to_match:
-        return
+        if not to_match:
+            return
 
-    if chat.type != chat.PRIVATE:
-        for c in to_match:
-            if ('\u0600' <= c <= '\u06FF' or '\u0750' <= c <= '\u077F'
-                    or '\u08A0' <= c <= '\u08FF' or '\uFB50' <= c <= '\uFDFF'
-                    or '\uFE70' <= c <= '\uFEFF'
-                    or '\U00010E60' <= c <= '\U00010E7F'
-                    or '\U0001EE00' <= c <= '\U0001EEFF'):
-                if can_delete(chat, bot.id):
-                    update.effective_message.delete()
-                    return ""
+        if chat.type != chat.PRIVATE:
+            for c in to_match:
+                if ('\u0600' <= c <= '\u06FF' or '\u0750' <= c <= '\u077F'
+                        or '\u08A0' <= c <= '\u08FF' or '\uFB50' <= c <= '\uFDFF'
+                        or '\uFE70' <= c <= '\uFEFF'
+                        or '\U00010E60' <= c <= '\U00010E7F'
+                        or '\U0001EE00' <= c <= '\U0001EEFF'):
+                        update.effective_message.delete()
+                        return ""
 
 
 def __migrate__(old_chat_id, new_chat_id):
