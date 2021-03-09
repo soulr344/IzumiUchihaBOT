@@ -709,7 +709,7 @@ def user_button(update: Update, context: CallbackContext):
                                  until_date=(int(time.time() + 24 * 60 * 60)))
         bot.deleteMessage(chat.id, message.message_id)
     else:
-        query.answer(text="Fuck off, this button is not for you!")
+        query.answer(text="Nah, this button ain't for you!")
 
 
 @user_admin
