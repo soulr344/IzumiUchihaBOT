@@ -176,8 +176,9 @@ def save(update: Update, context: CallbackContext):
     if len(text.strip()) == 0:
         text = escape_markdown(note_name)
 
+    note_name = note_name.lower()
     sql.add_note_to_db(chat_id,
-                       note_name.lower(),
+                       note_name,
                        text,
                        data_type,
                        buttons=buttons,
