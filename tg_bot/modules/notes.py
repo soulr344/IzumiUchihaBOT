@@ -170,7 +170,7 @@ def save(update: Update, context: CallbackContext):
         return
 
     if data_type is None:
-        msg.reply_text("Dude, there's no note")
+        msg.reply_text("Dude, there's no note.")
         return
 
     if len(text.strip()) == 0:
