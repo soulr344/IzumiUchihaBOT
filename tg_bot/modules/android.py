@@ -26,23 +26,16 @@ def phh(update: Update, context: CallbackContext):
 
 def magisk(update: Update, context: CallbackContext):
     bot = context.bot
-    url = 'https://raw.githubusercontent.com/topjohnwu/magisk_files/'
+    url = 'https://raw.githubusercontent.com/topjohnwu/magisk-files/master/'
     releases = ""
     for type, branch in {
-            "Stable": ["master/stable", "master"],
-            "Beta": ["master/beta", "master"],
-            "Canary": ["canary/canary", "canary"]
+            "Stable": "stable",
+            "Beta": "beta",
+            "Canary": "canary"
     }.items():
-        data = get(url + branch[0] + '.json').json()
-        notes = "https://topjohnwu.github.io/Magisk/releases/" + data[
-                "magisk"]["versionCode"] + ".html"
-        if str(type) == "Canary":
-            data["magisk"][
-                "link"] = "https://github.com/topjohnwu/magisk_files/raw/canary/" + data[
-                    "magisk"]["link"]
-            notes = "https://github.com/topjohnwu/magisk_files/blob/canary/notes.md"
+        data = get(url + branch + '.json').json()
         releases += f'*• {type}* - `{data["magisk"]["version"]}-{data["magisk"]["versionCode"]}` → ' \
-                    f'[Notes]({notes}) / ' \
+                    f'[Notes]({data["magisk"]["note"]}) / ' \
                     f'[Magisk]({data["magisk"]["link"]}) \n'
 
     del_msg = update.message.reply_text(
