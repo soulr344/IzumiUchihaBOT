@@ -219,6 +219,58 @@ def getfw(update: Update, context: CallbackContext):
                               parse_mode=ParseMode.MARKDOWN,
                               disable_web_page_preview=True)
 
+def shrp(update: Update, context: CallbackContext):
+    bot = context.bot
+    args = context.args
+    if len(args) == 0:
+        reply = 'No codename provided, write a codename for fetching informations.'
+        del_msg = update.effective_message.reply_text(
+            "{}".format(reply),
+            parse_mode=ParseMode.MARKDOWN,
+            disable_web_page_preview=True)
+        time.sleep(5)
+        try:
+            del_msg.delete()
+            update.effective_message.delete()
+            return
+        except BadRequest as err:
+            if (err.message == "Message to delete not found") or (
+                    err.message == "Message can't be deleted"):
+                return
+
+    device = " ".join(args)
+    url = get(f'https://sourceforge.net/projects/shrp/files/{device}/')
+    if url.status_code == 404:
+        reply = f"Couldn't find shrp downloads for {device}!\n"
+        del_msg = update.effective_message.reply_text(
+            "{}".format(reply),
+            parse_mode=ParseMode.MARKDOWN,
+            disable_web_page_preview=True)
+        time.sleep(5)
+        try:
+            del_msg.delete()
+            update.effective_message.delete()
+        except BadRequest as err:
+            if (err.message == "Message to delete not found") or (
+                    err.message == "Message can't be deleted"):
+                return
+    else:
+        reply = f'*Official SHRP for {device}*\n'
+        db = get(DEVICES_DATA).json()
+        newdevice = device.strip('lte') if device.startswith(
+            'beyond') else device
+        try:
+            brand = db[newdevice][0]['brand']
+            name = db[newdevice][0]['name']
+            reply += f'*{brand} - {name}*\n'
+        except KeyError as err:
+            pass
+        reply += f"https://sourceforge.net/projects/shrp/files/{device}"
+
+        update.message.reply_text("{}".format(reply),
+                                  parse_mode=ParseMode.MARKDOWN,
+                                  disable_web_page_preview=True)
+
 
 def twrp(update: Update, context: CallbackContext):
     bot, args = context.bot, context.args
@@ -305,6 +357,7 @@ PHH_HANDLER = DisableAbleCommandHandler("phh", phh, run_async=True)
 MAGISK_HANDLER = DisableAbleCommandHandler("magisk", magisk, run_async=True)
 DEVICE_HANDLER = DisableAbleCommandHandler("device", device, run_async=True)
 TWRP_HANDLER = DisableAbleCommandHandler("twrp", twrp, run_async=True)
+SHRP_HANDLER = DisableAbleCommandHandler("shrp", shrp, run_async=True)
 GETFW_HANDLER = DisableAbleCommandHandler("getfw", getfw, run_async=True)
 CHECKFW_HANDLER = DisableAbleCommandHandler("checkfw", checkfw, run_async=True)
 
@@ -312,5 +365,6 @@ dispatcher.add_handler(PHH_HANDLER)
 dispatcher.add_handler(MAGISK_HANDLER)
 dispatcher.add_handler(DEVICE_HANDLER)
 dispatcher.add_handler(TWRP_HANDLER)
+dispatcher.add_handler(SHRP_HANDLER)
 dispatcher.add_handler(GETFW_HANDLER)
 dispatcher.add_handler(CHECKFW_HANDLER)
