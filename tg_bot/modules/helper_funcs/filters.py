@@ -61,3 +61,11 @@ class CustomFilters(object):
             return False
 
     is_emoji = _IsEmoji()
+
+    class _IsAnonChannel(MessageFilter):
+        def filter(self, message: Message):
+            if (message.from_user and message.from_user.id == 136817688 ):
+                return True
+            return False
+    
+    is_anon_channel = _IsAnonChannel()

@@ -26,6 +26,7 @@ class Permissions(BASE):
     location = Column(Boolean, default=False)
     emoji = Column(Boolean, default=False)
     bigemoji = Column(Boolean, default=False)
+    anonchannel = Column(Boolean, default=False)
 
     def __init__(self, chat_id):
         self.chat_id = str(chat_id)  # ensure string
@@ -45,6 +46,7 @@ class Permissions(BASE):
         self.location = False
         self.emoji = False
         self.bigemoji = False
+        self.anonchannel = False
 
     def __repr__(self):
         return "<Permissions for %s>" % self.chat_id
@@ -137,6 +139,8 @@ def update_lock(chat_id, lock_type, locked):
             curr_perm.emoji = locked
         elif lock_type == 'bigemoji':
             curr_perm.bigemoji = locked
+        elif lock_type == 'anonchannel':
+            curr_perm.anonchannel = locked
 
         SESSION.add(curr_perm)
         SESSION.commit()
@@ -204,6 +208,8 @@ def is_locked(chat_id, lock_type):
         return curr_perm.emoji
     elif lock_type == "bigemoji":
         return curr_perm.bigemoji
+    elif lock_type == "anonchannel":
+        return curr_perm.anonchannel
 
 
 def is_restr_locked(chat_id, lock_type):
