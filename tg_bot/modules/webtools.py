@@ -134,7 +134,7 @@ def ping(update: Update, context: CallbackContext):
 
 def speedtst(update: Update, context: CallbackContext):
     bot = context.bot
-    test = speedtest.Speedtest()
+    test = speedtest.Speedtest(secure=True)
     test.get_best_server()
     test.download()
     test.upload()
