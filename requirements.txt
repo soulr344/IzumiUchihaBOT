@@ -1,5 +1,5 @@
 future
-emoji
+emoji==1.7
 requests
 sqlalchemy
 python-telegram-bot==13.9
