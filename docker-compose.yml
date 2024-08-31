@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: tgbot_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: changethis
+      POSTGRES_DB: tgbot
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+  tgbot:
+    restart: always
+    container_name: tgbot
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
