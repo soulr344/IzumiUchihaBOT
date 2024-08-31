@@ -1,9 +1,9 @@
 future
 emoji==1.7
 requests
-sqlalchemy
+sqlalchemy==1.4
 python-telegram-bot==13.9
-psycopg2-binary
+psycopg2-binary==2.9.5
 pyowm
 feedparser
 geopy
