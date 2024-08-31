@@ -89,7 +89,7 @@ The following env variables are supported:
  - `BAN_STICKER`: Which sticker to use when banning people.
  - `ALLOW_EXCL`: Whether to allow using exclamation marks ! for commands as well as /.
 
-### Python dependencies
+### Python dependencies (Without Docker)
 
 Install the necessary python dependencies by moving to the project directory and running:
 
@@ -97,7 +97,7 @@ Install the necessary python dependencies by moving to the project directory and
 
 This will install all necessary python packages.
 
-### Database
+### Database (Without Docker)
 
 If you wish to use a database-dependent module (eg: locks, notes, userinfo, users, filters, welcomes),
 you'll need to have a database installed on your system. I use postgres, so I recommend using it for optimal compatibility.
@@ -137,6 +137,41 @@ You should now be able to build your database URI. This will be:
 
 Replace sqldbtype with whichever db youre using (eg postgres, mysql, sqllite, etc)
 repeat for your username, password, hostname (localhost?), port (5432?), and db name.
+
+### Docker
+
+Alternatively, you can also use docker to start the bot. It comes with everything needed
+to run the bot so the setup is simpler.
+
+You should change database URI in `config.py` to
+```
+postgresql://postgres:changethis@tgbot_db:5432/tgbot
+```
+
+It is highly recommended to change the password to something else in `docker-compose.yml` and
+update it accordingly in `config.py`.
+
+After configuration is done, build the docker image:
+```
+docker compose build
+```
+
+Then, run the bot with
+```
+docker compose up
+```
+
+Incase you've changed any files, you'll need to rebuild the image. In some cases where rebuild
+may not work, try removing the image first, then build it again.
+
+```
+docker compose rm && docker compose build
+```
+
+If you want to keep the bot running in the background, simply pass the `--detach` flag.
+```
+docker compose up --detach
+```
 
 ## Modules
 ### Setting load order.
